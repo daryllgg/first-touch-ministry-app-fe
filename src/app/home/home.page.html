@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Church App</ion-title>
+    <ion-button slot="end" fill="clear" (click)="logout()">
+      <ion-icon name="log-out-outline"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Welcome, {{ userName }}</h2>
+
+  <!-- Navigation -->
+  <div class="nav-grid">
+    <ion-button expand="block" routerLink="/announcements" color="primary">
+      <ion-icon name="megaphone-outline" slot="start"></ion-icon>
+      Announcements
+    </ion-button>
+    <ion-button expand="block" routerLink="/prayer-requests" color="secondary">
+      <ion-icon name="hand-left-outline" slot="start"></ion-icon>
+      Prayer Requests
+    </ion-button>
+    <ion-button expand="block" routerLink="/worship-schedules" color="tertiary">
+      <ion-icon name="musical-notes-outline" slot="start"></ion-icon>
+      Worship Schedules
+    </ion-button>
+    @if (isAdmin) {
+      <ion-button expand="block" routerLink="/admin" color="warning">
+        <ion-icon name="settings-outline" slot="start"></ion-icon>
+        Admin Panel
+      </ion-button>
+    }
+  </div>
+
+  <!-- Recent Announcements -->
+  @if (announcements.length > 0) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Recent Announcements</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          @for (a of announcements; track a.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ a.title }}</h3>
+                <p>{{ a.content | slice:0:100 }}{{ a.content.length > 100 ? '...' : '' }}</p>
+                <p class="date">{{ a.createdAt | date:'mediumDate' }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- Upcoming Schedules -->
+  @if (upcomingSchedules.length > 0) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Upcoming Worship</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          @for (s of upcomingSchedules; track s.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ s.title }}</h3>
+                <p>{{ s.scheduledDate | date:'fullDate' }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+</ion-content>

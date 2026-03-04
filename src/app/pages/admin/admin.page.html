@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Admin Panel</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Pending Approvals</h2>
+  @if (pendingUsers.length === 0) {
+    <p>No pending users.</p>
+  } @else {
+    <ion-list>
+      @for (user of pendingUsers; track user.id) {
+        <ion-item>
+          <ion-label>
+            <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+            <p>{{ user.email }}</p>
+          </ion-label>
+          <ion-button slot="end" color="success" (click)="approveUser(user.id)">
+            Approve
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <h2>All Users</h2>
+  <ion-list>
+    @for (user of allUsers; track user.id) {
+      <ion-item>
+        <ion-label>
+          <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+          <p>{{ user.email }}</p>
+          <p>
+            @for (role of user.roles; track role.id) {
+              <ion-badge color="medium" style="margin-right: 4px;">{{ role.name }}</ion-badge>
+            }
+          </p>
+        </ion-label>
+        <ion-select slot="end" placeholder="Add Role" interface="popover"
+          (ionChange)="assignRole(user.id, $event.detail.value)">
+          @for (role of availableRoles; track role) {
+            <ion-select-option [value]="role">{{ role }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+    }
+  </ion-list>
+</ion-content>

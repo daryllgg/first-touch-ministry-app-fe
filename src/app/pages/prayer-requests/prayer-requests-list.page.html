@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Prayer Requests</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (prayerRequests.length === 0) {
+    <p>No prayer requests yet.</p>
+  } @else {
+    <ion-list>
+      @for (pr of prayerRequests; track pr.id) {
+        <ion-item>
+          <ion-label>
+            <p>{{ pr.content }}</p>
+            <p class="meta">
+              By {{ pr.author.firstName }} {{ pr.author.lastName }} · {{ pr.createdAt | date:'mediumDate' }}
+              @if (pr.visibility === 'PRIVATE') {
+                <ion-badge color="warning">Private</ion-badge>
+              }
+            </p>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/prayer-requests/new">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

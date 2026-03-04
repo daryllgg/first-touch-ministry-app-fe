@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/prayer-requests"></ion-back-button>
+    </ion-buttons>
+    <ion-title>New Prayer Request</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-textarea formControlName="content" label="Your Prayer Request" labelPlacement="floating" rows="6"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-toggle [(ngModel)]="isPrivate" [ngModelOptions]="{standalone: true}">
+        Private (only visible to leaders and pastors)
+      </ion-toggle>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" [disabled]="form.invalid || isLoading" class="ion-margin-top">
+      @if (isLoading) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        Submit Prayer Request
+      }
+    </ion-button>
+  </form>
+</ion-content>
