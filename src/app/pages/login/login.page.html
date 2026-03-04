@@ -1,0 +1,48 @@
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <h1>Church App</h1>
+    <p>Sign in to your account</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <ion-item>
+        <ion-input
+          type="email"
+          formControlName="email"
+          label="Email"
+          labelPlacement="floating"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="password"
+          formControlName="password"
+          label="Password"
+          labelPlacement="floating"
+        ></ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="loginForm.invalid || isLoading"
+        class="ion-margin-top"
+      >
+        @if (isLoading) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          Sign In
+        }
+      </ion-button>
+    </form>
+
+    <ion-button
+      expand="block"
+      fill="clear"
+      routerLink="/register"
+      class="ion-margin-top"
+    >
+      Don't have an account? Register
+    </ion-button>
+  </div>
+</ion-content>

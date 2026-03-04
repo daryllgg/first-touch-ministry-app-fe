@@ -1,0 +1,70 @@
+<ion-content class="ion-padding">
+  <div class="register-container">
+    <h1>Create Account</h1>
+    <p>Register to join the church app</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+      <ion-item>
+        <ion-input
+          type="text"
+          formControlName="firstName"
+          label="First Name"
+          labelPlacement="floating"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="text"
+          formControlName="lastName"
+          label="Last Name"
+          labelPlacement="floating"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="email"
+          formControlName="email"
+          label="Email"
+          labelPlacement="floating"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          type="password"
+          formControlName="password"
+          label="Password"
+          labelPlacement="floating"
+        ></ion-input>
+      </ion-item>
+
+      @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+        <p class="error-text">Password must be at least 8 characters</p>
+      }
+
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="registerForm.invalid || isLoading"
+        class="ion-margin-top"
+      >
+        @if (isLoading) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          Register
+        }
+      </ion-button>
+    </form>
+
+    <ion-button
+      expand="block"
+      fill="clear"
+      routerLink="/login"
+      class="ion-margin-top"
+    >
+      Already have an account? Sign In
+    </ion-button>
+  </div>
+</ion-content>
