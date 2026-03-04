@@ -1,10 +1,8 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { approvedGuard } from './guards/approved.guard';
 
 export const routes: Routes = [
-  {
-    path: 'home',
-    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-  },
   {
     path: 'login',
     loadComponent: () =>
@@ -17,12 +15,18 @@ export const routes: Routes = [
   },
   {
     path: 'pending',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/pending/pending.page').then((m) => m.PendingPage),
   },
   {
+    path: 'home',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
+  },
+  {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
 ];
