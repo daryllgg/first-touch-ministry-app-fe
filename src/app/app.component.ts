@@ -17,6 +17,7 @@ import { PushNotificationService } from './services/push-notifications.service';
 import { NotificationsService } from './services/notifications.service';
 import { User } from './interfaces/user.interface';
 import { Subscription } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -41,7 +42,11 @@ import { Subscription } from 'rxjs';
           </ion-header>
           <ion-content>
             <div class="menu-user-info">
-              <ion-icon name="person-circle-outline"></ion-icon>
+              @if (currentUser.profilePicture) {
+                <img [src]="apiUrl + '/uploads/' + currentUser.profilePicture" alt="Profile" class="menu-profile-pic" />
+              } @else {
+                <ion-icon name="person-circle-outline"></ion-icon>
+              }
               <p class="menu-user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
               <p class="menu-user-email">{{ currentUser.email }}</p>
             </div>
@@ -144,6 +149,14 @@ import { Subscription } from 'rxjs';
         opacity: 0.9;
       }
 
+      .menu-profile-pic {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+      }
+
       .menu-user-name {
         font-size: 16px;
         font-weight: 600;
@@ -175,12 +188,12 @@ import { Subscription } from 'rxjs';
     }
 
     .active-menu-item {
-      --background: #f0fdf4;
-      --color: #16a34a;
-      color: #16a34a;
+      --background: #f5f7f0;
+      --color: #6d8b25;
+      color: #6d8b25;
 
       ion-icon {
-        color: #16a34a;
+        color: #6d8b25;
       }
     }
 
@@ -190,6 +203,7 @@ import { Subscription } from 'rxjs';
   `],
 })
 export class AppComponent implements OnInit, OnDestroy {
+  apiUrl = environment.apiUrl;
   currentUser: User | null = null;
   isAdmin = false;
   unreadCount = 0;
