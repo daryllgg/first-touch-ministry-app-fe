@@ -17,6 +17,49 @@
       <ion-textarea formControlName="content" label="Content" labelPlacement="floating" rows="6"></ion-textarea>
     </ion-item>
 
+    <ion-item>
+      <ion-select formControlName="audience" label="Audience" labelPlacement="floating">
+        <ion-select-option value="PUBLIC">Public</ion-select-option>
+        <ion-select-option value="WORSHIP_TEAM">Worship Team</ion-select-option>
+        <ion-select-option value="OUTREACH">Outreach</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-select label="Mention People (optional)" labelPlacement="floating" [multiple]="true" [(ngModel)]="selectedMentions" [ngModelOptions]="{standalone: true}" interface="alert">
+        @for (user of users; track user.id) {
+          <ion-select-option [value]="user.id">{{ user.firstName }} {{ user.lastName }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <div class="ion-margin-top">
+      <ion-button fill="outline" (click)="fileInput.click()" type="button">
+        Add Images
+      </ion-button>
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        (change)="onFilesSelected($event)"
+      />
+    </div>
+
+    @if (imagePreviews.length > 0) {
+      <div class="image-previews">
+        @for (preview of imagePreviews; track preview; let i = $index) {
+          <div class="image-preview-item">
+            <img [src]="preview" alt="Preview" />
+            <ion-button fill="clear" color="danger" size="small" (click)="removeImage(i)" type="button">
+              Remove
+            </ion-button>
+          </div>
+        }
+      </div>
+    }
+
     <ion-button expand="block" type="submit" [disabled]="form.invalid || isLoading" class="ion-margin-top">
       @if (isLoading) {
         <ion-spinner name="crescent"></ion-spinner>
