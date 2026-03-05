@@ -1,22 +1,28 @@
 .pending-container {
-  max-width: 400px;
+  max-width: 380px;
   margin: 0 auto;
   padding-top: 80px;
   text-align: center;
 
   h1 {
     margin-bottom: 8px;
+    color: var(--ion-color-dark);
   }
 
   p {
-    color: var(--ion-color-medium);
-    margin-bottom: 24px;
-    line-height: 1.5;
+    color: #94a3b8;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    font-size: 0.9rem;
   }
 }
 
 .pending-icon {
   font-size: 64px;
-  color: var(--ion-color-warning);
-  margin-bottom: 16px;
+  color: #cbd5e1;
+  margin-bottom: 20px;
+}
+
+ion-button {
+  --border-radius: 14px;
 }

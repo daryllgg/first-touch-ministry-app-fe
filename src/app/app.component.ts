@@ -121,8 +121,8 @@ import { environment } from '../environments/environment';
     .menu-header-content {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
+      gap: 12px;
+      padding: 12px 20px;
 
       .menu-logo {
         width: 36px;
@@ -132,73 +132,83 @@ import { environment } from '../environments/environment';
 
       .menu-app-name {
         font-family: 'Playfair Display', serif;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         color: white;
       }
     }
 
     .menu-user-info {
-      padding: 24px 16px 16px;
-      background: var(--ion-color-primary);
+      padding: 28px 20px 24px;
+      background: linear-gradient(135deg, #1a3a4a 0%, #2e5d73 100%);
       color: white;
       text-align: center;
 
       ion-icon {
-        font-size: 56px;
-        opacity: 0.9;
+        font-size: 52px;
+        opacity: 0.85;
       }
 
       .menu-profile-pic {
-        width: 64px;
-        height: 64px;
+        width: 68px;
+        height: 68px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid rgba(255, 255, 255, 0.3);
+        border: 3px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
 
       .menu-user-name {
-        font-size: 16px;
+        font-family: 'Playfair Display', serif;
+        font-size: 17px;
         font-weight: 600;
-        margin: 8px 0 2px;
+        margin: 12px 0 2px;
       }
 
       .menu-user-email {
-        font-size: 13px;
-        opacity: 0.8;
+        font-size: 12px;
+        opacity: 0.7;
         margin: 0;
+        letter-spacing: 0.02em;
       }
     }
 
     .menu-list {
-      padding-top: 8px;
+      padding: 12px 8px;
 
       ion-item {
         --padding-start: 16px;
         --min-height: 48px;
-        margin: 2px 8px;
-        border-radius: 8px;
+        --background: transparent;
+        margin: 2px 4px;
+        border-radius: 12px;
         font-weight: 500;
+        font-size: 0.92rem;
+        color: #475569;
       }
 
       ion-icon {
-        font-size: 22px;
-        margin-right: 12px;
+        font-size: 20px;
+        margin-right: 14px;
+        color: #94a3b8;
       }
     }
 
     .active-menu-item {
-      --background: #f5f7f0;
-      --color: #6d8b25;
-      color: #6d8b25;
+      --background: #f0f7ff;
+      --color: #1a3a4a;
+      color: #1a3a4a;
+      font-weight: 600;
 
       ion-icon {
-        color: #6d8b25;
+        color: #1a3a4a;
       }
     }
 
     .logout-item {
-      margin-top: 16px !important;
+      margin-top: 12px !important;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 8px;
     }
   `],
 })

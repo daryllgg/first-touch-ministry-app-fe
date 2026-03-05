@@ -1,136 +1,204 @@
-/* Google Fonts — Inter + Playfair Display */
+/* Google Fonts — Inter for body, Playfair Display for headings */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 /* Core CSS required for Ionic components to work properly */
 @import '@ionic/angular/css/core.css';
-
-/* Basic CSS for apps built with Ionic */
 @import '@ionic/angular/css/normalize.css';
 @import '@ionic/angular/css/structure.css';
 @import '@ionic/angular/css/typography.css';
 @import '@ionic/angular/css/display.css';
-
-/* Optional CSS utils that can be commented out */
 @import '@ionic/angular/css/padding.css';
 @import '@ionic/angular/css/float-elements.css';
 @import '@ionic/angular/css/text-alignment.css';
 @import '@ionic/angular/css/text-transformation.css';
 @import '@ionic/angular/css/flex-utils.css';
 
-/* Global Typography */
+/* ─── Global Typography ─── */
 * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6,
-ion-title,
-ion-card-title {
-  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, serif;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ion-color-dark);
+  margin-top: 0;
 }
 
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.4rem; }
-h3 { font-size: 1.15rem; }
+h1 { font-size: 1.8rem; line-height: 1.2; }
+h2 { font-size: 1.5rem; line-height: 1.25; }
+h3 { font-size: 1.2rem; line-height: 1.3; }
 
-/* Card Styling */
-ion-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(26, 58, 74, 0.08);
-  margin: 12px 0;
-  transition: box-shadow 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 20px rgba(26, 58, 74, 0.12);
-  }
+p {
+  color: #64748b;
+  line-height: 1.6;
 }
 
-ion-card-header {
-  padding-bottom: 4px;
-}
-
-ion-card-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--ion-color-secondary);
-}
-
-/* Button Styling */
-ion-button {
-  --border-radius: 8px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  transition: opacity 0.2s ease;
-}
-
-/* List & Item Styling */
-ion-item {
-  --padding-start: 12px;
-  --padding-end: 12px;
-  --inner-padding-end: 8px;
-}
-
-/* Toolbar */
-ion-toolbar {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  --border-color: #e5e7eb;
-  --border-width: 0 0 1px 0;
-}
-
+/* ─── Ion Title — keep sans-serif for nav titles ─── */
 ion-title {
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
+  font-size: 1.05rem;
   letter-spacing: 0.01em;
 }
 
-/* Badge Styling */
-ion-badge {
-  border-radius: 6px;
-  padding: 3px 8px;
-  font-weight: 500;
-  font-size: 0.75rem;
+/* ─── Cards — soft, spacious, rounded ─── */
+ion-card {
+  border-radius: var(--app-radius-md);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  margin: 0 0 var(--app-spacing-md);
+  border: none;
+  overflow: hidden;
 }
 
-/* Auth pages shared styles */
-.auth-gradient-bg {
-  --background: linear-gradient(145deg, #1a3a4a 0%, #6d8b25 100%);
+ion-card-header {
+  padding: var(--app-spacing-md) var(--app-spacing-lg) var(--app-spacing-xs);
+}
+
+ion-card-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+ion-card-content {
+  padding: var(--app-spacing-sm) var(--app-spacing-lg) var(--app-spacing-lg);
+}
+
+/* ─── Buttons — rounded, generous padding ─── */
+ion-button {
+  --border-radius: var(--app-radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+/* ─── List & Items — clean, spacious ─── */
+ion-item {
+  --padding-start: var(--app-spacing-md);
+  --padding-end: var(--app-spacing-md);
+  --inner-padding-end: var(--app-spacing-sm);
+  --min-height: 52px;
+  font-size: 0.95rem;
+}
+
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+/* ─── Toolbar — clean, minimal, white ─── */
+ion-toolbar {
+  --padding-start: var(--app-spacing-sm);
+  --padding-end: var(--app-spacing-sm);
+  --border-width: 0;
+  --box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ─── Badge — pill style ─── */
+ion-badge {
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ─── Content — generous padding on mobile ─── */
+ion-content.ion-padding {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+}
+
+/* ─── FAB — matching primary ─── */
+ion-fab-button {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --box-shadow: 0 4px 20px rgba(26, 58, 74, 0.3);
+  width: 56px;
+  height: 56px;
+}
+
+/* ─── Segment — rounded pill tabs ─── */
+ion-segment {
+  --background: var(--ion-color-light);
+  border-radius: var(--app-radius-sm);
+  padding: 3px;
+}
+
+ion-segment-button {
+  --border-radius: 10px;
+  --indicator-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --indicator-color: white;
+  --color: var(--ion-color-medium);
+  --color-checked: var(--ion-color-primary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  min-height: 36px;
+  text-transform: none;
+}
+
+/* ─── Auth pages — clean centered layout ─── */
+.app-branding {
+  text-align: center;
+  margin-bottom: var(--app-spacing-lg);
 }
 
 .auth-card {
   background: white;
-  border-radius: 16px;
-  padding: 32px 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-radius: var(--app-radius-xl);
+  padding: var(--app-spacing-xl) var(--app-spacing-lg);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
   max-width: 400px;
   margin: 0 auto;
 }
 
-.app-branding {
-  text-align: center;
-  margin-bottom: 8px;
-
-  h1 {
-    color: var(--ion-color-primary);
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0;
-    letter-spacing: 0.04em;
-  }
-
-  .app-subtitle {
-    color: var(--ion-color-medium);
-    font-size: 0.85rem;
-    font-weight: 400;
-    margin-top: 2px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
+/* ─── Shared utility classes ─── */
+.avatar-placeholder {
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
 }
 
-/* FAB styling */
-ion-fab-button {
-  --background: var(--ion-color-primary);
-  --color: white;
+.section-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ion-color-medium);
+  margin: var(--app-spacing-lg) 0 var(--app-spacing-sm);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--app-spacing-2xl) var(--app-spacing-md);
+  text-align: center;
+
+  ion-icon {
+    font-size: 56px;
+    color: #cbd5e1;
+    margin-bottom: var(--app-spacing-md);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+    margin: 0;
+  }
 }

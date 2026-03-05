@@ -1,88 +1,100 @@
 // Ionic Variables and Theming — FTM App
-// Matches FTM logo branding: olive green, dark teal, warm neutrals
+// Design system inspired by modern mobile UI: generous spacing, soft colors, rounded surfaces
 
 /** Ionic CSS Variables **/
 :root {
-  /** primary — #6d8b25 (olive/lime green from FTM logo) **/
-  --ion-color-primary: #6d8b25;
-  --ion-color-primary-rgb: 109, 139, 37;
+  /** primary — dark teal from FTM logo (sophisticated, non-harsh) **/
+  --ion-color-primary: #1a3a4a;
+  --ion-color-primary-rgb: 26, 58, 74;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #5c7620;
-  --ion-color-primary-tint: #8bb42a;
+  --ion-color-primary-shade: #143140;
+  --ion-color-primary-tint: #2e5d73;
 
-  /** secondary — #1a3a4a (dark teal from FTM "FirstTouch" text) **/
-  --ion-color-secondary: #1a3a4a;
-  --ion-color-secondary-rgb: 26, 58, 74;
+  /** secondary — soft olive green accent from FTM logo **/
+  --ion-color-secondary: #7a9e3e;
+  --ion-color-secondary-rgb: 122, 158, 62;
   --ion-color-secondary-contrast: #ffffff;
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #163340;
-  --ion-color-secondary-tint: #2e4d5c;
+  --ion-color-secondary-shade: #6a8a36;
+  --ion-color-secondary-tint: #8db451;
 
-  /** tertiary — #2e6b4f (forest green accent) **/
-  --ion-color-tertiary: #2e6b4f;
-  --ion-color-tertiary-rgb: 46, 107, 79;
+  /** tertiary — muted teal for subtle accents **/
+  --ion-color-tertiary: #4a8fa8;
+  --ion-color-tertiary-rgb: 74, 143, 168;
   --ion-color-tertiary-contrast: #ffffff;
   --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-  --ion-color-tertiary-shade: #275e45;
-  --ion-color-tertiary-tint: #437a61;
+  --ion-color-tertiary-shade: #3f7d94;
+  --ion-color-tertiary-tint: #5c9ab1;
 
   /** success **/
-  --ion-color-success: #16a34a;
-  --ion-color-success-rgb: 22, 163, 74;
+  --ion-color-success: #34c759;
+  --ion-color-success-rgb: 52, 199, 89;
   --ion-color-success-contrast: #ffffff;
   --ion-color-success-contrast-rgb: 255, 255, 255;
-  --ion-color-success-shade: #15803d;
-  --ion-color-success-tint: #22c55e;
+  --ion-color-success-shade: #2db14e;
+  --ion-color-success-tint: #48cd6a;
 
   /** warning **/
-  --ion-color-warning: #F9A825;
-  --ion-color-warning-rgb: 249, 168, 37;
+  --ion-color-warning: #f5a623;
+  --ion-color-warning-rgb: 245, 166, 35;
   --ion-color-warning-contrast: #000000;
   --ion-color-warning-contrast-rgb: 0, 0, 0;
-  --ion-color-warning-shade: #DB9421;
-  --ion-color-warning-tint: #FAB13B;
+  --ion-color-warning-shade: #d8921f;
+  --ion-color-warning-tint: #f6af39;
 
   /** danger **/
-  --ion-color-danger: #D32F2F;
-  --ion-color-danger-rgb: 211, 47, 47;
+  --ion-color-danger: #e74c3c;
+  --ion-color-danger-rgb: 231, 76, 60;
   --ion-color-danger-contrast: #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-shade: #BA2929;
-  --ion-color-danger-tint: #D84444;
+  --ion-color-danger-shade: #cb4335;
+  --ion-color-danger-tint: #e95e50;
 
-  /** dark — #1a3a4a (same as secondary, dark teal) **/
-  --ion-color-dark: #1a3a4a;
-  --ion-color-dark-rgb: 26, 58, 74;
+  /** dark **/
+  --ion-color-dark: #1e293b;
+  --ion-color-dark-rgb: 30, 41, 59;
   --ion-color-dark-contrast: #ffffff;
   --ion-color-dark-contrast-rgb: 255, 255, 255;
-  --ion-color-dark-shade: #163340;
-  --ion-color-dark-tint: #2e4d5c;
+  --ion-color-dark-shade: #1a2434;
+  --ion-color-dark-tint: #35404f;
 
-  /** medium — neutral gray (matches FTM gray-600) **/
-  --ion-color-medium: #4b5563;
-  --ion-color-medium-rgb: 75, 85, 99;
-  --ion-color-medium-contrast: #ffffff;
-  --ion-color-medium-contrast-rgb: 255, 255, 255;
-  --ion-color-medium-shade: #374151;
-  --ion-color-medium-tint: #6b7280;
+  /** medium **/
+  --ion-color-medium: #94a3b8;
+  --ion-color-medium-rgb: 148, 163, 184;
+  --ion-color-medium-contrast: #000000;
+  --ion-color-medium-contrast-rgb: 0, 0, 0;
+  --ion-color-medium-shade: #8293a2;
+  --ion-color-medium-tint: #9facbf;
 
-  /** light — #f5f7f0 (warm off-white) **/
-  --ion-color-light: #f5f7f0;
-  --ion-color-light-rgb: 245, 247, 240;
-  --ion-color-light-contrast: #1a3a4a;
-  --ion-color-light-contrast-rgb: 26, 58, 74;
-  --ion-color-light-shade: #e8ebe2;
-  --ion-color-light-tint: #f9faf6;
+  /** light **/
+  --ion-color-light: #f1f5f9;
+  --ion-color-light-rgb: 241, 245, 249;
+  --ion-color-light-contrast: #1e293b;
+  --ion-color-light-contrast-rgb: 30, 41, 59;
+  --ion-color-light-shade: #e2e8f0;
+  --ion-color-light-tint: #f8fafc;
 
-  /** Global background — clean white with mint hint **/
-  --ion-background-color: #f9fafb;
-  --ion-background-color-rgb: 249, 250, 251;
+  /** Global background — soft cool gray **/
+  --ion-background-color: #f4f6fa;
+  --ion-background-color-rgb: 244, 246, 250;
 
-  /** Toolbar — dark teal **/
-  --ion-toolbar-background: #1a3a4a;
-  --ion-toolbar-color: #ffffff;
+  /** Toolbar — clean white, no harsh color **/
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-color: #1e293b;
 
-  /** Card styling **/
+  /** Card **/
   --ion-card-background: #ffffff;
+
+  /** Custom spacing tokens **/
+  --app-spacing-xs: 4px;
+  --app-spacing-sm: 8px;
+  --app-spacing-md: 16px;
+  --app-spacing-lg: 24px;
+  --app-spacing-xl: 32px;
+  --app-spacing-2xl: 48px;
+  --app-radius-sm: 12px;
+  --app-radius-md: 16px;
+  --app-radius-lg: 20px;
+  --app-radius-xl: 24px;
 }

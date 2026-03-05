@@ -1,5 +1,5 @@
 ion-content {
-  --background: #f9fafb;
+  --background: #f4f6fa;
 }
 
 .login-wrapper {
@@ -7,58 +7,66 @@ ion-content {
   align-items: center;
   justify-content: center;
   min-height: 100%;
-  padding: 24px 20px;
+  padding: 32px 24px;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   margin: 0 auto;
 }
 
 .login-logo {
-  width: 240px;
-  max-width: 80%;
+  width: 200px;
+  max-width: 75%;
   height: auto;
-  margin: 0 auto 8px;
+  margin: 0 auto 16px;
   display: block;
 }
 
 .auth-description {
   text-align: center;
-  color: var(--ion-color-medium);
-  margin-bottom: 28px;
-  font-size: 0.95rem;
+  color: #94a3b8;
+  margin-bottom: 32px;
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .auth-btn {
-  --background: var(--ion-color-primary);
+  --background: #1a3a4a;
   --color: white;
-  margin-top: 24px;
+  --border-radius: 14px;
+  margin-top: 28px;
   font-weight: 600;
-  height: 48px;
+  height: 52px;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  --box-shadow: 0 4px 16px rgba(26, 58, 74, 0.25);
 }
 
 ion-item {
   --background: #ffffff;
-  --border-color: #e5e7eb;
-  --border-radius: 8px;
+  --border-color: #e2e8f0;
+  --border-radius: 14px;
   --border-width: 1px;
-  margin-bottom: 12px;
-  border-radius: 8px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  --padding-start: 18px;
+  --min-height: 56px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
 .auth-link {
   text-align: center;
-  margin-top: 24px;
-  font-size: 0.9rem;
+  margin-top: 28px;
+  font-size: 0.88rem;
 
   span {
-    color: var(--ion-color-medium);
+    color: #94a3b8;
   }
 
   a {
-    color: var(--ion-color-primary);
+    color: #1a3a4a;
     font-weight: 600;
     text-decoration: none;
     margin-left: 4px;
