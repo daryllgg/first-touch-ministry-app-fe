@@ -1,5 +1,5 @@
-/* Google Font — Inter (clean, modern) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Google Fonts — Inter + Playfair Display */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 /* Core CSS required for Ionic components to work properly */
 @import '@ionic/angular/css/core.css';
@@ -22,9 +22,12 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6,
+ion-title,
+ion-card-title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--ion-color-dark);
 }
 
