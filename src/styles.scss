@@ -1,3 +1,6 @@
+/* Google Font — Inter (clean, modern) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* Core CSS required for Ionic components to work properly */
 @import '@ionic/angular/css/core.css';
 
@@ -13,3 +16,118 @@
 @import '@ionic/angular/css/text-alignment.css';
 @import '@ionic/angular/css/text-transformation.css';
 @import '@ionic/angular/css/flex-utils.css';
+
+/* Global Typography */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ion-color-dark);
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.15rem; }
+
+/* Card Styling */
+ion-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(26, 58, 74, 0.08);
+  margin: 12px 0;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(26, 58, 74, 0.12);
+  }
+}
+
+ion-card-header {
+  padding-bottom: 4px;
+}
+
+ion-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ion-color-secondary);
+}
+
+/* Button Styling */
+ion-button {
+  --border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s ease;
+}
+
+/* List & Item Styling */
+ion-item {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --inner-padding-end: 8px;
+}
+
+/* Toolbar */
+ion-toolbar {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --border-color: #e5e7eb;
+  --border-width: 0 0 1px 0;
+}
+
+ion-title {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Badge Styling */
+ion-badge {
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+/* Auth pages shared styles */
+.auth-gradient-bg {
+  --background: linear-gradient(145deg, #1a3a4a 0%, #6d8b25 100%);
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.app-branding {
+  text-align: center;
+  margin-bottom: 8px;
+
+  h1 {
+    color: var(--ion-color-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    letter-spacing: 0.04em;
+  }
+
+  .app-subtitle {
+    color: var(--ion-color-medium);
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-top: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+/* FAB styling */
+ion-fab-button {
+  --background: var(--ion-color-primary);
+  --color: white;
+}
