@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
@@ -133,17 +133,17 @@ export class WorshipLineupFormPage implements OnInit {
     this.songs.removeAt(index);
   }
 
-  getInstrumentRoleName(memberGroup: FormGroup): string {
+  getInstrumentRoleName(memberGroup: AbstractControl): string {
     const roleId = memberGroup.get('instrumentRoleId')?.value;
     const role = this.instrumentRoles.find(r => r.id === roleId);
     return role?.name || '';
   }
 
-  isOthersRole(memberGroup: FormGroup): boolean {
+  isOthersRole(memberGroup: AbstractControl): boolean {
     return this.getInstrumentRoleName(memberGroup) === 'Others';
   }
 
-  getFilteredUsers(memberGroup: FormGroup): User[] {
+  getFilteredUsers(memberGroup: AbstractControl): User[] {
     const roleName = this.getInstrumentRoleName(memberGroup);
     if (!roleName) return this.users;
 
