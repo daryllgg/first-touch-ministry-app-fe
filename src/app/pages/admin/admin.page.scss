@@ -25,6 +25,36 @@ ion-badge {
   font-size: 0.7rem;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 8px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.meta {
+  font-size: 0.8em;
+  color: var(--ion-color-medium);
+  margin-top: 4px;
+}
+
 .change-details {
   margin-top: 6px;
   display: flex;
