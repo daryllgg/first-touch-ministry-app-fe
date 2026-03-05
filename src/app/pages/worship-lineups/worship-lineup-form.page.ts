@@ -83,7 +83,8 @@ export class WorshipLineupFormPage implements OnInit {
     this.lineupsService.getInstrumentRoles().subscribe({
       next: (data) => this.instrumentRoles = data,
     });
-    this.http.get<User[]>(`${environment.apiUrl}/users`).subscribe({
+    const allRoles = 'WORSHIP_LEADER,WORSHIP_TEAM_HEAD,GUITARIST,KEYBOARDIST,DRUMMER,BASSIST,SINGER';
+    this.http.get<User[]>(`${environment.apiUrl}/users/by-roles?roles=${allRoles}`).subscribe({
       next: (data) => this.users = data,
     });
     this.http.get<User[]>(`${environment.apiUrl}/users/by-roles?roles=SINGER`).subscribe({
