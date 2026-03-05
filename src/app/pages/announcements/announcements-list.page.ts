@@ -3,13 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-  IonList, IonItem, IonLabel, IonBackButton, IonButtons, IonFab, IonFabButton, IonIcon,
+  IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
+  IonBadge,
+  ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline } from 'ionicons/icons';
+import { addOutline, atOutline, megaphoneOutline } from 'ionicons/icons';
+import { environment } from '../../../environments/environment';
 import { AnnouncementsService } from '../../services/announcements.service';
 import { AuthService } from '../../services/auth.service';
 import { Announcement } from '../../interfaces/announcement.interface';
+import { User } from '../../interfaces/user.interface';
 
 @Component({
   selector: 'app-announcements-list',
@@ -17,20 +21,22 @@ import { Announcement } from '../../interfaces/announcement.interface';
   imports: [
     CommonModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-    IonList, IonItem, IonLabel, IonBackButton, IonButtons, IonFab, IonFabButton, IonIcon,
+    IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
+    IonBadge,
   ],
   templateUrl: './announcements-list.page.html',
   styleUrls: ['./announcements-list.page.scss'],
 })
-export class AnnouncementsListPage implements OnInit {
+export class AnnouncementsListPage implements OnInit, ViewWillEnter {
   announcements: Announcement[] = [];
   canCreate = false;
+  apiUrl = environment.apiUrl;
 
   constructor(
     private announcementsService: AnnouncementsService,
     private authService: AuthService,
   ) {
-    addIcons({ addOutline });
+    addIcons({ addOutline, atOutline, megaphoneOutline });
   }
 
   ngOnInit() {
@@ -38,7 +44,9 @@ export class AnnouncementsListPage implements OnInit {
       this.authService.hasRole('LEADER') ||
       this.authService.hasRole('ADMIN') ||
       this.authService.hasRole('SUPER_ADMIN');
+  }
 
+  ionViewWillEnter() {
     this.loadAnnouncements();
   }
 
@@ -46,5 +54,36 @@ export class AnnouncementsListPage implements OnInit {
     this.announcementsService.findAll().subscribe({
       next: (data) => this.announcements = data,
     });
+  }
+
+  getImageUrl(imagePath: string): string {
+    return `${this.apiUrl}/uploads/${imagePath}`;
+  }
+
+  truncateContent(content: string): string {
+    if (content.length <= 100) return content;
+    return content.substring(0, 100) + '...';
+  }
+
+  getMentionedNames(users: User[]): string {
+    return users.map(u => `${u.firstName} ${u.lastName}`).join(', ');
+  }
+
+  getAudienceColor(audience?: string): string {
+    switch (audience) {
+      case 'PUBLIC': return 'success';
+      case 'WORSHIP_TEAM': return 'primary';
+      case 'OUTREACH': return 'warning';
+      default: return 'medium';
+    }
+  }
+
+  getAudienceLabel(audience?: string): string {
+    switch (audience) {
+      case 'PUBLIC': return 'Public';
+      case 'WORSHIP_TEAM': return 'Worship Team';
+      case 'OUTREACH': return 'Outreach';
+      default: return 'General';
+    }
   }
 }

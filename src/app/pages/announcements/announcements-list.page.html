@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Announcements</ion-title>
   </ion-toolbar>
@@ -9,19 +9,59 @@
 
 <ion-content class="ion-padding">
   @if (announcements.length === 0) {
-    <p>No announcements yet.</p>
+    <div class="empty-state">
+      <ion-icon name="megaphone-outline"></ion-icon>
+      <p>No announcements yet.</p>
+    </div>
   } @else {
-    <ion-list>
-      @for (a of announcements; track a.id) {
-        <ion-item>
-          <ion-label>
-            <h2>{{ a.title }}</h2>
-            <p>{{ a.content }}</p>
-            <p class="meta">By {{ a.author.firstName }} {{ a.author.lastName }} · {{ a.createdAt | date:'mediumDate' }}</p>
-          </ion-label>
-        </ion-item>
-      }
-    </ion-list>
+    @for (a of announcements; track a.id) {
+      <div class="announcement-card">
+        @if (a.images && a.images.length > 0) {
+          <div class="card-image-wrapper">
+            <img [src]="getImageUrl(a.images[0])" [alt]="a.title" class="card-image" />
+            <div class="image-overlay"></div>
+            @if (a.images.length > 1) {
+              <span class="image-count">+{{ a.images.length - 1 }}</span>
+            }
+            <ion-badge class="audience-badge" [color]="getAudienceColor(a.audience)">
+              {{ getAudienceLabel(a.audience) }}
+            </ion-badge>
+          </div>
+        } @else {
+          <div class="no-image-header">
+            <ion-badge [color]="getAudienceColor(a.audience)">
+              {{ getAudienceLabel(a.audience) }}
+            </ion-badge>
+          </div>
+        }
+
+        <div class="card-body">
+          <h3 class="card-title">{{ a.title }}</h3>
+          <p class="card-content">{{ truncateContent(a.content) }}</p>
+
+          @if (a.mentionedUsers && a.mentionedUsers.length > 0) {
+            <p class="mentioned-users">
+              <ion-icon name="at-outline"></ion-icon>
+              {{ getMentionedNames(a.mentionedUsers) }}
+            </p>
+          }
+        </div>
+
+        <div class="card-footer">
+          <div class="author-info">
+            @if (a.author.profilePicture) {
+              <img [src]="apiUrl + '/uploads/' + a.author.profilePicture" class="author-avatar" alt="" />
+            } @else {
+              <div class="avatar-placeholder">
+                {{ a.author.firstName?.charAt(0) }}{{ a.author.lastName?.charAt(0) }}
+              </div>
+            }
+            <span class="author-name">{{ a.author.firstName }} {{ a.author.lastName }}</span>
+          </div>
+          <span class="card-date">{{ a.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+    }
   }
 
   @if (canCreate) {
