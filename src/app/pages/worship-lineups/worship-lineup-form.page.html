@@ -34,9 +34,18 @@
     <div formArrayName="dates">
       @for (date of dates.controls; track $index; let i = $index) {
         <div class="date-row">
-          <ion-item class="date-input">
-            <ion-input type="date" [formControlName]="i" label="Date" labelPlacement="floating"></ion-input>
-          </ion-item>
+          <ion-datetime-button [datetime]="'datetime-' + i" class="date-picker-btn"></ion-datetime-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime
+                [id]="'datetime-' + i"
+                presentation="date"
+                [min]="todayDate"
+                [value]="dates.at(i).value"
+                (ionChange)="onDateChange(i, $event)"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
           <ion-button fill="clear" color="danger" (click)="removeDate(i)" class="remove-btn">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
@@ -98,19 +107,21 @@
         <div class="member-row" [formGroupName]="i">
           <div class="member-fields">
             <ion-item class="member-select">
-              <ion-select formControlName="instrumentRoleId" label="Instrument/Role" labelPlacement="floating" interface="action-sheet">
+              <ion-select formControlName="instrumentRoleId" label="Instrument/Role" labelPlacement="floating" interface="action-sheet" (ionChange)="onRoleChange(member)">
                 @for (role of instrumentRoles; track role.id) {
                   <ion-select-option [value]="role.id">{{ role.name }}</ion-select-option>
                 }
               </ion-select>
             </ion-item>
-            <ion-item class="member-select">
-              <ion-select formControlName="userId" label="Member" labelPlacement="floating" interface="action-sheet">
-                @for (u of getFilteredUsers(member); track u.id) {
-                  <ion-select-option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</ion-select-option>
-                }
-              </ion-select>
-            </ion-item>
+            @if (member.get('instrumentRoleId')?.value) {
+              <ion-item class="member-select">
+                <ion-select formControlName="userId" label="Member" labelPlacement="floating" interface="action-sheet">
+                  @for (u of getFilteredUsers(member); track u.id) {
+                    <ion-select-option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+            }
             @if (isOthersRole(member)) {
               <ion-item>
                 <ion-input formControlName="customRoleName" label="Custom Role Name" labelPlacement="floating"></ion-input>
@@ -132,7 +143,7 @@
       <ion-textarea formControlName="notes" label="Notes (optional)" labelPlacement="floating" rows="3"></ion-textarea>
     </ion-item>
 
-    <ion-button expand="block" type="submit" [disabled]="form.invalid || dates.length === 0 || members.length === 0 || isLoading" class="ion-margin-top">
+    <ion-button expand="block" type="submit" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading" class="ion-margin-top">
       @if (isLoading) {
         <ion-spinner name="crescent"></ion-spinner>
       } @else {

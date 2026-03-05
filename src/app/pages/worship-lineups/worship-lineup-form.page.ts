@@ -6,10 +6,11 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
   IonSpinner, IonSelect, IonSelectOption, IonLabel, IonIcon, IonList,
+  IonDatetime, IonDatetimeButton, IonModal,
   ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, trashOutline } from 'ionicons/icons';
+import { addOutline, trashOutline, calendarOutline } from 'ionicons/icons';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { InstrumentRole } from '../../interfaces/worship-lineup.interface';
 import { User } from '../../interfaces/user.interface';
@@ -24,6 +25,7 @@ import { environment } from '../../../environments/environment';
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
     IonSpinner, IonSelect, IonSelectOption, IonLabel, IonIcon, IonList,
+    IonDatetime, IonDatetimeButton, IonModal,
   ],
   templateUrl: './worship-lineup-form.page.html',
   styleUrls: ['./worship-lineup-form.page.scss'],
@@ -34,6 +36,7 @@ export class WorshipLineupFormPage implements OnInit {
   users: User[] = [];
   singerUsers: User[] = [];
   instrumentRoles: InstrumentRole[] = [];
+  todayDate = new Date().toISOString().split('T')[0];
 
   private instrumentRoleToUserRoles: Record<string, string[]> = {
     'Singer': ['SINGER'],
@@ -61,7 +64,7 @@ export class WorshipLineupFormPage implements OnInit {
     private router: Router,
     private toastCtrl: ToastController,
   ) {
-    addIcons({ addOutline, trashOutline });
+    addIcons({ addOutline, trashOutline, calendarOutline });
 
     this.form = this.fb.group({
       serviceType: ['', [Validators.required]],
@@ -102,7 +105,7 @@ export class WorshipLineupFormPage implements OnInit {
   }
 
   addDate() {
-    this.dates.push(this.fb.control('', [Validators.required]));
+    this.dates.push(this.fb.control(this.todayDate, [Validators.required]));
   }
 
   removeDate(index: number) {
@@ -133,6 +136,17 @@ export class WorshipLineupFormPage implements OnInit {
     this.songs.removeAt(index);
   }
 
+  onRoleChange(memberGroup: AbstractControl) {
+    memberGroup.get('userId')?.setValue('');
+  }
+
+  onDateChange(index: number, event: any) {
+    const value = event.detail.value;
+    if (value) {
+      this.dates.at(index).setValue(value.split('T')[0]);
+    }
+  }
+
   getInstrumentRoleName(memberGroup: AbstractControl): string {
     const roleId = memberGroup.get('instrumentRoleId')?.value;
     const role = this.instrumentRoles.find(r => r.id === roleId);
@@ -157,7 +171,7 @@ export class WorshipLineupFormPage implements OnInit {
   }
 
   onSubmit() {
-    if (this.form.invalid || this.dates.length === 0 || this.members.length === 0) return;
+    if (this.form.invalid || this.dates.length === 0 || this.songs.length === 0 || this.members.length === 0) return;
     this.isLoading = true;
 
     const formValue = this.form.value;
