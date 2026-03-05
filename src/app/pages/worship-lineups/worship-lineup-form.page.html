@@ -31,23 +31,13 @@
       </ion-button>
     </div>
 
-    <div formArrayName="dates">
+    <div class="dates-list">
       @for (date of dates.controls; track $index; let i = $index) {
-        <div class="date-row">
-          <ion-datetime-button [datetime]="'datetime-' + i" class="date-picker-btn"></ion-datetime-button>
-          <ion-modal [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime
-                [id]="'datetime-' + i"
-                presentation="date"
-                [min]="todayDate"
-                [value]="dates.at(i).value"
-                (ionChange)="onDateChange(i, $event)"
-              ></ion-datetime>
-            </ng-template>
-          </ion-modal>
-          <ion-button fill="clear" color="danger" (click)="removeDate(i)" class="remove-btn">
-            <ion-icon name="trash-outline"></ion-icon>
+        <div class="date-chip" (click)="editDate(i)">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>{{ formatDate(date.value) }}</span>
+          <ion-button fill="clear" color="danger" size="small" (click)="removeDate(i); $event.stopPropagation()">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
       }
@@ -56,6 +46,26 @@
     @if (dates.length === 0) {
       <p class="empty-hint">No dates added yet. Click "Add Date" to start.</p>
     }
+
+    <ion-modal #dateModal>
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Select Date</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="onDateCancel()">Cancel</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <ion-datetime
+            presentation="date"
+            [min]="todayDate"
+            (ionChange)="onDateConfirm($event)"
+          ></ion-datetime>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
 
     <div class="section-header">
       <h3>Songs</h3>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -37,6 +37,9 @@ export class WorshipLineupFormPage implements OnInit {
   singerUsers: User[] = [];
   instrumentRoles: InstrumentRole[] = [];
   todayDate = new Date().toISOString().split('T')[0];
+  editingDateIndex: number | null = null;
+
+  @ViewChild('dateModal') dateModal!: IonModal;
 
   private instrumentRoleToUserRoles: Record<string, string[]> = {
     'Singer': ['SINGER'],
@@ -105,7 +108,13 @@ export class WorshipLineupFormPage implements OnInit {
   }
 
   addDate() {
-    this.dates.push(this.fb.control(this.todayDate, [Validators.required]));
+    this.editingDateIndex = null;
+    this.dateModal.present();
+  }
+
+  editDate(index: number) {
+    this.editingDateIndex = index;
+    this.dateModal.present();
   }
 
   removeDate(index: number) {
@@ -140,11 +149,27 @@ export class WorshipLineupFormPage implements OnInit {
     memberGroup.get('userId')?.setValue('');
   }
 
-  onDateChange(index: number, event: any) {
+  onDateConfirm(event: any) {
     const value = event.detail.value;
     if (value) {
-      this.dates.at(index).setValue(value.split('T')[0]);
+      const dateStr = value.split('T')[0];
+      if (this.editingDateIndex !== null) {
+        this.dates.at(this.editingDateIndex).setValue(dateStr);
+      } else {
+        this.dates.push(this.fb.control(dateStr, [Validators.required]));
+      }
     }
+    this.dateModal.dismiss();
+  }
+
+  onDateCancel() {
+    this.dateModal.dismiss();
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return 'Select date';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   getInstrumentRoleName(memberGroup: AbstractControl): string {
