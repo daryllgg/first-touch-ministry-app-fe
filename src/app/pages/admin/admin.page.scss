@@ -1,4 +1,45 @@
 h2 {
-  margin-top: 16px;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  color: var(--ion-color-secondary);
+  font-size: 1.2rem;
+
+  &:first-of-type {
+    margin-top: 8px;
+  }
+}
+
+ion-list {
+  background: transparent;
   margin-bottom: 8px;
+}
+
+ion-item {
+  --background: white;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
+}
+
+ion-badge {
+  font-size: 0.7rem;
+}
+
+.change-details {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.change-chip {
+  font-size: 0.75rem;
+  height: auto;
+  padding: 2px 8px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
