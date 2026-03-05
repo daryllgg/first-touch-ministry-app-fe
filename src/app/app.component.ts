@@ -131,7 +131,7 @@ import { environment } from '../environments/environment';
       }
 
       .menu-app-name {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Inter', sans-serif;
         font-size: 15px;
         font-weight: 600;
         color: white;
@@ -159,7 +159,7 @@ import { environment } from '../environments/environment';
       }
 
       .menu-user-name {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Inter', sans-serif;
         font-size: 17px;
         font-weight: 600;
         margin: 12px 0 2px;
