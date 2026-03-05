@@ -1,0 +1,206 @@
+@if (isWeb) {
+  <!-- ═══ WEB LAYOUT: Sidebar + Top Bar ═══ -->
+  @if (currentUser) {
+    <div class="web-layout">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <img src="assets/logos/FTM Logomark.png" alt="FTM" class="topbar-logo" />
+          <span class="topbar-title">First Touch Ministry</span>
+        </div>
+        <div class="topbar-right">
+          <a routerLink="/notifications" class="topbar-icon-btn" title="Notifications">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            @if (unreadCount > 0) {
+              <span class="topbar-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+            }
+          </a>
+          <div class="topbar-user">
+            @if (currentUser.profilePicture) {
+              <img [src]="getProfilePicUrl(currentUser.profilePicture)" alt="Profile" class="topbar-avatar" />
+            } @else {
+              <div class="topbar-avatar-placeholder">
+                {{ currentUser.firstName?.charAt(0) }}{{ currentUser.lastName?.charAt(0) }}
+              </div>
+            }
+            <span class="topbar-user-name">{{ currentUser.firstName }}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Sidebar + Content -->
+      <div class="web-body">
+        <nav class="sidebar">
+          <div class="sidebar-nav">
+            <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </a>
+            <a routerLink="/announcements" routerLinkActive="active" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+              <span>Announcements</span>
+            </a>
+            <a routerLink="/prayer-requests" routerLinkActive="active" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/><path d="M21 12a3 3 0 0 0-3-3h-2.4a1 1 0 0 1-1-1.2l.5-3a2 2 0 0 0-2-2.4 1 1 0 0 0-.9.6L9 11v9h9.5a2 2 0 0 0 2-1.5l1.4-7a2 2 0 0 0-1-2.5z"/></svg>
+              <span>Prayer Requests</span>
+            </a>
+            <a routerLink="/worship-lineups" routerLinkActive="active" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>Worship Lineups</span>
+            </a>
+            <a routerLink="/youth-profiles" routerLinkActive="active" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Kids and Teens</span>
+            </a>
+            <a routerLink="/notifications" routerLinkActive="active" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span>Notifications</span>
+              @if (unreadCount > 0) {
+                <span class="sidebar-badge">{{ unreadCount }}</span>
+              }
+            </a>
+          </div>
+
+          <div class="sidebar-bottom">
+            @if (isAdmin) {
+              <a routerLink="/admin" routerLinkActive="active" class="sidebar-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>Admin Panel</span>
+              </a>
+            }
+            <a routerLink="/profile" routerLinkActive="active" class="sidebar-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>My Profile</span>
+            </a>
+            <button class="sidebar-link logout-link" (click)="logout()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>Logout</span>
+            </button>
+          </div>
+        </nav>
+
+        <main class="web-content">
+          <router-outlet></router-outlet>
+        </main>
+      </div>
+    </div>
+  } @else {
+    <router-outlet></router-outlet>
+  }
+} @else {
+  <!-- ═══ MOBILE LAYOUT: Ionic Menu + Bottom Tabs ═══ -->
+  <ion-app>
+    @if (currentUser) {
+      <ion-menu contentId="main-content" type="overlay">
+        <ion-header>
+          <ion-toolbar class="menu-toolbar">
+            <div class="menu-header-content">
+              <img src="assets/logos/FTM Logomark.png" alt="FTM" class="menu-logo" />
+              <span class="menu-app-name">First Touch Ministry</span>
+            </div>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <div class="menu-user-info">
+            @if (currentUser.profilePicture) {
+              <img [src]="getProfilePicUrl(currentUser.profilePicture)" alt="Profile" class="menu-profile-pic" />
+            } @else {
+              <div class="menu-avatar-placeholder">
+                {{ currentUser.firstName?.charAt(0) }}{{ currentUser.lastName?.charAt(0) }}
+              </div>
+            }
+            <p class="menu-user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
+            <p class="menu-user-email">{{ currentUser.email }}</p>
+          </div>
+          <ion-list lines="none" class="menu-list">
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/home" routerLinkActive="active-menu-item" [routerLinkActiveOptions]="{exact: true}">
+                <ion-icon name="home-outline" slot="start"></ion-icon>
+                <ion-label>Home</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/profile" routerLinkActive="active-menu-item">
+                <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+                <ion-label>My Profile</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/announcements" routerLinkActive="active-menu-item">
+                <ion-icon name="megaphone-outline" slot="start"></ion-icon>
+                <ion-label>Announcements</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/prayer-requests" routerLinkActive="active-menu-item">
+                <ion-icon name="hand-left-outline" slot="start"></ion-icon>
+                <ion-label>Prayer Requests</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/worship-lineups" routerLinkActive="active-menu-item">
+                <ion-icon name="list-outline" slot="start"></ion-icon>
+                <ion-label>Worship Lineups</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/notifications" routerLinkActive="active-menu-item">
+                <ion-icon name="notifications-outline" slot="start"></ion-icon>
+                <ion-label>Notifications</ion-label>
+                @if (unreadCount > 0) {
+                  <ion-badge slot="end" color="danger">{{ unreadCount }}</ion-badge>
+                }
+              </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button routerLink="/youth-profiles" routerLinkActive="active-menu-item">
+                <ion-icon name="people-outline" slot="start"></ion-icon>
+                <ion-label>Kids and Teens</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+            @if (isAdmin) {
+              <ion-menu-toggle auto-hide="false">
+                <ion-item button routerLink="/admin" routerLinkActive="active-menu-item">
+                  <ion-icon name="settings-outline" slot="start"></ion-icon>
+                  <ion-label>Admin Panel</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            }
+            <ion-menu-toggle auto-hide="false">
+              <ion-item button (click)="logout()" class="logout-item">
+                <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+                <ion-label color="danger">Logout</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ion-list>
+        </ion-content>
+      </ion-menu>
+    }
+
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+
+    @if (showBottomTabs) {
+      <div class="bottom-tabs">
+        <a routerLink="/home" class="tab-item" [class.active]="activeTab === '/home'">
+          <ion-icon name="home-outline"></ion-icon>
+          <span>Home</span>
+        </a>
+        <a routerLink="/notifications" class="tab-item" [class.active]="activeTab === '/notifications'">
+          <ion-icon name="notifications-outline"></ion-icon>
+          @if (unreadCount > 0) {
+            <span class="tab-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+          }
+          <span>Notifications</span>
+        </a>
+        <a routerLink="/profile" class="tab-item" [class.active]="activeTab === '/profile'">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <span>My Profile</span>
+        </a>
+        <a (click)="openMenu()" class="tab-item">
+          <ion-icon name="menu-outline"></ion-icon>
+          <span>More</span>
+        </a>
+      </div>
+    }
+  </ion-app>
+}

@@ -73,6 +73,46 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "web": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kB",
+                  "maximumError": "10kB"
+                }
+              ],
+              "styles": [
+                "src/styles.web.scss",
+                "src/theme/variables.scss"
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.web.prod.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "web-dev": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "styles": [
+                "src/styles.web.scss",
+                "src/theme/variables.scss"
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.web.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -85,6 +125,12 @@
             },
             "development": {
               "buildTarget": "church-app-ui:build:development"
+            },
+            "web": {
+              "buildTarget": "church-app-ui:build:web"
+            },
+            "web-dev": {
+              "buildTarget": "church-app-ui:build:web-dev"
             }
           },
           "defaultConfiguration": "development"

@@ -26,12 +26,19 @@ export class AuthService {
     }
   }
 
-  register(data: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }): Observable<User> {
+  getOtpStatus(email: string): Observable<{ status: 'none' | 'pending' | 'verified' }> {
+    return this.http.post<{ status: 'none' | 'pending' | 'verified' }>(`${this.apiUrl}/auth/otp-status`, { email });
+  }
+
+  sendOtp(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/auth/send-otp`, { email });
+  }
+
+  verifyOtp(email: string, otp: string): Observable<{ verified: boolean; email: string }> {
+    return this.http.post<{ verified: boolean; email: string }>(`${this.apiUrl}/auth/verify-otp`, { email, otp });
+  }
+
+  register(data: Record<string, any>): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/auth/register`, data);
   }
 
@@ -66,5 +73,11 @@ export class AuthService {
 
   hasRole(roleName: string): boolean {
     return this.currentUser?.roles?.some((r) => r.name === roleName) ?? false;
+  }
+
+  refreshCurrentUser(): void {
+    this.getMe().subscribe({
+      next: (user) => this.currentUserSubject.next(user),
+    });
   }
 }

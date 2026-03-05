@@ -18,7 +18,7 @@ export class AnnouncementsService {
     return this.http.get<Announcement>(`${this.apiUrl}/${id}`);
   }
 
-  create(data: { title: string; content: string }): Observable<Announcement> {
+  create(data: FormData): Observable<Announcement> {
     return this.http.post<Announcement>(this.apiUrl, data);
   }
 

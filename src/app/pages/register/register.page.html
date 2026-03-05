@@ -1,70 +1,199 @@
-<ion-content class="ion-padding">
-  <div class="register-container">
-    <h1>Create Account</h1>
-    <p>Register to join the church app</p>
+@if (isWeb) {
+  <div class="auth-split">
+    <div class="auth-brand">
+      <div class="auth-brand-content">
+        <img src="assets/logos/FTM Logo_white.png" alt="FTM Logo" class="auth-logo-web" />
+        <p class="auth-tagline">Touching God. Touching People.</p>
+      </div>
+    </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
-      <ion-item>
-        <ion-input
-          type="text"
-          formControlName="firstName"
-          label="First Name"
-          labelPlacement="floating"
-        ></ion-input>
-      </ion-item>
+    <div class="auth-form-panel">
+      <div class="auth-form-wrapper">
+        <h1>Create your account</h1>
+        <p class="auth-subtitle">Join First Touch Ministry</p>
 
-      <ion-item>
-        <ion-input
-          type="text"
-          formControlName="lastName"
-          label="Last Name"
-          labelPlacement="floating"
-        ></ion-input>
-      </ion-item>
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" formControlName="firstName" placeholder="First Name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" formControlName="lastName" placeholder="Last Name" />
+            </div>
+          </div>
 
-      <ion-item>
-        <ion-input
-          type="email"
-          formControlName="email"
-          label="Email"
-          labelPlacement="floating"
-        ></ion-input>
-      </ion-item>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" formControlName="email" placeholder="Email" />
+          </div>
 
-      <ion-item>
-        <ion-input
-          type="password"
-          formControlName="password"
-          label="Password"
-          labelPlacement="floating"
-        ></ion-input>
-      </ion-item>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" formControlName="password" placeholder="Minimum 8 characters" />
+            @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+              <span class="form-error">Password must be at least 8 characters</span>
+            }
+          </div>
 
-      @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-        <p class="error-text">Password must be at least 8 characters</p>
-      }
+          <div class="form-group">
+            <label class="form-label">Contact Number</label>
+            <input type="tel" class="form-input" formControlName="contactNumber" placeholder="+639XXXXXXXXX" inputmode="tel" />
+            @if (registerForm.get('contactNumber')?.hasError('pattern') && registerForm.get('contactNumber')?.touched) {
+              <span class="form-error">Must be in +639XXXXXXXXX format</span>
+            }
+          </div>
 
-      <ion-button
-        expand="block"
-        type="submit"
-        [disabled]="registerForm.invalid || isLoading"
-        class="ion-margin-top"
-      >
-        @if (isLoading) {
-          <ion-spinner name="crescent"></ion-spinner>
-        } @else {
-          Register
-        }
-      </ion-button>
-    </form>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Birthday</label>
+              <input type="date" class="form-input" formControlName="birthday" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select class="form-select" formControlName="gender">
+                <option value="">Select...</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+              </select>
+            </div>
+          </div>
 
-    <ion-button
-      expand="block"
-      fill="clear"
-      routerLink="/login"
-      class="ion-margin-top"
-    >
-      Already have an account? Sign In
-    </ion-button>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <textarea class="form-textarea" formControlName="address" rows="2" placeholder="Address"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="registerForm.invalid || isLoading">
+            @if (isLoading) {
+              <span class="spinner"></span>
+            } @else {
+              Register
+            }
+          </button>
+        </form>
+
+        <p class="auth-footer-text">
+          Already have an account? <a routerLink="/login">Sign In</a>
+        </p>
+      </div>
+    </div>
   </div>
-</ion-content>
+} @else {
+  <ion-content>
+    <div class="register-wrapper">
+      <div class="auth-container">
+        <div class="app-branding">
+          <h1>FTM App</h1>
+          <p class="app-subtitle">First Touch Ministry</p>
+        </div>
+        <p class="auth-description">Register to join FTM App</p>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          <ion-item>
+            <ion-input
+              type="text"
+              formControlName="firstName"
+              label="First Name"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              type="text"
+              formControlName="lastName"
+              label="Last Name"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              type="email"
+              formControlName="email"
+              label="Email"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              type="password"
+              formControlName="password"
+              label="Password"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+            <p class="error-text">Password must be at least 8 characters</p>
+          }
+
+          <ion-item>
+            <ion-input
+              type="tel"
+              formControlName="contactNumber"
+              label="Contact Number (+639XXXXXXXXX)"
+              labelPlacement="floating"
+              inputmode="tel"
+            ></ion-input>
+          </ion-item>
+
+          @if (registerForm.get('contactNumber')?.hasError('pattern') && registerForm.get('contactNumber')?.touched) {
+            <p class="error-text">Must be in +639XXXXXXXXX format</p>
+          }
+
+          <ion-item>
+            <ion-input
+              type="date"
+              formControlName="birthday"
+              label="Birthday"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-select
+              formControlName="gender"
+              label="Gender"
+              labelPlacement="floating"
+              interface="popover"
+            >
+              <ion-select-option value="MALE">Male</ion-select-option>
+              <ion-select-option value="FEMALE">Female</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-textarea
+              formControlName="address"
+              label="Address"
+              labelPlacement="floating"
+              rows="2"
+            ></ion-textarea>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            type="submit"
+            [disabled]="registerForm.invalid || isLoading"
+            class="auth-btn"
+          >
+            @if (isLoading) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Register
+            }
+          </ion-button>
+        </form>
+
+        <div class="auth-link">
+          <span>Already have an account?</span>
+          <a routerLink="/login">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+}

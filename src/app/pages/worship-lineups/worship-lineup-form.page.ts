@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
@@ -31,6 +31,7 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./worship-lineup-form.page.scss'],
 })
 export class WorshipLineupFormPage implements OnInit {
+  isWeb = environment.platform === 'web';
   form: FormGroup;
   isLoading = false;
   users: User[] = [];
@@ -38,6 +39,8 @@ export class WorshipLineupFormPage implements OnInit {
   instrumentRoles: InstrumentRole[] = [];
   todayDate = new Date().toISOString().split('T')[0];
   editingDateIndex: number | null = null;
+  lineupId: string | null = null;
+  isEditMode = false;
 
   @ViewChild('dateModal') dateModal!: IonModal;
 
@@ -62,6 +65,7 @@ export class WorshipLineupFormPage implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private lineupsService: WorshipLineupsService,
     private http: HttpClient,
     private router: Router,
@@ -81,7 +85,10 @@ export class WorshipLineupFormPage implements OnInit {
 
   ngOnInit() {
     this.lineupsService.getInstrumentRoles().subscribe({
-      next: (data) => this.instrumentRoles = data,
+      next: (data) => {
+        this.instrumentRoles = data;
+        this.loadEditData();
+      },
     });
     const allRoles = 'WORSHIP_LEADER,WORSHIP_TEAM_HEAD,GUITARIST,KEYBOARDIST,DRUMMER,BASSIST,SINGER';
     this.http.get<User[]>(`${environment.apiUrl}/users/by-roles?roles=${allRoles}`).subscribe({
@@ -89,6 +96,47 @@ export class WorshipLineupFormPage implements OnInit {
     });
     this.http.get<User[]>(`${environment.apiUrl}/users/by-roles?roles=SINGER`).subscribe({
       next: (data) => this.singerUsers = data,
+    });
+
+    this.lineupId = this.route.snapshot.paramMap.get('id');
+    this.isEditMode = !!this.lineupId;
+  }
+
+  private loadEditData() {
+    if (!this.lineupId) return;
+    this.lineupsService.findOne(this.lineupId).subscribe({
+      next: (lineup) => {
+        this.form.patchValue({
+          serviceType: lineup.serviceType,
+          customServiceName: lineup.customServiceName || '',
+          notes: lineup.notes || '',
+        });
+
+        // Populate dates
+        lineup.dates.forEach((d) => {
+          this.dates.push(this.fb.control(d, [Validators.required]));
+        });
+
+        // Populate members
+        lineup.members.forEach((m) => {
+          this.members.push(this.fb.group({
+            userId: [m.user.id, [Validators.required]],
+            instrumentRoleId: [m.instrumentRole.id, [Validators.required]],
+            customRoleName: [''],
+          }));
+        });
+
+        // Populate songs
+        if (lineup.songs) {
+          lineup.songs.forEach((s) => {
+            this.songs.push(this.fb.group({
+              title: [s.title, [Validators.required]],
+              link: [s.link || ''],
+              singerId: [s.singer?.id || ''],
+            }));
+          });
+        }
+      },
     });
   }
 
@@ -224,16 +272,22 @@ export class WorshipLineupFormPage implements OnInit {
       }));
     }
 
-    this.lineupsService.create(payload).subscribe({
+    const request$ = this.isEditMode
+      ? this.lineupsService.update(this.lineupId!, payload)
+      : this.lineupsService.create(payload);
+
+    request$.subscribe({
       next: async () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Lineup created', duration: 2000, color: 'success' });
+        const msg = this.isEditMode ? 'Lineup updated' : 'Lineup created';
+        const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: 'success', position: 'top' });
         await toast.present();
         this.router.navigate(['/worship-lineups']);
       },
       error: async () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Failed to create lineup', duration: 3000, color: 'danger' });
+        const msg = this.isEditMode ? 'Failed to update lineup' : 'Failed to create lineup';
+        const toast = await this.toastCtrl.create({ message: msg, duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });

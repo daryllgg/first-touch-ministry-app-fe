@@ -1,30 +1,32 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonItem, IonTextarea, IonBackButton, IonButtons, IonSpinner,
-  IonToggle, IonLabel,
   ToastController,
 } from '@ionic/angular/standalone';
 import { PrayerRequestsService } from '../../services/prayer-requests.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-prayer-request-form',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, FormsModule,
+    CommonModule, ReactiveFormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonItem, IonTextarea, IonBackButton, IonButtons, IonSpinner,
-    IonToggle, IonLabel,
   ],
   templateUrl: './prayer-request-form.page.html',
+  styleUrls: ['./prayer-request-form.page.scss'],
 })
 export class PrayerRequestFormPage {
+  isWeb = environment.platform === 'web';
   form: FormGroup;
   isLoading = false;
-  isPrivate = false;
+  selectedImage: File | null = null;
+  imagePreview: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -37,23 +39,47 @@ export class PrayerRequestFormPage {
     });
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    this.selectedImage = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview = e.target?.result as string;
+    };
+    reader.readAsDataURL(this.selectedImage);
+
+    // Reset the input so the same file can be selected again if removed
+    input.value = '';
+  }
+
+  removeImage() {
+    this.selectedImage = null;
+    this.imagePreview = null;
+  }
+
   onSubmit() {
     if (this.form.invalid) return;
     this.isLoading = true;
-    const data = {
-      ...this.form.value,
-      visibility: this.isPrivate ? 'PRIVATE' : 'PUBLIC',
-    };
-    this.prayerRequestsService.create(data).subscribe({
+
+    const formData = new FormData();
+    formData.append('content', this.form.get('content')!.value);
+
+    if (this.selectedImage) {
+      formData.append('image', this.selectedImage, this.selectedImage.name);
+    }
+
+    this.prayerRequestsService.create(formData).subscribe({
       next: async () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Prayer request submitted', duration: 2000, color: 'success' });
+        const toast = await this.toastCtrl.create({ message: 'Prayer request submitted', duration: 2000, color: 'success', position: 'top' });
         await toast.present();
         this.router.navigate(['/prayer-requests']);
       },
       error: async () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Failed to submit', duration: 3000, color: 'danger' });
+        const toast = await this.toastCtrl.create({ message: 'Failed to submit', duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });

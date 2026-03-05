@@ -1,14 +1,5 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>Home</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-  <!-- Greeting Card -->
+@if (isWeb) {
+  <!-- Web: no ion-header needed, app shell provides topbar -->
   <div class="greeting-card">
     <div class="greeting-content">
       <p class="greeting-label">Hello!</p>
@@ -18,23 +9,73 @@
     <img src="assets/logos/FTM Logomark.png" alt="FTM" class="greeting-logo" />
   </div>
 
-  <!-- Recent Announcements -->
   @if (announcements.length > 0) {
     <p class="section-label">Recent Announcements</p>
-    @for (a of announcements; track a.id) {
-      <div class="announcement-item" routerLink="/announcements">
-        <div class="announcement-dot"></div>
-        <div class="announcement-info">
-          <h3>{{ a.title }}</h3>
-          <p>{{ a.content | slice:0:80 }}{{ a.content.length > 80 ? '...' : '' }}</p>
-          <span class="announcement-date">{{ a.createdAt | date:'MMM d, y' }}</span>
-        </div>
-      </div>
-    }
+    <div class="announcements-grid">
+      @for (a of announcements; track a.id) {
+        <a class="announcement-card" routerLink="/announcements">
+          <div class="announcement-dot"></div>
+          <div class="announcement-info">
+            <h3>{{ a.title }}</h3>
+            <p>{{ a.content | slice:0:100 }}{{ a.content.length > 100 ? '...' : '' }}</p>
+            <span class="announcement-date">{{ a.createdAt | date:'MMM d, y' }}</span>
+          </div>
+        </a>
+      }
+    </div>
   } @else {
-    <div class="empty-state">
-      <ion-icon name="megaphone-outline"></ion-icon>
+    <div class="empty-state-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 11 18-5v12L3 14v-3z"></path>
+        <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+      </svg>
       <p>No announcements yet.</p>
     </div>
   }
-</ion-content>
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Home</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onLogout()">
+          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <!-- Greeting Card -->
+    <div class="greeting-card">
+      <div class="greeting-content">
+        <p class="greeting-label">Hello!</p>
+        <h2 class="greeting-name">{{ userName }}</h2>
+        <p class="greeting-subtitle">Welcome to First Touch Ministry</p>
+      </div>
+      <img src="assets/logos/FTM Logomark.png" alt="FTM" class="greeting-logo" />
+    </div>
+
+    <!-- Recent Announcements -->
+    @if (announcements.length > 0) {
+      <p class="section-label">Recent Announcements</p>
+      @for (a of announcements; track a.id) {
+        <div class="announcement-item" routerLink="/announcements">
+          <div class="announcement-dot"></div>
+          <div class="announcement-info">
+            <h3>{{ a.title }}</h3>
+            <p>{{ a.content | slice:0:80 }}{{ a.content.length > 80 ? '...' : '' }}</p>
+            <span class="announcement-date">{{ a.createdAt | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="empty-state">
+        <ion-icon name="megaphone-outline"></ion-icon>
+        <p>No announcements yet.</p>
+      </div>
+    }
+  </ion-content>
+}

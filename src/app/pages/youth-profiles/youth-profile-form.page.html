@@ -1,0 +1,275 @@
+@if (isWeb) {
+  <div class="form-container-web">
+    <div class="card">
+      <h2 class="form-title">{{ isEditMode ? 'Edit' : 'New' }} Kids and Teens Profile</h2>
+
+      @if (isLoading && isEditMode && !existingProfile) {
+        <div class="loading-web">
+          <span class="spinner"></span>
+        </div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Photo Section -->
+          <div class="photo-section-web">
+            <div class="photo-preview-web">
+              @if (photoPreview) {
+                <img [src]="photoPreview" alt="Photo preview" />
+              } @else {
+                <div class="photo-placeholder-web">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+              }
+            </div>
+            <div class="photo-buttons-web">
+              <button type="button" class="btn btn-outline btn-sm" (click)="takePhoto()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Take Photo
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" (click)="choosePhoto()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                Gallery
+              </button>
+            </div>
+          </div>
+
+          <!-- Basic Information -->
+          <div class="form-section-web">
+            <p class="section-label-web">Basic Information</p>
+
+            <div class="form-row-web">
+              <div class="form-group">
+                <label class="form-label">First Name *</label>
+                <input class="form-input" formControlName="firstName" placeholder="First name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name *</label>
+                <input class="form-input" formControlName="lastName" placeholder="Last name" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nickname</label>
+              <input class="form-input" formControlName="nickname" placeholder="Nickname" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Gender *</label>
+              <select class="form-select" formControlName="gender">
+                <option value="" disabled>Select gender</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Birth Date *</label>
+              <input class="form-input" type="date" [value]="form.get('birthDate')?.value || ''" (change)="form.patchValue({ birthDate: $any($event.target).value })" max="2020-12-31" />
+            </div>
+          </div>
+
+          <!-- Location & Contact -->
+          <div class="form-section-web">
+            <p class="section-label-web">Location & Contact</p>
+
+            <div class="form-group">
+              <label class="form-label">Station (Area)</label>
+              <select class="form-select" formControlName="stationId">
+                <option value="">-- Select station --</option>
+                @for (station of stations; track station.id) {
+                  <option [value]="station.id">{{ station.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <input class="form-input" formControlName="address" placeholder="Address" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Contact Number *</label>
+              <div class="contact-input-web">
+                <span class="contact-prefix-web">+639</span>
+                <input class="form-input contact-number-web" formControlName="contactNumber" type="tel" inputmode="numeric" placeholder="9XXXXXXXXX" maxlength="9" />
+              </div>
+              @if (form.get('contactNumber')?.touched && form.get('contactNumber')?.invalid) {
+                <p class="field-error-web">Enter a valid 9-digit number after +639</p>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Facebook Link</label>
+              <input class="form-input" formControlName="facebookLink" placeholder="Facebook profile URL" />
+            </div>
+          </div>
+
+          <!-- Family & Notes -->
+          <div class="form-section-web">
+            <p class="section-label-web">Family & Notes</p>
+
+            <div class="form-row-web">
+              <div class="form-group">
+                <label class="form-label">Mother's Name</label>
+                <input class="form-input" formControlName="motherName" placeholder="Mother's name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Father's Name</label>
+                <input class="form-input" formControlName="fatherName" placeholder="Father's name" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Notes</label>
+              <textarea class="form-textarea" formControlName="notes" rows="4" placeholder="Any additional notes..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || isLoading">
+            @if (isLoading) {
+              <span class="spinner"></span>
+            } @else {
+              {{ isEditMode ? 'Update Profile' : 'Create Profile' }}
+            }
+          </button>
+        </form>
+      }
+    </div>
+  </div>
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button [defaultHref]="isEditMode ? '/youth-profiles/' + profileId : '/youth-profiles'"></ion-back-button>
+      </ion-buttons>
+      <ion-title>{{ isEditMode ? 'Edit' : 'New' }} Kids and Teens Profile</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    @if (isLoading && isEditMode && !existingProfile) {
+      <div class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Photo Section -->
+        <div class="photo-section">
+          <div class="photo-preview">
+            @if (photoPreview) {
+              <img [src]="photoPreview" alt="Photo preview" />
+            } @else {
+              <div class="photo-placeholder">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+            }
+          </div>
+          <div class="photo-buttons">
+            <ion-button fill="outline" size="small" (click)="takePhoto()">
+              <ion-icon name="camera-outline" slot="start"></ion-icon>
+              Take Photo
+            </ion-button>
+            <ion-button fill="outline" size="small" (click)="choosePhoto()">
+              <ion-icon name="image-outline" slot="start"></ion-icon>
+              Gallery
+            </ion-button>
+          </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="form-section">
+          <p class="section-title">Basic Information</p>
+
+          <ion-item>
+            <ion-input formControlName="firstName" label="First Name *" labelPlacement="floating"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input formControlName="lastName" label="Last Name *" labelPlacement="floating"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input formControlName="nickname" label="Nickname" labelPlacement="floating"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-select formControlName="gender" label="Gender *" labelPlacement="floating">
+              <ion-select-option value="MALE">Male</ion-select-option>
+              <ion-select-option value="FEMALE">Female</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <p class="field-label">Birth Date *</p>
+          <ion-datetime
+            presentation="date"
+            [value]="form.get('birthDate')?.value || ''"
+            (ionChange)="onDateChange($event)"
+            [max]="'2020-12-31'"
+          ></ion-datetime>
+        </div>
+
+        <!-- Location & Contact -->
+        <div class="form-section">
+          <p class="section-title">Location & Contact</p>
+
+          <ion-item>
+            <ion-select formControlName="stationId" label="Station (Area)" labelPlacement="floating">
+              @for (station of stations; track station.id) {
+                <ion-select-option [value]="station.id">{{ station.name }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-input formControlName="address" label="Address" labelPlacement="floating"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              formControlName="contactNumber"
+              label="Contact Number *"
+              labelPlacement="floating"
+              type="tel"
+              inputmode="numeric"
+              placeholder="9XXXXXXXXX"
+              maxlength="9"
+            >
+              <span slot="start" class="contact-prefix">+639</span>
+            </ion-input>
+          </ion-item>
+          @if (form.get('contactNumber')?.touched && form.get('contactNumber')?.invalid) {
+            <ion-note color="danger" class="field-error">Enter a valid 9-digit number after +639</ion-note>
+          }
+
+          <ion-item>
+            <ion-input formControlName="facebookLink" label="Facebook Link" labelPlacement="floating"></ion-input>
+          </ion-item>
+        </div>
+
+        <!-- Family & Notes -->
+        <div class="form-section">
+          <p class="section-title">Family & Notes</p>
+
+          <ion-item>
+            <ion-input formControlName="motherName" label="Mother's Name" labelPlacement="floating"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input formControlName="fatherName" label="Father's Name" labelPlacement="floating"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-textarea formControlName="notes" label="Notes" labelPlacement="floating" rows="4"></ion-textarea>
+          </ion-item>
+        </div>
+
+        <ion-button expand="block" type="submit" [disabled]="form.invalid || isLoading" class="ion-margin-top submit-button">
+          @if (isLoading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            {{ isEditMode ? 'Update Profile' : 'Create Profile' }}
+          }
+        </ion-button>
+      </form>
+    }
+  </ion-content>
+}

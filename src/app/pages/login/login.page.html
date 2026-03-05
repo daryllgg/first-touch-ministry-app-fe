@@ -1,48 +1,106 @@
-<ion-content>
-  <div class="login-wrapper">
-    <div class="auth-container">
-      <div class="app-branding">
-        <img src="assets/logos/FTM Logo_colored.png" alt="First Touch Ministry" class="login-logo" />
+@if (isWeb) {
+  <div class="auth-split">
+    <div class="auth-brand">
+      <div class="auth-brand-content">
+        <img src="assets/logos/FTM Logo_white.png" alt="First Touch Ministry" class="auth-logo-web" />
+        <p class="auth-tagline">Touching God. Touching People.</p>
       </div>
-      <p class="auth-description">Sign in to your account</p>
+    </div>
+    <div class="auth-form-panel">
+      <div class="auth-form-wrapper">
+        <h1>Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to your account</p>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-        <ion-item>
-          <ion-input
-            type="email"
-            formControlName="email"
-            label="Email"
-            labelPlacement="floating"
-          ></ion-input>
-        </ion-item>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="you@example.com"
+            />
+          </div>
 
-        <ion-item>
-          <ion-input
-            type="password"
-            formControlName="password"
-            label="Password"
-            labelPlacement="floating"
-          ></ion-input>
-        </ion-item>
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              class="form-input"
+              placeholder="Enter your password"
+            />
+          </div>
 
-        <ion-button
-          expand="block"
-          type="submit"
-          [disabled]="loginForm.invalid || isLoading"
-          class="auth-btn"
-        >
-          @if (isLoading) {
-            <ion-spinner name="crescent"></ion-spinner>
-          } @else {
-            Sign In
-          }
-        </ion-button>
-      </form>
+          <button
+            type="submit"
+            class="btn btn-primary btn-block btn-lg"
+            [disabled]="loginForm.invalid || isLoading"
+          >
+            @if (isLoading) {
+              <span class="spinner"></span>
+            } @else {
+              Sign In
+            }
+          </button>
+        </form>
 
-      <div class="auth-link">
-        <span>Don't have an account?</span>
-        <a routerLink="/register">Register</a>
+        <p class="auth-footer-text">
+          Don't have an account?
+          <a routerLink="/verify-email">Register</a>
+        </p>
       </div>
     </div>
   </div>
-</ion-content>
+} @else {
+  <ion-content>
+    <div class="login-wrapper">
+      <div class="auth-container">
+        <div class="app-branding">
+          <img src="assets/logos/FTM Logo_white.png" alt="First Touch Ministry" class="login-logo" />
+        </div>
+        <p class="auth-description">Sign in to your account</p>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <ion-item>
+            <ion-input
+              type="email"
+              formControlName="email"
+              label="Email"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              type="password"
+              formControlName="password"
+              label="Password"
+              labelPlacement="floating"
+            ></ion-input>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            type="submit"
+            [disabled]="loginForm.invalid || isLoading"
+            class="auth-btn"
+          >
+            @if (isLoading) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Sign In
+            }
+          </ion-button>
+        </form>
+
+        <div class="auth-link">
+          <span>Don't have an account?</span>
+          <a routerLink="/verify-email">Register</a>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+}

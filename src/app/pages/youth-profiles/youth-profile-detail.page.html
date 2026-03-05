@@ -1,0 +1,261 @@
+@if (isWeb) {
+  <div class="detail-container-web">
+    @if (isLoading) {
+      <div class="loading-web">
+        <span class="spinner"></span>
+      </div>
+    } @else if (profile) {
+      <div class="card">
+        <div class="profile-header-web">
+          <div class="photo-container-web">
+            @if (getPhotoUrl(profile.photo)) {
+              <img [src]="getPhotoUrl(profile.photo)" [alt]="profile.firstName" class="profile-photo-web" />
+            } @else {
+              <div class="photo-placeholder-web photo-placeholder-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            }
+          </div>
+          <h1 class="profile-name-web">{{ profile.firstName }} {{ profile.lastName }}</h1>
+          @if (profile.nickname) {
+            <p class="profile-nickname-web">"{{ profile.nickname }}"</p>
+          }
+          <div class="profile-badges-web">
+            <span class="badge-web" [class]="profile.gender === 'MALE' ? 'badge-primary' : 'badge-tertiary'">{{ profile.gender }}</span>
+            <span class="badge-web badge-success">Age {{ getAge(profile.birthDate) }}</span>
+          </div>
+          @if (canEdit) {
+            <a class="btn btn-outline btn-sm edit-btn-web" [routerLink]="['/youth-profiles', profile.id, 'edit']">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </a>
+          }
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title-web">Details</h3>
+        <div class="detail-list-web">
+          @if (profile.station) {
+            <div class="detail-row-web">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div>
+                <p class="detail-label-web">Station</p>
+                <p class="detail-value-web">{{ profile.station.name }}</p>
+              </div>
+            </div>
+          }
+
+          <div class="detail-row-web">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div>
+              <p class="detail-label-web">Birth Date</p>
+              <p class="detail-value-web">{{ profile.birthDate | date:'mediumDate' }}</p>
+            </div>
+          </div>
+
+          @if (profile.motherName) {
+            <div class="detail-row-web">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <div>
+                <p class="detail-label-web">Mother's Name</p>
+                <p class="detail-value-web">{{ profile.motherName }}</p>
+              </div>
+            </div>
+          }
+
+          @if (profile.fatherName) {
+            <div class="detail-row-web">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <div>
+                <p class="detail-label-web">Father's Name</p>
+                <p class="detail-value-web">{{ profile.fatherName }}</p>
+              </div>
+            </div>
+          }
+
+          @if (profile.contactNumber) {
+            <div class="detail-row-web">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <div>
+                <p class="detail-label-web">Contact Number</p>
+                <p class="detail-value-web">{{ profile.contactNumber }}</p>
+              </div>
+            </div>
+          }
+
+          @if (profile.address) {
+            <div class="detail-row-web">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div>
+                <p class="detail-label-web">Address</p>
+                <p class="detail-value-web">{{ profile.address }}</p>
+              </div>
+            </div>
+          }
+
+          @if (profile.facebookLink) {
+            <div class="detail-row-web">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              <div>
+                <p class="detail-label-web">Facebook</p>
+                <p class="detail-value-web">{{ profile.facebookLink }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (profile.notes) {
+        <div class="card">
+          <h3 class="section-title-web">Notes</h3>
+          <p class="notes-text-web">{{ profile.notes }}</p>
+        </div>
+      }
+
+      <p class="created-info-web">
+        Created by {{ profile.createdBy.firstName }} {{ profile.createdBy.lastName }}
+        &middot; {{ profile.createdAt | date:'mediumDate' }}
+      </p>
+    }
+  </div>
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/youth-profiles"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Kids and Teens Profile</ion-title>
+      @if (canEdit && profile) {
+        <ion-buttons slot="end">
+          <ion-button [routerLink]="['/youth-profiles', profile.id, 'edit']">
+            <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      }
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    @if (isLoading) {
+      <div class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    } @else if (profile) {
+      <div class="profile-header">
+        <div class="photo-container">
+          @if (getPhotoUrl(profile.photo)) {
+            <img [src]="getPhotoUrl(profile.photo)" [alt]="profile.firstName" class="profile-photo" />
+          } @else {
+            <div class="photo-placeholder">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+          }
+        </div>
+        <h1 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h1>
+        @if (profile.nickname) {
+          <p class="profile-nickname">"{{ profile.nickname }}"</p>
+        }
+        <div class="profile-badges">
+          <ion-badge [color]="profile.gender === 'MALE' ? 'primary' : 'tertiary'">
+            {{ profile.gender }}
+          </ion-badge>
+          <ion-badge color="success">Age {{ getAge(profile.birthDate) }}</ion-badge>
+        </div>
+      </div>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Details</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            @if (profile.station) {
+              <ion-item>
+                <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <p>Station</p>
+                  <h3>{{ profile.station.name }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+
+            <ion-item>
+              <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <p>Birth Date</p>
+                <h3>{{ profile.birthDate | date:'mediumDate' }}</h3>
+              </ion-label>
+            </ion-item>
+
+            @if (profile.motherName) {
+              <ion-item>
+                <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <p>Mother's Name</p>
+                  <h3>{{ profile.motherName }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+
+            @if (profile.fatherName) {
+              <ion-item>
+                <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <p>Father's Name</p>
+                  <h3>{{ profile.fatherName }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+
+            @if (profile.contactNumber) {
+              <ion-item>
+                <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <p>Contact Number</p>
+                  <h3>{{ profile.contactNumber }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+
+            @if (profile.address) {
+              <ion-item>
+                <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <p>Address</p>
+                  <h3>{{ profile.address }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+
+            @if (profile.facebookLink) {
+              <ion-item>
+                <ion-icon name="logo-facebook" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <p>Facebook</p>
+                  <h3>{{ profile.facebookLink }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      @if (profile.notes) {
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Notes</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p class="notes-text">{{ profile.notes }}</p>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <p class="created-info">
+        Created by {{ profile.createdBy.firstName }} {{ profile.createdBy.lastName }}
+        &middot; {{ profile.createdAt | date:'mediumDate' }}
+      </p>
+    }
+  </ion-content>
+}

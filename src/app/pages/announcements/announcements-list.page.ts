@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
@@ -8,7 +8,7 @@ import {
   ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, atOutline, megaphoneOutline } from 'ionicons/icons';
+import { addOutline, atOutline, logOutOutline, megaphoneOutline } from 'ionicons/icons';
 import { environment } from '../../../environments/environment';
 import { AnnouncementsService } from '../../services/announcements.service';
 import { AuthService } from '../../services/auth.service';
@@ -28,6 +28,7 @@ import { User } from '../../interfaces/user.interface';
   styleUrls: ['./announcements-list.page.scss'],
 })
 export class AnnouncementsListPage implements OnInit, ViewWillEnter {
+  isWeb = environment.platform === 'web';
   announcements: Announcement[] = [];
   canCreate = false;
   apiUrl = environment.apiUrl;
@@ -35,8 +36,9 @@ export class AnnouncementsListPage implements OnInit, ViewWillEnter {
   constructor(
     private announcementsService: AnnouncementsService,
     private authService: AuthService,
+    private router: Router,
   ) {
-    addIcons({ addOutline, atOutline, megaphoneOutline });
+    addIcons({ addOutline, atOutline, logOutOutline, megaphoneOutline });
   }
 
   ngOnInit() {
@@ -44,6 +46,7 @@ export class AnnouncementsListPage implements OnInit, ViewWillEnter {
       this.authService.hasRole('LEADER') ||
       this.authService.hasRole('ADMIN') ||
       this.authService.hasRole('SUPER_ADMIN');
+    this.loadAnnouncements();
   }
 
   ionViewWillEnter() {
@@ -85,5 +88,10 @@ export class AnnouncementsListPage implements OnInit, ViewWillEnter {
       case 'OUTREACH': return 'Outreach';
       default: return 'General';
     }
+  }
+
+  async onLogout() {
+    await this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

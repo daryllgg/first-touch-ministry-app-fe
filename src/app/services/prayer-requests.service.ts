@@ -14,8 +14,16 @@ export class PrayerRequestsService {
     return this.http.get<PrayerRequest[]>(this.apiUrl);
   }
 
-  create(data: { content: string; visibility?: 'PUBLIC' | 'PRIVATE' }): Observable<PrayerRequest> {
+  findPending(): Observable<PrayerRequest[]> {
+    return this.http.get<PrayerRequest[]>(`${this.apiUrl}/pending`);
+  }
+
+  create(data: FormData): Observable<PrayerRequest> {
     return this.http.post<PrayerRequest>(this.apiUrl, data);
+  }
+
+  approve(id: string): Observable<PrayerRequest> {
+    return this.http.patch<PrayerRequest>(`${this.apiUrl}/${id}/approve`, {});
   }
 
   delete(id: string): Observable<void> {

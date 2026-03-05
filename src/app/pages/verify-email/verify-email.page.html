@@ -1,0 +1,173 @@
+@if (isWeb) {
+  <div class="auth-split">
+    <div class="auth-brand">
+      <div class="auth-brand-content">
+        <img src="assets/logos/FTM Logo_white.png" alt="First Touch Ministry" class="auth-logo-web" />
+        <p class="auth-tagline">Touching God. Touching People.</p>
+      </div>
+    </div>
+
+    <div class="auth-form-panel">
+      <div class="auth-form-wrapper">
+        @if (step === 'email') {
+          <h1>Verify your email</h1>
+          <p class="auth-subtitle">Enter your email to get started</p>
+
+          <div class="form-group">
+            <label class="form-label" for="web-email">Email</label>
+            <input
+              id="web-email"
+              type="email"
+              class="form-input"
+              [(ngModel)]="email"
+              placeholder="you@example.com"
+              (keyup.enter)="onSendOtp()"
+            />
+          </div>
+
+          <button
+            class="btn btn-primary btn-block btn-lg"
+            (click)="onSendOtp()"
+            [disabled]="!email || isLoading"
+          >
+            @if (isLoading) {
+              <span class="spinner"></span>
+            } @else {
+              Send Verification Code
+            }
+          </button>
+        }
+
+        @if (step === 'otp') {
+          <h1>Enter verification code</h1>
+          <p class="auth-subtitle">We sent a 6-digit code to <strong>{{ email }}</strong></p>
+
+          <div class="form-group">
+            <label class="form-label" for="web-otp">Verification Code</label>
+            <input
+              id="web-otp"
+              type="text"
+              class="form-input"
+              [(ngModel)]="otp"
+              placeholder="000000"
+              maxlength="6"
+              inputmode="numeric"
+              (keyup.enter)="onVerifyOtp()"
+            />
+          </div>
+
+          <button
+            class="btn btn-primary btn-block btn-lg"
+            (click)="onVerifyOtp()"
+            [disabled]="!otp || otp.length !== 6 || isLoading"
+          >
+            @if (isLoading) {
+              <span class="spinner"></span>
+            } @else {
+              Verify
+            }
+          </button>
+
+          <div class="resend-section">
+            @if (resendCooldown > 0) {
+              <span class="resend-text">Resend code in {{ resendCooldown }}s</span>
+            } @else {
+              <a class="resend-link" (click)="onResend()">Resend Code</a>
+            }
+          </div>
+
+          <div class="back-link">
+            <a (click)="goBack()">Use a different email</a>
+          </div>
+        }
+
+        <p class="auth-footer-text">
+          Already have an account? <a routerLink="/login">Sign In</a>
+        </p>
+      </div>
+    </div>
+  </div>
+} @else {
+  <ion-content>
+    <div class="verify-wrapper">
+      <div class="auth-container">
+        <div class="app-branding">
+          <img src="assets/logos/FTM Logo_white.png" alt="First Touch Ministry" class="login-logo" />
+        </div>
+
+        @if (step === 'email') {
+          <p class="auth-description">Enter your email to get started</p>
+
+          <ion-item>
+            <ion-input
+              type="email"
+              [(ngModel)]="email"
+              label="Email"
+              labelPlacement="floating"
+              (keyup.enter)="onSendOtp()"
+            ></ion-input>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            (click)="onSendOtp()"
+            [disabled]="!email || isLoading"
+            class="auth-btn"
+          >
+            @if (isLoading) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Send Verification Code
+            }
+          </ion-button>
+        }
+
+        @if (step === 'otp') {
+          <p class="auth-description">Enter the 6-digit code sent to <strong>{{ email }}</strong></p>
+
+          <ion-item>
+            <ion-input
+              type="text"
+              [(ngModel)]="otp"
+              label="Verification Code"
+              labelPlacement="floating"
+              maxlength="6"
+              inputmode="numeric"
+              (keyup.enter)="onVerifyOtp()"
+            ></ion-input>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            (click)="onVerifyOtp()"
+            [disabled]="!otp || otp.length !== 6 || isLoading"
+            class="auth-btn"
+          >
+            @if (isLoading) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Verify
+            }
+          </ion-button>
+
+          <div class="resend-section">
+            @if (resendCooldown > 0) {
+              <span class="resend-text">Resend code in {{ resendCooldown }}s</span>
+            } @else {
+              <a class="resend-link" (click)="onResend()">Resend Code</a>
+            }
+          </div>
+
+          <div class="back-link">
+            <a (click)="goBack()">Use a different email</a>
+          </div>
+        }
+
+        <div class="auth-link">
+          <span>Already have an account?</span>
+          <a routerLink="/login">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+}

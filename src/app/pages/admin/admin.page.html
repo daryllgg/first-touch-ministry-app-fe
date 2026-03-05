@@ -1,163 +1,329 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>Admin Panel</ion-title>
-  </ion-toolbar>
-  <ion-toolbar>
-    <ion-segment [(ngModel)]="activeTab">
-      <ion-segment-button value="accounts">Accounts</ion-segment-button>
-      <ion-segment-button value="prayer">Prayer Requests</ion-segment-button>
-      <ion-segment-button value="profile">Profile Changes</ion-segment-button>
-      <ion-segment-button value="settings">Settings</ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
-</ion-header>
+@if (isWeb) {
+  <!-- Web Layout -->
+  <div class="page-header-web">
+    <h1>Admin Panel</h1>
+  </div>
 
-<ion-content class="ion-padding">
+  <div class="tabs-web">
+    <button class="tab-btn" [class.active]="activeTab === 'accounts'" (click)="activeTab = 'accounts'">Accounts</button>
+    <button class="tab-btn" [class.active]="activeTab === 'prayer'" (click)="activeTab = 'prayer'">Prayer Requests</button>
+    <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">Profile Changes</button>
+    <button class="tab-btn" [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">Settings</button>
+  </div>
+
   <!-- ACCOUNTS TAB -->
   @if (activeTab === 'accounts') {
     @if (pendingUsers.length > 0) {
-      <h2>Pending Approvals</h2>
-      <ion-list>
+      <h2 class="section-title-web">Pending Approvals</h2>
+      <div class="card-list-web">
         @for (user of pendingUsers; track user.id) {
-          <ion-item>
-            <ion-label>
+          <div class="card item-card-web">
+            <div class="item-info-web">
               <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-              <p>{{ user.email }}</p>
-            </ion-label>
-            <ion-button slot="end" color="primary" (click)="openApproveModal(user)">
-              Review
-            </ion-button>
-          </ion-item>
+              <p class="item-meta-web">{{ user.email }}</p>
+            </div>
+            <button class="btn-primary-web" (click)="openApproveModal(user)">Review</button>
+          </div>
         }
-      </ion-list>
+      </div>
     }
 
-    <div class="section-header">
-      <h2>All Users</h2>
-      <ion-button size="small" (click)="addUser()">
-        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+    <div class="section-header-web">
+      <h2 class="section-title-web">All Users</h2>
+      <button class="btn-primary-web btn-sm-web" (click)="addUser()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         Add User
-      </ion-button>
+      </button>
     </div>
-    <ion-list>
+    <div class="card-list-web">
       @for (user of allUsers; track user.id) {
-        <ion-item>
-          <ion-avatar slot="start">
+        <div class="card item-card-web">
+          <div class="item-avatar-web">
             @if (user.profilePicture) {
-              <img [src]="apiUrl + '/uploads/' + user.profilePicture" alt="" />
+              <img [src]="apiUrl + '/uploads/' + user.profilePicture" alt="" class="avatar-img-web" />
             } @else {
-              <div class="avatar-placeholder">{{ getInitials(user) }}</div>
+              <div class="avatar-placeholder-web">{{ getInitials(user) }}</div>
             }
-          </ion-avatar>
-          <ion-label>
+          </div>
+          <div class="item-info-web">
             <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-            <p>{{ user.email }}</p>
-            <p>
+            <p class="item-meta-web">{{ user.email }}</p>
+            <div class="badges-web">
               @for (role of user.roles; track role.id) {
-                <ion-badge color="medium" style="margin-right: 4px;">{{ role.name }}</ion-badge>
+                <span class="badge-web">{{ role.name }}</span>
               }
-            </p>
-          </ion-label>
-          <ion-select slot="end" placeholder="Add Role" interface="popover"
-            (ionChange)="assignRole(user.id, $event.detail.value)">
-            @for (role of availableRoles; track role) {
-              <ion-select-option [value]="role">{{ role }}</ion-select-option>
-            }
-          </ion-select>
-          <ion-button slot="end" fill="clear" color="danger" (click)="removeUser(user)">
-            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ion-item>
+            </div>
+          </div>
+          <div class="item-actions-web">
+            <select class="select-web" (change)="assignRole(user.id, $any($event.target).value); $any($event.target).value = ''">
+              <option value="" disabled selected>Add Role</option>
+              @for (role of availableRoles; track role) {
+                <option [value]="role">{{ role }}</option>
+              }
+            </select>
+            <button class="btn-icon-web btn-danger-web" (click)="removeUser(user)" title="Remove user">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
       }
-    </ion-list>
+    </div>
   }
 
   <!-- PRAYER REQUESTS TAB -->
   @if (activeTab === 'prayer') {
-    <h2>Pending Prayer Requests</h2>
+    <h2 class="section-title-web">Pending Prayer Requests</h2>
     @if (pendingPrayerRequests.length === 0) {
-      <p>No pending prayer requests.</p>
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p>No pending prayer requests.</p>
+      </div>
     } @else {
-      <ion-list>
+      <div class="card-list-web">
         @for (pr of pendingPrayerRequests; track pr.id) {
-          <ion-item>
-            <ion-label>
+          <div class="card item-card-web">
+            <div class="item-info-web">
               <h3>{{ pr.title }}</h3>
-              <p>{{ pr.content.length > 100 ? pr.content.substring(0, 100) + '...' : pr.content }}</p>
-              <p class="meta">By {{ pr.author.firstName }} {{ pr.author.lastName }}</p>
-            </ion-label>
-            <div slot="end" class="action-buttons">
-              <ion-button color="success" size="small" (click)="approvePrayerRequest(pr.id)">
-                Approve
-              </ion-button>
-              <ion-button color="danger" size="small" fill="outline" (click)="rejectPrayerRequest(pr.id)">
-                Reject
-              </ion-button>
+              <p class="item-content-web">{{ pr.content.length > 100 ? pr.content.substring(0, 100) + '...' : pr.content }}</p>
+              <p class="item-meta-web">By {{ pr.author.firstName }} {{ pr.author.lastName }}</p>
             </div>
-          </ion-item>
+            <div class="item-actions-web action-btns-web">
+              <button class="btn-success-web btn-sm-web" (click)="approvePrayerRequest(pr.id)">Approve</button>
+              <button class="btn-outline-danger-web btn-sm-web" (click)="rejectPrayerRequest(pr.id)">Reject</button>
+            </div>
+          </div>
         }
-      </ion-list>
+      </div>
     }
   }
 
   <!-- PROFILE CHANGES TAB -->
   @if (activeTab === 'profile') {
-    <h2>Pending Profile Changes</h2>
+    <h2 class="section-title-web">Pending Profile Changes</h2>
     @if (pendingProfileChanges.length === 0) {
-      <p>No pending profile changes.</p>
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <p>No pending profile changes.</p>
+      </div>
     } @else {
-      <ion-list>
+      <div class="card-list-web">
         @for (request of pendingProfileChanges; track request.id) {
-          <ion-item>
-            <ion-label>
+          <div class="card item-card-web">
+            <div class="item-info-web">
               <h3>{{ request.user.firstName }} {{ request.user.lastName }}</h3>
-              <p>{{ request.user.email }}</p>
-              <div class="change-details">
+              <p class="item-meta-web">{{ request.user.email }}</p>
+              <div class="change-chips-web">
                 @for (change of getChangeFields(request.requestedChanges); track change.field) {
-                  <ion-chip color="tertiary" class="change-chip">
+                  <span class="change-chip-web">
                     <strong>{{ change.field }}:</strong>&nbsp;{{ change.value }}
-                  </ion-chip>
+                  </span>
                 }
               </div>
-            </ion-label>
-            <div slot="end" class="action-buttons">
-              <ion-button color="success" size="small" (click)="approveProfileChange(request.id)">
-                Approve
-              </ion-button>
-              <ion-button color="danger" size="small" fill="outline" (click)="rejectProfileChange(request.id)">
-                Reject
-              </ion-button>
             </div>
-          </ion-item>
+            <div class="item-actions-web action-btns-web">
+              <button class="btn-success-web btn-sm-web" (click)="approveProfileChange(request.id)">Approve</button>
+              <button class="btn-outline-danger-web btn-sm-web" (click)="rejectProfileChange(request.id)">Reject</button>
+            </div>
+          </div>
         }
-      </ion-list>
+      </div>
     }
   }
 
   <!-- SETTINGS TAB -->
   @if (activeTab === 'settings') {
-    <div class="section-header">
-      <h2>Stations</h2>
-      <ion-button size="small" (click)="addStation()">
-        Add Station
-      </ion-button>
+    <div class="section-header-web">
+      <h2 class="section-title-web">Stations</h2>
+      <button class="btn-primary-web btn-sm-web" (click)="addStation()">Add Station</button>
     </div>
     @if (stations.length === 0) {
-      <p>No stations configured.</p>
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <p>No stations configured.</p>
+      </div>
     } @else {
-      <ion-list>
+      <div class="card-list-web">
         @for (station of stations; track station.id) {
+          <div class="card item-card-web">
+            <div class="item-info-web">
+              <h3>{{ station.name }}</h3>
+            </div>
+            <button class="btn-icon-web btn-danger-web" (click)="removeStation(station)" title="Remove station">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
+} @else {
+  <!-- Mobile Layout (Ionic) -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Admin Panel</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onLogout()">
+          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar>
+      <ion-segment [(ngModel)]="activeTab">
+        <ion-segment-button value="accounts">Accounts</ion-segment-button>
+        <ion-segment-button value="prayer">Prayer Requests</ion-segment-button>
+        <ion-segment-button value="profile">Profile Changes</ion-segment-button>
+        <ion-segment-button value="settings">Settings</ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <!-- ACCOUNTS TAB -->
+    @if (activeTab === 'accounts') {
+      @if (pendingUsers.length > 0) {
+        <h2>Pending Approvals</h2>
+        <ion-list>
+          @for (user of pendingUsers; track user.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+                <p>{{ user.email }}</p>
+              </ion-label>
+              <ion-button slot="end" color="primary" (click)="openApproveModal(user)">
+                Review
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      <div class="section-header">
+        <h2>All Users</h2>
+        <ion-button size="small" (click)="addUser()">
+          <ion-icon name="person-add-outline" slot="start"></ion-icon>
+          Add User
+        </ion-button>
+      </div>
+      <ion-list>
+        @for (user of allUsers; track user.id) {
           <ion-item>
-            <ion-label>{{ station.name }}</ion-label>
-            <ion-button slot="end" fill="clear" color="danger" (click)="removeStation(station)">
+            <ion-avatar slot="start">
+              @if (user.profilePicture) {
+                <img [src]="apiUrl + '/uploads/' + user.profilePicture" alt="" />
+              } @else {
+                <div class="avatar-placeholder">{{ getInitials(user) }}</div>
+              }
+            </ion-avatar>
+            <ion-label>
+              <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+              <p>{{ user.email }}</p>
+              <p>
+                @for (role of user.roles; track role.id) {
+                  <ion-badge color="medium" style="margin-right: 4px;">{{ role.name }}</ion-badge>
+                }
+              </p>
+            </ion-label>
+            <ion-select slot="end" placeholder="Add Role" interface="popover"
+              (ionChange)="assignRole(user.id, $event.detail.value)">
+              @for (role of availableRoles; track role) {
+                <ion-select-option [value]="role">{{ role }}</ion-select-option>
+              }
+            </ion-select>
+            <ion-button slot="end" fill="clear" color="danger" (click)="removeUser(user)">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </ion-item>
         }
       </ion-list>
     }
-  }
-</ion-content>
+
+    <!-- PRAYER REQUESTS TAB -->
+    @if (activeTab === 'prayer') {
+      <h2>Pending Prayer Requests</h2>
+      @if (pendingPrayerRequests.length === 0) {
+        <p>No pending prayer requests.</p>
+      } @else {
+        <ion-list>
+          @for (pr of pendingPrayerRequests; track pr.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ pr.title }}</h3>
+                <p>{{ pr.content.length > 100 ? pr.content.substring(0, 100) + '...' : pr.content }}</p>
+                <p class="meta">By {{ pr.author.firstName }} {{ pr.author.lastName }}</p>
+              </ion-label>
+              <div slot="end" class="action-buttons">
+                <ion-button color="success" size="small" (click)="approvePrayerRequest(pr.id)">
+                  Approve
+                </ion-button>
+                <ion-button color="danger" size="small" fill="outline" (click)="rejectPrayerRequest(pr.id)">
+                  Reject
+                </ion-button>
+              </div>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    }
+
+    <!-- PROFILE CHANGES TAB -->
+    @if (activeTab === 'profile') {
+      <h2>Pending Profile Changes</h2>
+      @if (pendingProfileChanges.length === 0) {
+        <p>No pending profile changes.</p>
+      } @else {
+        <ion-list>
+          @for (request of pendingProfileChanges; track request.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ request.user.firstName }} {{ request.user.lastName }}</h3>
+                <p>{{ request.user.email }}</p>
+                <div class="change-details">
+                  @for (change of getChangeFields(request.requestedChanges); track change.field) {
+                    <ion-chip color="tertiary" class="change-chip">
+                      <strong>{{ change.field }}:</strong>&nbsp;{{ change.value }}
+                    </ion-chip>
+                  }
+                </div>
+              </ion-label>
+              <div slot="end" class="action-buttons">
+                <ion-button color="success" size="small" (click)="approveProfileChange(request.id)">
+                  Approve
+                </ion-button>
+                <ion-button color="danger" size="small" fill="outline" (click)="rejectProfileChange(request.id)">
+                  Reject
+                </ion-button>
+              </div>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    }
+
+    <!-- SETTINGS TAB -->
+    @if (activeTab === 'settings') {
+      <div class="section-header">
+        <h2>Stations</h2>
+        <ion-button size="small" (click)="addStation()">
+          Add Station
+        </ion-button>
+      </div>
+      @if (stations.length === 0) {
+        <p>No stations configured.</p>
+      } @else {
+        <ion-list>
+          @for (station of stations; track station.id) {
+            <ion-item>
+              <ion-label>{{ station.name }}</ion-label>
+              <ion-button slot="end" fill="clear" color="danger" (click)="removeStation(station)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    }
+  </ion-content>
+}

@@ -39,3 +39,138 @@ ion-card {
     object-fit: cover;
   }
 }
+
+/* ═══ Web Layout ═══ */
+
+.page-header-web {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary {
+  background: #1a3a4a;
+  color: white;
+
+  &:hover {
+    background: #15303d;
+    box-shadow: 0 2px 8px rgba(26, 58, 74, 0.3);
+  }
+}
+
+.btn-success {
+  background: #7a9e3e;
+  color: white;
+
+  &:hover {
+    background: #6b8c36;
+  }
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+
+  .card-image-full {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+  }
+}
+
+.pending-card-web {
+  border-left: 3px solid #f59e0b;
+}
+
+.section-title-web {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 28px 0 12px 0;
+  color: #94a3b8;
+}
+
+.card-body-web {
+  padding: 18px 20px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.prayer-content-web {
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+.meta-web {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 4px 0;
+}
+
+.empty-state-web {
+  text-align: center;
+  padding: 64px 16px;
+  color: #94a3b8;
+
+  svg {
+    opacity: 0.4;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
+}

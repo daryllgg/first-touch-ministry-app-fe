@@ -2,14 +2,22 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { approvedGuard } from './guards/approved.guard';
 import { roleGuard } from './guards/role.guard';
+import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
+    canActivate: [guestGuard],
     loadComponent: () => import('./pages/login/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'verify-email',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/verify-email/verify-email.page').then((m) => m.VerifyEmailPage),
+  },
+  {
     path: 'register',
+    canActivate: [guestGuard],
     loadComponent: () => import('./pages/register/register.page').then((m) => m.RegisterPage),
   },
   {
@@ -21,6 +29,11 @@ export const routes: Routes = [
     path: 'home',
     canActivate: [authGuard, approvedGuard],
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
+  },
+  {
+    path: 'profile',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/profile/profile.page').then((m) => m.ProfilePage),
   },
   {
     path: 'admin',
@@ -48,9 +61,49 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/prayer-requests/prayer-request-form.page').then((m) => m.PrayerRequestFormPage),
   },
   {
-    path: 'worship-schedules',
+    path: 'notifications',
     canActivate: [authGuard, approvedGuard],
-    loadComponent: () => import('./pages/worship-schedules/worship-schedules-list.page').then((m) => m.WorshipSchedulesListPage),
+    loadComponent: () => import('./pages/notifications/notifications.page').then((m) => m.NotificationsPage),
+  },
+  {
+    path: 'worship-lineups',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/worship-lineups/worship-lineups-list.page').then((m) => m.WorshipLineupsListPage),
+  },
+  {
+    path: 'worship-lineups/new',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/worship-lineups/worship-lineup-form.page').then((m) => m.WorshipLineupFormPage),
+  },
+  {
+    path: 'worship-lineups/:id/edit',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/worship-lineups/worship-lineup-form.page').then((m) => m.WorshipLineupFormPage),
+  },
+  {
+    path: 'worship-lineups/:id',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/worship-lineups/worship-lineup-detail.page').then((m) => m.WorshipLineupDetailPage),
+  },
+  {
+    path: 'youth-profiles',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-profiles-list.page').then((m) => m.YouthProfilesListPage),
+  },
+  {
+    path: 'youth-profiles/new',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-profile-form.page').then((m) => m.YouthProfileFormPage),
+  },
+  {
+    path: 'youth-profiles/:id',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-profile-detail.page').then((m) => m.YouthProfileDetailPage),
+  },
+  {
+    path: 'youth-profiles/:id/edit',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-profile-form.page').then((m) => m.YouthProfileFormPage),
   },
   {
     path: '',

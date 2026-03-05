@@ -1,4 +1,7 @@
+const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000',
+  platform: 'mobile' as 'mobile' | 'web',
+  apiUrl: `http://${hostname}:3000`,
 };

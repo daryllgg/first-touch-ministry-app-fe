@@ -26,3 +26,65 @@
 ion-button {
   --border-radius: 14px;
 }
+
+/* ═══ Web Layout ═══ */
+.pending-web {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f4f6fa;
+  padding: 32px;
+}
+
+.pending-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 40px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: #94a3b8;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+}
+
+.pending-icon-web {
+  color: #cbd5e1;
+  margin-bottom: 20px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+}
+
+@media (max-width: 768px) {
+  .pending-web { padding: 20px; }
+  .pending-card { padding: 36px 24px; }
+}

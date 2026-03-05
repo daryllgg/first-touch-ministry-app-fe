@@ -1,164 +1,342 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/worship-lineups"></ion-back-button>
-    </ion-buttons>
-    <ion-title>New Lineup</ion-title>
-  </ion-toolbar>
-</ion-header>
+@if (isWeb) {
+  <div class="form-container-web">
+    <div class="card">
+      <h2 class="form-title">{{ isEditMode ? 'Edit Lineup' : 'New Lineup' }}</h2>
 
-<ion-content class="ion-padding">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <ion-item>
-      <ion-select formControlName="serviceType" label="Service Type" labelPlacement="floating" interface="action-sheet">
-        @for (opt of serviceTypeOptions; track opt.value) {
-          <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
-        }
-      </ion-select>
-    </ion-item>
-
-    @if (isSpecialEvent) {
-      <ion-item>
-        <ion-input formControlName="customServiceName" label="Custom Service Name" labelPlacement="floating"></ion-input>
-      </ion-item>
-    }
-
-    <div class="section-header">
-      <h3>Dates</h3>
-      <ion-button fill="outline" size="small" (click)="addDate()">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Add Date
-      </ion-button>
-    </div>
-
-    <div class="dates-list">
-      @for (date of dates.controls; track $index; let i = $index) {
-        <div class="date-chip" (click)="editDate(i)">
-          <ion-icon name="calendar-outline"></ion-icon>
-          <span>{{ formatDate(date.value) }}</span>
-          <ion-button fill="clear" color="danger" size="small" (click)="removeDate(i); $event.stopPropagation()">
-            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-          </ion-button>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label class="form-label">Service Type</label>
+          <select class="form-select" formControlName="serviceType">
+            <option value="" disabled>Select service type</option>
+            @for (opt of serviceTypeOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
         </div>
-      }
-    </div>
 
-    @if (dates.length === 0) {
-      <p class="empty-hint">No dates added yet. Click "Add Date" to start.</p>
-    }
-
-    <ion-modal #dateModal>
-      <ng-template>
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Select Date</ion-title>
-            <ion-buttons slot="end">
-              <ion-button (click)="onDateCancel()">Cancel</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-          <ion-datetime
-            presentation="date"
-            [min]="todayDate"
-            (ionChange)="onDateConfirm($event)"
-          ></ion-datetime>
-        </ion-content>
-      </ng-template>
-    </ion-modal>
-
-    <div class="section-header">
-      <h3>Songs</h3>
-      <ion-button fill="outline" size="small" (click)="addSong()">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Add Song
-      </ion-button>
-    </div>
-
-    <div formArrayName="songs">
-      @for (song of songs.controls; track $index; let i = $index) {
-        <div class="song-row" [formGroupName]="i">
-          <div class="song-fields">
-            <ion-item>
-              <ion-input formControlName="title" label="Song Title" labelPlacement="floating"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input formControlName="link" label="Link (optional)" labelPlacement="floating"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-select formControlName="singerId" label="Singer (optional)" labelPlacement="floating" interface="action-sheet">
-                @for (u of singerUsers; track u.id) {
-                  <ion-select-option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</ion-select-option>
-                }
-              </ion-select>
-            </ion-item>
+        @if (isSpecialEvent) {
+          <div class="form-group">
+            <label class="form-label">Custom Service Name</label>
+            <input class="form-input" formControlName="customServiceName" placeholder="Enter custom service name" />
           </div>
-          <ion-button fill="clear" color="danger" (click)="removeSong(i)" class="remove-btn">
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
+        }
+
+        <!-- Dates Section -->
+        <div class="section-header-web">
+          <h3>Dates</h3>
+          <button type="button" class="btn btn-outline btn-sm" (click)="addDate()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Date
+          </button>
         </div>
-      }
-    </div>
 
-    @if (songs.length === 0) {
-      <p class="empty-hint">No songs added yet.</p>
-    }
+        <div class="dates-list-web">
+          @for (date of dates.controls; track $index; let i = $index) {
+            <div class="date-chip-web" (click)="editDate(i)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a3a4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>{{ formatDate(date.value) }}</span>
+              <button type="button" class="btn-icon-remove" (click)="removeDate(i); $event.stopPropagation()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          }
+        </div>
 
-    <div class="section-header">
-      <h3>Members</h3>
-      <ion-button fill="outline" size="small" (click)="addMember()">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Add Member
-      </ion-button>
-    </div>
+        @if (dates.length === 0) {
+          <p class="empty-hint-web">No dates added yet. Click "Add Date" to start.</p>
+        }
 
-    <div formArrayName="members">
-      @for (member of members.controls; track $index; let i = $index) {
-        <div class="member-row" [formGroupName]="i">
-          <div class="member-fields">
-            <ion-item class="member-select">
-              <ion-select formControlName="instrumentRoleId" label="Instrument/Role" labelPlacement="floating" interface="action-sheet" (ionChange)="onRoleChange(member)">
-                @for (role of instrumentRoles; track role.id) {
-                  <ion-select-option [value]="role.id">{{ role.name }}</ion-select-option>
+        <ion-modal #dateModal>
+          <ng-template>
+            <ion-header>
+              <ion-toolbar>
+                <ion-title>Select Date</ion-title>
+                <ion-buttons slot="end">
+                  <ion-button (click)="onDateCancel()">Cancel</ion-button>
+                </ion-buttons>
+              </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+              <ion-datetime
+                presentation="date"
+                [min]="todayDate"
+                (ionChange)="onDateConfirm($event)"
+              ></ion-datetime>
+            </ion-content>
+          </ng-template>
+        </ion-modal>
+
+        <!-- Songs Section -->
+        <div class="section-header-web">
+          <h3>Songs</h3>
+          <button type="button" class="btn btn-outline btn-sm" (click)="addSong()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Song
+          </button>
+        </div>
+
+        <div formArrayName="songs">
+          @for (song of songs.controls; track $index; let i = $index) {
+            <div class="song-row-web" [formGroupName]="i">
+              <div class="song-fields-web">
+                <div class="form-group">
+                  <label class="form-label">Song Title</label>
+                  <input class="form-input" formControlName="title" placeholder="Enter song title" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Link (optional)</label>
+                  <input class="form-input" formControlName="link" placeholder="Song link" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Singer (optional)</label>
+                  <select class="form-select" formControlName="singerId">
+                    <option value="">-- Select singer --</option>
+                    @for (u of singerUsers; track u.id) {
+                      <option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+              <button type="button" class="btn-icon-remove" (click)="removeSong(i)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (songs.length === 0) {
+          <p class="empty-hint-web">No songs added yet.</p>
+        }
+
+        <!-- Members Section -->
+        <div class="section-header-web">
+          <h3>Members</h3>
+          <button type="button" class="btn btn-outline btn-sm" (click)="addMember()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Member
+          </button>
+        </div>
+
+        <div formArrayName="members">
+          @for (member of members.controls; track $index; let i = $index) {
+            <div class="member-row-web" [formGroupName]="i">
+              <div class="member-fields-web">
+                <div class="form-group">
+                  <label class="form-label">Instrument/Role</label>
+                  <select class="form-select" formControlName="instrumentRoleId" (change)="onRoleChange(member)">
+                    <option value="" disabled>Select role</option>
+                    @for (role of instrumentRoles; track role.id) {
+                      <option [value]="role.id">{{ role.name }}</option>
+                    }
+                  </select>
+                </div>
+                @if (member.get('instrumentRoleId')?.value) {
+                  <div class="form-group">
+                    <label class="form-label">Member</label>
+                    <select class="form-select" formControlName="userId">
+                      <option value="" disabled>Select member</option>
+                      @for (u of getFilteredUsers(member); track u.id) {
+                        <option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
+                      }
+                    </select>
+                  </div>
                 }
-              </ion-select>
-            </ion-item>
-            @if (member.get('instrumentRoleId')?.value) {
-              <ion-item class="member-select">
-                <ion-select formControlName="userId" label="Member" labelPlacement="floating" interface="action-sheet">
-                  @for (u of getFilteredUsers(member); track u.id) {
+                @if (isOthersRole(member)) {
+                  <div class="form-group">
+                    <label class="form-label">Custom Role Name</label>
+                    <input class="form-input" formControlName="customRoleName" placeholder="Enter custom role" />
+                  </div>
+                }
+              </div>
+              <button type="button" class="btn-icon-remove" (click)="removeMember(i)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (members.length === 0) {
+          <p class="empty-hint-web">No members added yet. Click "Add Member" to start.</p>
+        }
+
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">Notes (optional)</label>
+          <textarea class="form-textarea" formControlName="notes" rows="3" placeholder="Any additional notes..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading">
+          @if (isLoading) {
+            <span class="spinner"></span>
+          } @else {
+            {{ isEditMode ? 'Update Lineup' : 'Create Lineup' }}
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/worship-lineups"></ion-back-button>
+      </ion-buttons>
+      <ion-title>{{ isEditMode ? 'Edit Lineup' : 'New Lineup' }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <ion-item>
+        <ion-select formControlName="serviceType" label="Service Type" labelPlacement="floating" interface="action-sheet">
+          @for (opt of serviceTypeOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      @if (isSpecialEvent) {
+        <ion-item>
+          <ion-input formControlName="customServiceName" label="Custom Service Name" labelPlacement="floating"></ion-input>
+        </ion-item>
+      }
+
+      <div class="section-header">
+        <h3>Dates</h3>
+        <ion-button fill="outline" size="small" (click)="addDate()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add Date
+        </ion-button>
+      </div>
+
+      <div class="dates-list">
+        @for (date of dates.controls; track $index; let i = $index) {
+          <div class="date-chip" (click)="editDate(i)">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ formatDate(date.value) }}</span>
+            <ion-button fill="clear" color="danger" size="small" (click)="removeDate(i); $event.stopPropagation()">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        }
+      </div>
+
+      @if (dates.length === 0) {
+        <p class="empty-hint">No dates added yet. Click "Add Date" to start.</p>
+      }
+
+      <ion-modal #dateModal>
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Select Date</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="onDateCancel()">Cancel</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <ion-datetime
+              presentation="date"
+              [min]="todayDate"
+              (ionChange)="onDateConfirm($event)"
+            ></ion-datetime>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+      <div class="section-header">
+        <h3>Songs</h3>
+        <ion-button fill="outline" size="small" (click)="addSong()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add Song
+        </ion-button>
+      </div>
+
+      <div formArrayName="songs">
+        @for (song of songs.controls; track $index; let i = $index) {
+          <div class="song-row" [formGroupName]="i">
+            <div class="song-fields">
+              <ion-item>
+                <ion-input formControlName="title" label="Song Title" labelPlacement="floating"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-input formControlName="link" label="Link (optional)" labelPlacement="floating"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-select formControlName="singerId" label="Singer (optional)" labelPlacement="floating" interface="action-sheet">
+                  @for (u of singerUsers; track u.id) {
                     <ion-select-option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
-            }
-            @if (isOthersRole(member)) {
-              <ion-item>
-                <ion-input formControlName="customRoleName" label="Custom Role Name" labelPlacement="floating"></ion-input>
-              </ion-item>
-            }
+            </div>
+            <ion-button fill="clear" color="danger" (click)="removeSong(i)" class="remove-btn">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
           </div>
-          <ion-button fill="clear" color="danger" (click)="removeMember(i)" class="remove-btn">
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
-        </div>
+        }
+      </div>
+
+      @if (songs.length === 0) {
+        <p class="empty-hint">No songs added yet.</p>
       }
-    </div>
 
-    @if (members.length === 0) {
-      <p class="empty-hint">No members added yet. Click "Add Member" to start.</p>
-    }
+      <div class="section-header">
+        <h3>Members</h3>
+        <ion-button fill="outline" size="small" (click)="addMember()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add Member
+        </ion-button>
+      </div>
 
-    <ion-item>
-      <ion-textarea formControlName="notes" label="Notes (optional)" labelPlacement="floating" rows="3"></ion-textarea>
-    </ion-item>
+      <div formArrayName="members">
+        @for (member of members.controls; track $index; let i = $index) {
+          <div class="member-row" [formGroupName]="i">
+            <div class="member-fields">
+              <ion-item class="member-select">
+                <ion-select formControlName="instrumentRoleId" label="Instrument/Role" labelPlacement="floating" interface="action-sheet" (ionChange)="onRoleChange(member)">
+                  @for (role of instrumentRoles; track role.id) {
+                    <ion-select-option [value]="role.id">{{ role.name }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+              @if (member.get('instrumentRoleId')?.value) {
+                <ion-item class="member-select">
+                  <ion-select formControlName="userId" label="Member" labelPlacement="floating" interface="action-sheet">
+                    @for (u of getFilteredUsers(member); track u.id) {
+                      <ion-select-option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</ion-select-option>
+                    }
+                  </ion-select>
+                </ion-item>
+              }
+              @if (isOthersRole(member)) {
+                <ion-item>
+                  <ion-input formControlName="customRoleName" label="Custom Role Name" labelPlacement="floating"></ion-input>
+                </ion-item>
+              }
+            </div>
+            <ion-button fill="clear" color="danger" (click)="removeMember(i)" class="remove-btn">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        }
+      </div>
 
-    <ion-button expand="block" type="submit" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading" class="ion-margin-top">
-      @if (isLoading) {
-        <ion-spinner name="crescent"></ion-spinner>
-      } @else {
-        Create Lineup
+      @if (members.length === 0) {
+        <p class="empty-hint">No members added yet. Click "Add Member" to start.</p>
       }
-    </ion-button>
-  </form>
-</ion-content>
+
+      <ion-item>
+        <ion-textarea formControlName="notes" label="Notes (optional)" labelPlacement="floating" rows="3"></ion-textarea>
+      </ion-item>
+
+      <ion-button expand="block" type="submit" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading" class="ion-margin-top">
+        @if (isLoading) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          {{ isEditMode ? 'Update Lineup' : 'Create Lineup' }}
+        }
+      </ion-button>
+    </form>
+  </ion-content>
+}

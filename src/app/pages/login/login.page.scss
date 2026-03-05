@@ -72,3 +72,83 @@ ion-item {
     margin-left: 4px;
   }
 }
+
+/* ═══ Web Layout ═══ */
+.auth-split {
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-brand {
+  flex: 1;
+  background: linear-gradient(135deg, #1a3a4a 0%, #2e5d73 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.auth-brand-content {
+  text-align: center;
+  color: white;
+}
+
+.auth-logo-web {
+  max-width: 240px;
+  width: 80%;
+  margin-bottom: 24px;
+}
+
+.auth-tagline {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: #f4f6fa;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 400px;
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+  }
+}
+
+.auth-subtitle {
+  color: #94a3b8;
+  margin-bottom: 32px;
+}
+
+.auth-footer-text {
+  text-align: center;
+  margin-top: 24px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+
+  a {
+    color: #1a3a4a;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-split { flex-direction: column; }
+  .auth-brand { min-height: 200px; flex: 0; padding: 32px; }
+  .auth-logo-web { max-width: 160px; }
+  .auth-form-panel { padding: 32px 24px; }
+}

@@ -1,36 +1,130 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Prayer Requests</ion-title>
-  </ion-toolbar>
-</ion-header>
+@if (isWeb) {
+  <div class="page-header-web">
+    <h1>Prayer Requests</h1>
+    <a routerLink="/prayer-requests/new" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      New Request
+    </a>
+  </div>
 
-<ion-content class="ion-padding">
-  @if (prayerRequests.length === 0) {
-    <p>No prayer requests yet.</p>
-  } @else {
-    <ion-list>
-      @for (pr of prayerRequests; track pr.id) {
-        <ion-item>
-          <ion-label>
-            <p>{{ pr.content }}</p>
-            <p class="meta">
-              By {{ pr.author.firstName }} {{ pr.author.lastName }} · {{ pr.createdAt | date:'mediumDate' }}
-              @if (pr.visibility === 'PRIVATE') {
-                <ion-badge color="warning">Private</ion-badge>
-              }
+  @if (isAdminOrPastor && pendingRequests.length > 0) {
+    <h2 class="section-title-web">Pending Approval</h2>
+    <div class="card-grid">
+      @for (pr of pendingRequests; track pr.id) {
+        <div class="card pending-card-web">
+          @if (pr.image) {
+            <img [src]="getImageUrl(pr.image)" alt="Prayer request image" class="card-image-full" />
+          }
+          <div class="card-body-web">
+            <span class="badge badge-warning">Pending</span>
+            <p class="prayer-content-web">{{ pr.content }}</p>
+            <p class="meta-web">
+              By {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
             </p>
-          </ion-label>
-        </ion-item>
+            <button class="btn btn-success btn-sm" (click)="approveRequest(pr.id)">Approve</button>
+          </div>
+        </div>
       }
-    </ion-list>
+    </div>
   }
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button routerLink="/prayer-requests/new">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-</ion-content>
+  <h2 class="section-title-web">Prayer Requests</h2>
+  @if (prayerRequests.length === 0) {
+    <div class="empty-state-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+      </svg>
+      <p>No prayer requests yet.</p>
+    </div>
+  } @else {
+    <div class="card-grid">
+      @for (pr of prayerRequests; track pr.id) {
+        <div class="card">
+          @if (pr.image) {
+            <img [src]="getImageUrl(pr.image)" alt="Prayer request image" class="card-image-full" />
+          }
+          <div class="card-body-web">
+            <p class="meta-web">
+              {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
+            </p>
+            <p class="prayer-content-web">{{ pr.content }}</p>
+            @if (pr.isApproved === false && pr.author.id === currentUserId) {
+              <span class="badge badge-warning">Pending approval</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Prayer Requests</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onLogout()">
+          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    @if (isAdminOrPastor && pendingRequests.length > 0) {
+      <h2 class="section-title">Pending Approval</h2>
+      @for (pr of pendingRequests; track pr.id) {
+        <ion-card class="pending-card">
+          @if (pr.image) {
+            <img [src]="getImageUrl(pr.image)" [alt]="'Prayer request image'" />
+          }
+          <ion-card-header>
+            <ion-card-subtitle>
+              <ion-badge color="warning">Pending</ion-badge>
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ pr.content }}</p>
+            <p class="meta">
+              By {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
+            </p>
+            <ion-button size="small" color="success" (click)="approveRequest(pr.id)">
+              Approve
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      }
+    }
+
+    <h2 class="section-title">Prayer Requests</h2>
+    @if (prayerRequests.length === 0) {
+      <p>No prayer requests yet.</p>
+    } @else {
+      @for (pr of prayerRequests; track pr.id) {
+        <ion-card>
+          @if (pr.image) {
+            <img [src]="getImageUrl(pr.image)" [alt]="'Prayer request image'" />
+          }
+          <ion-card-header>
+            <ion-card-subtitle>
+              {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p>{{ pr.content }}</p>
+            @if (pr.isApproved === false && pr.author.id === currentUserId) {
+              <ion-badge color="warning">Pending approval</ion-badge>
+            }
+          </ion-card-content>
+        </ion-card>
+      }
+    }
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button routerLink="/prayer-requests/new">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </ion-content>
+}

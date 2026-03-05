@@ -1,0 +1,368 @@
+@if (isWeb) {
+  <div class="detail-container-web">
+    @if (lineup) {
+      <!-- Header bar: title, status, actions -->
+      <div class="card detail-topbar-web">
+        <div class="detail-topbar-left">
+          <a routerLink="/worship-lineups" class="back-link-web">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </a>
+          <h2 class="detail-title-web">
+            @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
+              {{ lineup.customServiceName }}
+            } @else {
+              {{ formatServiceType(lineup.serviceType) }}
+            }
+          </h2>
+          <span class="status-badge-web" [class]="'status-' + lineup.status.toLowerCase()">
+            @if (lineup.status === 'CHANGES_REQUESTED') {
+              Changes Requested
+            } @else {
+              {{ lineup.status }}
+            }
+          </span>
+        </div>
+        <div class="detail-topbar-actions">
+          @if (isSubmitter && lineup.status !== 'APPROVED' && lineup.status !== 'REJECTED') {
+            <a class="btn btn-outline btn-sm" [routerLink]="['/worship-lineups', lineup.id, 'edit']">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </a>
+          }
+          @if (canReview && (lineup.status === 'PENDING' || lineup.status === 'CHANGES_REQUESTED')) {
+            <button class="btn btn-success btn-sm" (click)="approve()">Approve</button>
+            <button class="btn btn-danger btn-sm" (click)="reject()">Decline</button>
+            <button class="btn btn-warning btn-sm" (click)="requestChanges()">Request Changes</button>
+          }
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="detail-grid-web">
+        <!-- Left column: Details + Songs + Members -->
+        <div class="detail-col-web">
+          <div class="card">
+            <h3 class="section-title-web">Details</h3>
+            <div class="detail-field-web">
+              <span class="field-label-web">Service Type</span>
+              <span>{{ formatServiceType(lineup.serviceType) }}</span>
+            </div>
+            <div class="detail-field-web">
+              <span class="field-label-web">Dates</span>
+              <div>
+                @for (date of lineup.dates; track date) {
+                  <span class="date-chip-web">{{ date | date:'MMM d, y' }}</span>
+                }
+              </div>
+            </div>
+            <div class="detail-field-web">
+              <span class="field-label-web">Submitted by</span>
+              <span>{{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</span>
+            </div>
+            @if (lineup.notes) {
+              <div class="detail-field-web">
+                <span class="field-label-web">Notes</span>
+                <span>{{ lineup.notes }}</span>
+              </div>
+            }
+            @if (lineup.reviewedBy) {
+              <div class="detail-field-web">
+                <span class="field-label-web">Reviewed by</span>
+                <span>{{ lineup.reviewedBy.firstName }} {{ lineup.reviewedBy.lastName }} &middot; {{ lineup.reviewedAt | date:'medium' }}</span>
+              </div>
+            }
+          </div>
+
+          @if (lineup.songs && lineup.songs.length > 0) {
+            <div class="card">
+              <h3 class="section-title-web">Songs</h3>
+              @for (song of lineup.songs; track song.id) {
+                <div class="list-item-web">
+                  <div>
+                    <h4 class="item-title-web">{{ song.title }}</h4>
+                    @if (song.link) {
+                      <p class="item-sub-web"><a [href]="song.link" target="_blank" rel="noopener noreferrer">{{ song.link }}</a></p>
+                    }
+                    @if (song.singer) {
+                      <p class="item-sub-web">Singer: {{ song.singer.firstName }} {{ song.singer.lastName }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="card">
+            <h3 class="section-title-web">Singers & Musicians ({{ lineup.members.length }})</h3>
+            @for (member of lineup.members; track member.id) {
+              <div class="list-item-web member-item-web">
+                <div class="member-avatar-web">
+                  @if (member.user.profilePicture) {
+                    <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
+                  } @else {
+                    <div class="avatar-placeholder-web">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
+                  }
+                </div>
+                <div class="member-info-web">
+                  <h4 class="item-title-web">{{ member.user.firstName }} {{ member.user.lastName }}</h4>
+                  <p class="item-sub-web">{{ member.instrumentRole.name }}</p>
+                </div>
+                @if (isMyMember(member.id)) {
+                  <button class="btn btn-outline btn-sm" (click)="requestSubstitution(member.id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>
+                    Sub
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right column: Review History + Substitutions -->
+        <div class="detail-col-web">
+          @if (lineup.reviews && lineup.reviews.length > 0) {
+            <div class="card">
+              <h3 class="section-title-web">Review History</h3>
+              @for (review of sortedReviews; track review.id) {
+                <div class="review-entry-web">
+                  <div class="review-header-web">
+                    <div class="reviewer-avatar-web">
+                      @if (review.reviewer.profilePicture) {
+                        <img [src]="apiUrl + '/uploads/' + review.reviewer.profilePicture" alt="" />
+                      } @else {
+                        <div class="avatar-placeholder-sm-web">{{ review.reviewer.firstName[0] }}{{ review.reviewer.lastName[0] }}</div>
+                      }
+                    </div>
+                    <strong>{{ review.reviewer.firstName }} {{ review.reviewer.lastName }}</strong>
+                    <span class="status-badge-web status-badge-sm" [class]="'status-' + review.status.toLowerCase()">{{ review.status }}</span>
+                  </div>
+                  @if (review.comment) {
+                    <p class="review-comment-web">{{ review.comment }}</p>
+                  }
+                  <p class="review-date-web">{{ review.createdAt | date:'medium' }}</p>
+                </div>
+              }
+            </div>
+          }
+
+          @if (substitutionRequests.length > 0) {
+            <div class="card">
+              <h3 class="section-title-web">Substitution Requests</h3>
+              @for (req of substitutionRequests; track req.id) {
+                <div class="list-item-web sub-item-web">
+                  <div class="sub-info-web">
+                    <h4 class="item-title-web">{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }} ({{ req.lineupMember.instrumentRole.name }})</h4>
+                    <p class="item-sub-web">{{ req.reason }}</p>
+                    @if (req.substituteUser) {
+                      <p class="item-sub-web">Substitute: {{ req.substituteUser.firstName }} {{ req.substituteUser.lastName }}</p>
+                    }
+                  </div>
+                  <div class="sub-actions-web">
+                    <span class="status-badge-web status-badge-sm" [class]="'status-' + req.status.toLowerCase()">{{ req.status }}</span>
+                    @if (canReview && req.status === 'PENDING') {
+                      <button class="btn-icon-success" (click)="approveSubstitution(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </button>
+                      <button class="btn-icon-danger" (click)="rejectSubstitution(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    }
+                    @if (req.status === 'APPROVED' && req.substituteUser === null && currentUserId !== req.requestedBy.id) {
+                      <button class="btn btn-outline btn-sm" (click)="acceptSubstitution(req.id)">Accept</button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/worship-lineups"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Lineup Details</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    @if (lineup) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
+              {{ lineup.customServiceName }}
+            } @else {
+              {{ formatServiceType(lineup.serviceType) }}
+            }
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p><strong>Service Type:</strong> {{ formatServiceType(lineup.serviceType) }}</p>
+          <p><strong>Dates:</strong></p>
+          <ul class="dates-list">
+            @for (date of lineup.dates; track date) {
+              <li>{{ date | date:'fullDate' }}</li>
+            }
+          </ul>
+          <p>
+            <strong>Status:</strong>
+            <ion-badge [color]="getStatusColor(lineup.status)">
+              @if (lineup.status === 'CHANGES_REQUESTED') {
+                Changes Requested
+              } @else {
+                {{ lineup.status }}
+              }
+            </ion-badge>
+          </p>
+          <p><strong>Submitted by:</strong> {{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</p>
+          @if (lineup.notes) {
+            <p><strong>Notes:</strong> {{ lineup.notes }}</p>
+          }
+          @if (lineup.reviewedBy) {
+            <p><strong>Reviewed by:</strong> {{ lineup.reviewedBy.firstName }} {{ lineup.reviewedBy.lastName }}</p>
+            <p><strong>Reviewed at:</strong> {{ lineup.reviewedAt | date:'medium' }}</p>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      @if (isSubmitter) {
+        <div class="submitter-actions">
+          @if (lineup.status !== 'APPROVED' && lineup.status !== 'REJECTED') {
+            <ion-button fill="outline" [routerLink]="['/worship-lineups', lineup.id, 'edit']">
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              Edit
+            </ion-button>
+          }
+        </div>
+      }
+
+      @if (canReview && (lineup.status === 'PENDING' || lineup.status === 'CHANGES_REQUESTED')) {
+        <div class="review-actions">
+          <ion-button color="success" (click)="approve()">
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            Approve
+          </ion-button>
+          <ion-button color="danger" (click)="reject()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Decline
+          </ion-button>
+          <ion-button color="warning" (click)="requestChanges()">
+            <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
+            Request Changes
+          </ion-button>
+        </div>
+      }
+
+      @if (lineup.songs && lineup.songs.length > 0) {
+        <h3 class="section-title">Songs</h3>
+        <ion-list>
+          @for (song of lineup.songs; track song.id) {
+            <ion-item>
+              <ion-label>
+                <h2>{{ song.title }}</h2>
+                @if (song.link) {
+                  <p><a [href]="song.link" target="_blank" rel="noopener noreferrer">{{ song.link }}</a></p>
+                }
+                @if (song.singer) {
+                  <p>Singer: {{ song.singer.firstName }} {{ song.singer.lastName }}</p>
+                }
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      <h3 class="section-title">Members</h3>
+      <ion-list>
+        @for (member of lineup.members; track member.id) {
+          <ion-item>
+            <ion-avatar slot="start">
+              @if (member.user.profilePicture) {
+                <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
+              } @else {
+                <div class="avatar-placeholder">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
+              }
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ member.user.firstName }} {{ member.user.lastName }}</h2>
+              <p>{{ member.instrumentRole.name }}</p>
+            </ion-label>
+            @if (isMyMember(member.id)) {
+              <ion-button fill="outline" size="small" slot="end" (click)="requestSubstitution(member.id)">
+                <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
+                Sub
+              </ion-button>
+            }
+          </ion-item>
+        }
+      </ion-list>
+
+      @if (lineup.reviews && lineup.reviews.length > 0) {
+        <h3 class="section-title">Review History</h3>
+        <div class="review-timeline">
+          @for (review of sortedReviews; track review.id) {
+            <div class="review-entry">
+              <div class="review-header">
+                <div class="reviewer-avatar">
+                  @if (review.reviewer.profilePicture) {
+                    <img [src]="apiUrl + '/uploads/' + review.reviewer.profilePicture" alt="" />
+                  } @else {
+                    <div class="avatar-placeholder-sm">{{ review.reviewer.firstName[0] }}{{ review.reviewer.lastName[0] }}</div>
+                  }
+                </div>
+                <strong>{{ review.reviewer.firstName }} {{ review.reviewer.lastName }}</strong>
+                <ion-badge [color]="getStatusColor(review.status)" class="review-badge">{{ review.status }}</ion-badge>
+              </div>
+              @if (review.comment) {
+                <p class="review-comment">{{ review.comment }}</p>
+              }
+              <p class="review-date">{{ review.createdAt | date:'medium' }}</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (substitutionRequests.length > 0) {
+        <h3 class="section-title">Substitution Requests</h3>
+        <ion-list>
+          @for (req of substitutionRequests; track req.id) {
+            <ion-item>
+              <ion-label>
+                <h2>{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }} ({{ req.lineupMember.instrumentRole.name }})</h2>
+                <p>{{ req.reason }}</p>
+                @if (req.substituteUser) {
+                  <p>Substitute: {{ req.substituteUser.firstName }} {{ req.substituteUser.lastName }}</p>
+                }
+              </ion-label>
+              <div slot="end" class="sub-actions">
+                <ion-badge [color]="getStatusColor(req.status)">{{ req.status }}</ion-badge>
+                @if (canReview && req.status === 'PENDING') {
+                  <ion-button fill="clear" size="small" color="success" (click)="approveSubstitution(req.id)">
+                    <ion-icon name="checkmark-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" size="small" color="danger" (click)="rejectSubstitution(req.id)">
+                    <ion-icon name="close-outline"></ion-icon>
+                  </ion-button>
+                }
+                @if (req.status === 'APPROVED' && req.substituteUser === null && currentUserId !== req.requestedBy.id) {
+                  <ion-button fill="outline" size="small" color="tertiary" (click)="acceptSubstitution(req.id)">
+                    Accept
+                  </ion-button>
+                }
+              </div>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    }
+  </ion-content>
+}

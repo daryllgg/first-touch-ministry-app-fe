@@ -5,10 +5,12 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
   IonButton, IonItem, IonInput, IonLabel, IonSelect, IonSelectOption,
   IonList, IonAvatar, IonIcon, IonSpinner, IonBadge, IonTextarea,
-  ToastController,
+  ToastController, AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { createOutline, cameraOutline, personCircleOutline } from 'ionicons/icons';
+import { createOutline, cameraOutline, personCircleOutline, logOutOutline } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { User } from '../../interfaces/user.interface';
@@ -23,245 +25,11 @@ import { environment } from '../../../environments/environment';
     IonButton, IonItem, IonInput, IonLabel, IonSelect, IonSelectOption,
     IonList, IonAvatar, IonIcon, IonSpinner, IonBadge, IonTextarea,
   ],
-  template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <ion-title>My Profile</ion-title>
-        <ion-buttons slot="end">
-          @if (!editMode) {
-            <ion-button (click)="toggleEdit()">
-              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-          }
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content class="ion-padding">
-      @if (user) {
-        <!-- Profile Picture Section -->
-        <div class="profile-header">
-          <div class="avatar-wrapper">
-            @if (user.profilePicture) {
-              <ion-avatar class="profile-avatar">
-                <img [src]="apiUrl + '/' + user.profilePicture" alt="Profile Picture" />
-              </ion-avatar>
-            } @else {
-              <ion-icon name="person-circle-outline" class="default-avatar"></ion-icon>
-            }
-            <ion-button fill="clear" size="small" class="camera-btn" (click)="fileInput.click()">
-              <ion-icon name="camera-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-            <input type="file" #fileInput hidden accept="image/*" (change)="onProfilePictureChange($event)" />
-          </div>
-          <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
-          <p class="profile-email">{{ user.email }}</p>
-          <div class="profile-roles">
-            @for (role of user.roles; track role.id) {
-              <ion-badge color="primary">{{ role.name }}</ion-badge>
-            }
-          </div>
-        </div>
-
-        @if (!editMode) {
-          <!-- View Mode -->
-          <ion-list class="profile-details" lines="full">
-            <ion-item>
-              <ion-label>
-                <p>Contact Number</p>
-                <h3>{{ user.contactNumber || 'Not set' }}</h3>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <p>Birthday</p>
-                <h3>{{ user.birthday || 'Not set' }}</h3>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <p>Gender</p>
-                <h3>{{ user.gender || 'Not set' }}</h3>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <p>Address</p>
-                <h3>{{ user.address || 'Not set' }}</h3>
-              </ion-label>
-            </ion-item>
-          </ion-list>
-        } @else {
-          <!-- Edit Mode -->
-          <form [formGroup]="profileForm" (ngSubmit)="onSave()">
-            <ion-list class="profile-details" lines="full">
-              <ion-item>
-                <ion-input
-                  formControlName="firstName"
-                  label="First Name"
-                  labelPlacement="floating"
-                ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-input
-                  formControlName="lastName"
-                  label="Last Name"
-                  labelPlacement="floating"
-                ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-input
-                  formControlName="contactNumber"
-                  label="Contact Number (+639XXXXXXXXX)"
-                  labelPlacement="floating"
-                  inputmode="tel"
-                ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-input
-                  formControlName="birthday"
-                  label="Birthday"
-                  labelPlacement="floating"
-                  type="date"
-                ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-select
-                  formControlName="gender"
-                  label="Gender"
-                  labelPlacement="floating"
-                  interface="popover"
-                >
-                  <ion-select-option value="MALE">Male</ion-select-option>
-                  <ion-select-option value="FEMALE">Female</ion-select-option>
-                </ion-select>
-              </ion-item>
-              <ion-item>
-                <ion-textarea
-                  formControlName="address"
-                  label="Address"
-                  labelPlacement="floating"
-                  rows="3"
-                ></ion-textarea>
-              </ion-item>
-            </ion-list>
-
-            <div class="form-actions">
-              <ion-button expand="block" type="submit" [disabled]="isLoading || profileForm.invalid">
-                @if (isLoading) {
-                  <ion-spinner name="crescent"></ion-spinner>
-                } @else {
-                  Save Changes
-                }
-              </ion-button>
-              <ion-button expand="block" fill="outline" (click)="toggleEdit()">
-                Cancel
-              </ion-button>
-            </div>
-          </form>
-        }
-      } @else {
-        <div class="loading-wrapper">
-          <ion-spinner name="crescent"></ion-spinner>
-        </div>
-      }
-    </ion-content>
-  `,
-  styles: [`
-    .profile-header {
-      text-align: center;
-      padding: 16px 0 24px;
-    }
-
-    .avatar-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-
-    .profile-avatar {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto;
-    }
-
-    .default-avatar {
-      font-size: 100px;
-      color: var(--ion-color-medium);
-    }
-
-    .camera-btn {
-      position: absolute;
-      bottom: 0;
-      right: -8px;
-      --padding-start: 6px;
-      --padding-end: 6px;
-      --background: var(--ion-color-primary);
-      --color: white;
-      --border-radius: 50%;
-    }
-
-    .profile-name {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin: 12px 0 4px;
-    }
-
-    .profile-email {
-      color: var(--ion-color-medium);
-      margin: 0 0 12px;
-    }
-
-    .profile-roles {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-      flex-wrap: wrap;
-
-      ion-badge {
-        font-size: 0.75rem;
-      }
-    }
-
-    .profile-details {
-      margin-top: 8px;
-      background: transparent;
-
-      ion-item {
-        --background: white;
-        border-radius: 10px;
-        margin-bottom: 8px;
-        box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
-      }
-
-      p {
-        color: var(--ion-color-medium);
-        font-size: 0.8rem;
-      }
-
-      h3 {
-        font-size: 1rem;
-      }
-    }
-
-    .form-actions {
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .loading-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 50vh;
-    }
-  `],
+  templateUrl: './profile.page.html',
+  styleUrls: ['./profile.page.scss'],
 })
 export class ProfilePage implements OnInit {
+  isWeb = environment.platform === 'web';
   user: User | null = null;
   editMode = false;
   isLoading = false;
@@ -273,8 +41,10 @@ export class ProfilePage implements OnInit {
     private authService: AuthService,
     private profileService: ProfileService,
     private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
+    private router: Router,
   ) {
-    addIcons({ createOutline, cameraOutline, personCircleOutline });
+    addIcons({ createOutline, cameraOutline, personCircleOutline, logOutOutline });
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -342,6 +112,7 @@ export class ProfilePage implements OnInit {
         message: 'No changes detected.',
         duration: 2000,
         color: 'warning',
+        position: 'top',
       });
       await toast.present();
       return;
@@ -355,6 +126,7 @@ export class ProfilePage implements OnInit {
           message: 'Profile changes submitted for admin approval.',
           duration: 3000,
           color: 'success',
+          position: 'top',
         });
         await toast.present();
       },
@@ -364,6 +136,94 @@ export class ProfilePage implements OnInit {
           message: 'Failed to submit profile changes.',
           duration: 3000,
           color: 'danger',
+          position: 'top',
+        });
+        await toast.present();
+      },
+    });
+  }
+
+  async onPickProfilePicture() {
+    const alert = await this.alertCtrl.create({
+      header: 'Update Profile Picture',
+      buttons: [
+        {
+          text: 'Take Photo',
+          handler: () => { this.takeProfilePhoto(); },
+        },
+        {
+          text: 'Choose from Gallery',
+          handler: () => { this.chooseFromGallery(); },
+        },
+        { text: 'Cancel', role: 'cancel' },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async takeProfilePhoto() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 80,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+      if (image.dataUrl) {
+        this.uploadProfilePictureFromDataUrl(image.dataUrl);
+      }
+    } catch {
+      // User cancelled or camera not available
+    }
+  }
+
+  private async chooseFromGallery() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 80,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Photos,
+      });
+      if (image.dataUrl) {
+        this.uploadProfilePictureFromDataUrl(image.dataUrl);
+      }
+    } catch {
+      // User cancelled or gallery not available
+    }
+  }
+
+  private uploadProfilePictureFromDataUrl(dataUrl: string) {
+    const arr = dataUrl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    const file = new File([u8arr], 'profile-photo.jpg', { type: mime });
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.profileService.uploadProfilePicture(formData).subscribe({
+      next: async (updatedUser) => {
+        this.user = updatedUser;
+        this.authService.refreshCurrentUser();
+        const toast = await this.toastCtrl.create({
+          message: 'Profile picture updated.',
+          duration: 2000,
+          color: 'success',
+          position: 'top',
+        });
+        await toast.present();
+      },
+      error: async () => {
+        const toast = await this.toastCtrl.create({
+          message: 'Failed to upload profile picture.',
+          duration: 3000,
+          color: 'danger',
+          position: 'top',
         });
         await toast.present();
       },
@@ -386,6 +246,7 @@ export class ProfilePage implements OnInit {
           message: 'Profile picture updated.',
           duration: 2000,
           color: 'success',
+          position: 'top',
         });
         await toast.present();
       },
@@ -394,9 +255,15 @@ export class ProfilePage implements OnInit {
           message: 'Failed to upload profile picture.',
           duration: 3000,
           color: 'danger',
+          position: 'top',
         });
         await toast.present();
       },
     });
+  }
+
+  async onLogout() {
+    await this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

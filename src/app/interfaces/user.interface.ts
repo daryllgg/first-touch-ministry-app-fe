@@ -5,6 +5,9 @@ export interface User {
   lastName: string;
   profilePicture?: string;
   contactNumber?: string;
+  birthday?: string;
+  gender?: 'MALE' | 'FEMALE';
+  address?: string;
   isApproved: boolean;
   roles: { id: number; name: string }[];
   createdAt: string;

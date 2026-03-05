@@ -87,12 +87,46 @@ ion-list {
   padding: 0;
 }
 
-/* ─── Toolbar — clean, minimal, white ─── */
+/* ─── Header & Toolbar — clean, minimal, no border ─── */
+ion-header {
+  box-shadow: none !important;
+  border: none !important;
+
+  &::after {
+    display: none !important;
+    background: none !important;
+    border: none !important;
+  }
+
+  &.header-ios::after,
+  &.header-md::after {
+    display: none !important;
+    background-image: none !important;
+    height: 0 !important;
+  }
+}
+
+ion-header.header-ios ion-toolbar:last-of-type {
+  --border-width: 0 !important;
+  --border-color: transparent !important;
+}
+
 ion-toolbar {
   --padding-start: var(--app-spacing-sm);
   --padding-end: var(--app-spacing-sm);
   --border-width: 0;
-  --box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+  --box-shadow: none;
+  --background: transparent;
+}
+
+/* ─── Bottom tab spacing for pages with tab bar ─── */
+.has-bottom-tabs {
+  padding-bottom: 64px;
+}
+
+/* ─── FAB — offset above bottom tab bar ─── */
+ion-fab[vertical="bottom"] {
+  bottom: 80px;
 }
 
 /* ─── Badge — pill style ─── */
@@ -110,7 +144,11 @@ ion-content.ion-padding {
   --padding-start: 20px;
   --padding-end: 20px;
   --padding-top: 20px;
-  --padding-bottom: 20px;
+  --padding-bottom: 80px;
+}
+
+ion-content {
+  --padding-bottom: 80px;
 }
 
 /* ─── FAB — matching primary ─── */

@@ -17,6 +17,7 @@ import {
   ToastController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -35,6 +36,7 @@ import { AuthService } from '../../services/auth.service';
   ],
 })
 export class LoginPage {
+  isWeb = environment.platform === 'web';
   loginForm: FormGroup;
   isLoading = false;
 
@@ -70,6 +72,7 @@ export class LoginPage {
           message: 'Invalid email or password',
           duration: 3000,
           color: 'danger',
+          position: 'top',
         });
         await toast.present();
       },

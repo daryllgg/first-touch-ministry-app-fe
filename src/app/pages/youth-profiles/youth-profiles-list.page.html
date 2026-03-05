@@ -1,0 +1,126 @@
+@if (isWeb) {
+  <div class="page-header-web">
+    <h1>Kids and Teens Profiles</h1>
+    @if (canCreate) {
+      <a routerLink="/youth-profiles/new" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Profile
+      </a>
+    }
+  </div>
+
+  <div class="search-bar-web">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    <input
+      type="text"
+      class="form-input"
+      placeholder="Search by name or station..."
+      [(ngModel)]="searchTerm"
+      (input)="onSearchChange()"
+    />
+  </div>
+
+  @if (filteredProfiles.length === 0) {
+    <div class="empty-state-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <line x1="17" y1="11" x2="23" y2="11"></line>
+      </svg>
+      <p>No youth profiles found.</p>
+    </div>
+  } @else {
+    <div class="card-grid">
+      @for (profile of filteredProfiles; track profile.id) {
+        <a class="card card-clickable profile-card-web" [routerLink]="['/youth-profiles', profile.id]">
+          <div class="profile-card-content-web">
+            <div class="profile-avatar-web">
+              @if (getPhotoUrl(profile.photo)) {
+                <img [src]="getPhotoUrl(profile.photo)" [alt]="profile.firstName" />
+              } @else {
+                <div class="avatar-placeholder-lg-web">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+              }
+            </div>
+            <div class="profile-info-web">
+              <h3 class="profile-name-web">{{ profile.firstName }} {{ profile.lastName }}</h3>
+              @if (profile.nickname) {
+                <p class="nickname-web">"{{ profile.nickname }}"</p>
+              }
+              <p class="meta-web">{{ profile.station?.name || 'No Station' }} &middot; Age {{ getAge(profile.birthDate) }}</p>
+            </div>
+            <span class="gender-badge-web" [attr.data-gender]="profile.gender">{{ profile.gender }}</span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Kids and Teens Profiles</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onLogout()">
+          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearchChange()"
+      placeholder="Search by name or station..."
+      debounce="300"
+    ></ion-searchbar>
+
+    @if (filteredProfiles.length === 0) {
+      <div class="empty-state">
+        <ion-icon name="person-outline"></ion-icon>
+        <p>No youth profiles found.</p>
+      </div>
+    } @else {
+      <ion-list>
+        @for (profile of filteredProfiles; track profile.id) {
+          <ion-item button [routerLink]="['/youth-profiles', profile.id]" detail>
+            <ion-avatar slot="start">
+              @if (getPhotoUrl(profile.photo)) {
+                <img [src]="getPhotoUrl(profile.photo)" [alt]="profile.firstName" />
+              } @else {
+                <div class="avatar-placeholder">
+                  <ion-icon name="person-outline"></ion-icon>
+                </div>
+              }
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+              @if (profile.nickname) {
+                <p class="nickname">"{{ profile.nickname }}"</p>
+              }
+              <p class="meta">{{ profile.station?.name || 'No Station' }} &middot; Age {{ getAge(profile.birthDate) }}</p>
+            </ion-label>
+            <ion-badge slot="end" [color]="profile.gender === 'MALE' ? 'primary' : 'tertiary'">
+              {{ profile.gender }}
+            </ion-badge>
+          </ion-item>
+        }
+      </ion-list>
+    }
+
+    @if (canCreate) {
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button routerLink="/youth-profiles/new">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
+  </ion-content>
+}

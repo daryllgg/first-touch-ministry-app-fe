@@ -26,6 +26,7 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./announcement-form.page.scss'],
 })
 export class AnnouncementFormPage implements OnInit {
+  isWeb = environment.platform === 'web';
   form: FormGroup;
   isLoading = false;
   selectedImages: File[] = [];
@@ -95,13 +96,13 @@ export class AnnouncementFormPage implements OnInit {
     this.announcementsService.create(formData).subscribe({
       next: async () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Announcement created', duration: 2000, color: 'success' });
+        const toast = await this.toastCtrl.create({ message: 'Announcement created', duration: 2000, color: 'success', position: 'top' });
         await toast.present();
         this.router.navigate(['/announcements']);
       },
       error: async () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Failed to create announcement', duration: 3000, color: 'danger' });
+        const toast = await this.toastCtrl.create({ message: 'Failed to create announcement', duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });

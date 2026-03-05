@@ -1,74 +1,151 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>Announcements</ion-title>
-  </ion-toolbar>
-</ion-header>
+@if (isWeb) {
+  <div class="page-header-web">
+    <h1>Announcements</h1>
+    @if (canCreate) {
+      <a routerLink="/announcements/new" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Announcement
+      </a>
+    }
+  </div>
 
-<ion-content class="ion-padding">
   @if (announcements.length === 0) {
-    <div class="empty-state">
-      <ion-icon name="megaphone-outline"></ion-icon>
+    <div class="empty-state-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 11 18-5v12L3 14v-3z"></path>
+        <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+      </svg>
       <p>No announcements yet.</p>
     </div>
   } @else {
-    @for (a of announcements; track a.id) {
-      <div class="announcement-card">
-        @if (a.images && a.images.length > 0) {
-          <div class="card-image-wrapper">
-            <img [src]="getImageUrl(a.images[0])" [alt]="a.title" class="card-image" />
-            <div class="image-overlay"></div>
-            @if (a.images.length > 1) {
-              <span class="image-count">+{{ a.images.length - 1 }}</span>
-            }
-            <ion-badge class="audience-badge" [color]="getAudienceColor(a.audience)">
-              {{ getAudienceLabel(a.audience) }}
-            </ion-badge>
-          </div>
-        } @else {
-          <div class="no-image-header">
-            <ion-badge [color]="getAudienceColor(a.audience)">
-              {{ getAudienceLabel(a.audience) }}
-            </ion-badge>
-          </div>
-        }
-
-        <div class="card-body">
-          <h3 class="card-title">{{ a.title }}</h3>
-          <p class="card-content">{{ truncateContent(a.content) }}</p>
-
-          @if (a.mentionedUsers && a.mentionedUsers.length > 0) {
-            <p class="mentioned-users">
-              <ion-icon name="at-outline"></ion-icon>
-              {{ getMentionedNames(a.mentionedUsers) }}
-            </p>
+    <div class="card-grid">
+      @for (a of announcements; track a.id) {
+        <a class="card card-clickable" [routerLink]="['/announcements', a.id]">
+          @if (a.images && a.images.length > 0) {
+            <div class="card-image-wrapper-web">
+              <img [src]="getImageUrl(a.images[0])" [alt]="a.title" class="card-image-web" />
+              @if (a.images.length > 1) {
+                <span class="image-count-web">+{{ a.images.length - 1 }}</span>
+              }
+              <span class="audience-badge-web" [attr.data-audience]="a.audience">
+                {{ getAudienceLabel(a.audience) }}
+              </span>
+            </div>
+          } @else {
+            <div class="no-image-header-web">
+              <span class="audience-badge-web" [attr.data-audience]="a.audience">
+                {{ getAudienceLabel(a.audience) }}
+              </span>
+            </div>
           }
-        </div>
 
-        <div class="card-footer">
-          <div class="author-info">
-            @if (a.author.profilePicture) {
-              <img [src]="apiUrl + '/uploads/' + a.author.profilePicture" class="author-avatar" alt="" />
-            } @else {
-              <div class="avatar-placeholder">
-                {{ a.author.firstName?.charAt(0) }}{{ a.author.lastName?.charAt(0) }}
-              </div>
+          <div class="card-body-web">
+            <h3 class="card-title-web">{{ a.title }}</h3>
+            <p class="card-content-web">{{ truncateContent(a.content) }}</p>
+
+            @if (a.mentionedUsers && a.mentionedUsers.length > 0) {
+              <p class="mentioned-users-web">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path></svg>
+                {{ getMentionedNames(a.mentionedUsers) }}
+              </p>
             }
-            <span class="author-name">{{ a.author.firstName }} {{ a.author.lastName }}</span>
           </div>
-          <span class="card-date">{{ a.createdAt | date:'mediumDate' }}</span>
-        </div>
-      </div>
-    }
-  }
 
-  @if (canCreate) {
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-      <ion-fab-button routerLink="/announcements/new">
-        <ion-icon name="add-outline"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
+          <div class="card-footer-web">
+            <div class="author-info-web">
+              @if (a.author.profilePicture) {
+                <img [src]="apiUrl + '/uploads/' + a.author.profilePicture" class="author-avatar-web" alt="" />
+              } @else {
+                <div class="avatar-placeholder-web">
+                  {{ a.author.firstName?.charAt(0) }}{{ a.author.lastName?.charAt(0) }}
+                </div>
+              }
+              <span class="author-name-web">{{ a.author.firstName }} {{ a.author.lastName }}</span>
+            </div>
+            <span class="card-date-web">{{ a.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </a>
+      }
+    </div>
   }
-</ion-content>
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Announcements</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="onLogout()">
+          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    @if (announcements.length === 0) {
+      <div class="empty-state">
+        <ion-icon name="megaphone-outline"></ion-icon>
+        <p>No announcements yet.</p>
+      </div>
+    } @else {
+      @for (a of announcements; track a.id) {
+        <div class="announcement-card">
+          @if (a.images && a.images.length > 0) {
+            <div class="card-image-wrapper">
+              <img [src]="getImageUrl(a.images[0])" [alt]="a.title" class="card-image" />
+              <div class="image-overlay"></div>
+              @if (a.images.length > 1) {
+                <span class="image-count">+{{ a.images.length - 1 }}</span>
+              }
+              <ion-badge class="audience-badge" [color]="getAudienceColor(a.audience)">
+                {{ getAudienceLabel(a.audience) }}
+              </ion-badge>
+            </div>
+          } @else {
+            <div class="no-image-header">
+              <ion-badge [color]="getAudienceColor(a.audience)">
+                {{ getAudienceLabel(a.audience) }}
+              </ion-badge>
+            </div>
+          }
+
+          <div class="card-body">
+            <h3 class="card-title">{{ a.title }}</h3>
+            <p class="card-content">{{ truncateContent(a.content) }}</p>
+
+            @if (a.mentionedUsers && a.mentionedUsers.length > 0) {
+              <p class="mentioned-users">
+                <ion-icon name="at-outline"></ion-icon>
+                {{ getMentionedNames(a.mentionedUsers) }}
+              </p>
+            }
+          </div>
+
+          <div class="card-footer">
+            <div class="author-info">
+              @if (a.author.profilePicture) {
+                <img [src]="apiUrl + '/uploads/' + a.author.profilePicture" class="author-avatar" alt="" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ a.author.firstName?.charAt(0) }}{{ a.author.lastName?.charAt(0) }}
+                </div>
+              }
+              <span class="author-name">{{ a.author.firstName }} {{ a.author.lastName }}</span>
+            </div>
+            <span class="card-date">{{ a.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      }
+    }
+
+    @if (canCreate) {
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button routerLink="/announcements/new">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
+  </ion-content>
+}

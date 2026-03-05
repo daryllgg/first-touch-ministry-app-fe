@@ -1,22 +1,23 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import {
   IonApp, IonRouterOutlet, IonMenu, IonMenuToggle,
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonList, IonItem, IonIcon, IonLabel, IonBadge,
+  MenuController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   homeOutline, megaphoneOutline, handLeftOutline,
   musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
-  notificationsOutline, peopleOutline,
+  notificationsOutline, peopleOutline, menuOutline,
 } from 'ionicons/icons';
 import { AuthService } from './services/auth.service';
 import { PushNotificationService } from './services/push-notifications.service';
 import { NotificationsService } from './services/notifications.service';
 import { User } from './interfaces/user.interface';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -28,208 +29,32 @@ import { environment } from '../environments/environment';
     IonHeader, IonToolbar, IonTitle, IonContent,
     IonList, IonItem, IonIcon, IonLabel, IonBadge,
   ],
-  template: `
-    <ion-app>
-      @if (currentUser) {
-        <ion-menu contentId="main-content" type="overlay">
-          <ion-header>
-            <ion-toolbar color="secondary">
-              <div class="menu-header-content">
-                <img src="assets/logos/FTM Logomark.png" alt="FTM" class="menu-logo" />
-                <span class="menu-app-name">First Touch Ministry</span>
-              </div>
-            </ion-toolbar>
-          </ion-header>
-          <ion-content>
-            <div class="menu-user-info">
-              @if (currentUser.profilePicture) {
-                <img [src]="apiUrl + '/uploads/' + currentUser.profilePicture" alt="Profile" class="menu-profile-pic" />
-              } @else {
-                <ion-icon name="person-circle-outline"></ion-icon>
-              }
-              <p class="menu-user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
-              <p class="menu-user-email">{{ currentUser.email }}</p>
-            </div>
-            <ion-list lines="none" class="menu-list">
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/home" routerLinkActive="active-menu-item" [routerLinkActiveOptions]="{exact: true}">
-                  <ion-icon name="home-outline" slot="start"></ion-icon>
-                  <ion-label>Home</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/profile" routerLinkActive="active-menu-item">
-                  <ion-icon name="person-circle-outline" slot="start"></ion-icon>
-                  <ion-label>My Profile</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/announcements" routerLinkActive="active-menu-item">
-                  <ion-icon name="megaphone-outline" slot="start"></ion-icon>
-                  <ion-label>Announcements</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/prayer-requests" routerLinkActive="active-menu-item">
-                  <ion-icon name="hand-left-outline" slot="start"></ion-icon>
-                  <ion-label>Prayer Requests</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/worship-lineups" routerLinkActive="active-menu-item">
-                  <ion-icon name="list-outline" slot="start"></ion-icon>
-                  <ion-label>Worship Lineups</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/notifications" routerLinkActive="active-menu-item">
-                  <ion-icon name="notifications-outline" slot="start"></ion-icon>
-                  <ion-label>Notifications</ion-label>
-                  @if (unreadCount > 0) {
-                    <ion-badge slot="end" color="danger">{{ unreadCount }}</ion-badge>
-                  }
-                </ion-item>
-              </ion-menu-toggle>
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button routerLink="/youth-profiles" routerLinkActive="active-menu-item">
-                  <ion-icon name="people-outline" slot="start"></ion-icon>
-                  <ion-label>Kids and Teens</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-              @if (isAdmin) {
-                <ion-menu-toggle auto-hide="false">
-                  <ion-item button routerLink="/admin" routerLinkActive="active-menu-item">
-                    <ion-icon name="settings-outline" slot="start"></ion-icon>
-                    <ion-label>Admin Panel</ion-label>
-                  </ion-item>
-                </ion-menu-toggle>
-              }
-              <ion-menu-toggle auto-hide="false">
-                <ion-item button (click)="logout()" class="logout-item">
-                  <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
-                  <ion-label color="danger">Logout</ion-label>
-                </ion-item>
-              </ion-menu-toggle>
-            </ion-list>
-          </ion-content>
-        </ion-menu>
-      }
-      <ion-router-outlet id="main-content"></ion-router-outlet>
-    </ion-app>
-  `,
-  styles: [`
-    .menu-header-content {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 20px;
-
-      .menu-logo {
-        width: 36px;
-        height: 36px;
-        object-fit: contain;
-      }
-
-      .menu-app-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-        color: white;
-      }
-    }
-
-    .menu-user-info {
-      padding: 28px 20px 24px;
-      background: linear-gradient(135deg, #1a3a4a 0%, #2e5d73 100%);
-      color: white;
-      text-align: center;
-
-      ion-icon {
-        font-size: 52px;
-        opacity: 0.85;
-      }
-
-      .menu-profile-pic {
-        width: 68px;
-        height: 68px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid rgba(255, 255, 255, 0.25);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      }
-
-      .menu-user-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 17px;
-        font-weight: 600;
-        margin: 12px 0 2px;
-      }
-
-      .menu-user-email {
-        font-size: 12px;
-        opacity: 0.7;
-        margin: 0;
-        letter-spacing: 0.02em;
-      }
-    }
-
-    .menu-list {
-      padding: 12px 8px;
-
-      ion-item {
-        --padding-start: 16px;
-        --min-height: 48px;
-        --background: transparent;
-        margin: 2px 4px;
-        border-radius: 12px;
-        font-weight: 500;
-        font-size: 0.92rem;
-        color: #475569;
-      }
-
-      ion-icon {
-        font-size: 20px;
-        margin-right: 14px;
-        color: #94a3b8;
-      }
-    }
-
-    .active-menu-item {
-      --background: #f0f7ff;
-      --color: #1a3a4a;
-      color: #1a3a4a;
-      font-weight: 600;
-
-      ion-icon {
-        color: #1a3a4a;
-      }
-    }
-
-    .logout-item {
-      margin-top: 12px !important;
-      border-top: 1px solid #f1f5f9;
-      padding-top: 8px;
-    }
-  `],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy {
   apiUrl = environment.apiUrl;
+  isWeb = environment.platform === 'web';
   currentUser: User | null = null;
   isAdmin = false;
   unreadCount = 0;
+  showBottomTabs = false;
+  activeTab = '';
   private userSub?: Subscription;
   private notifSub?: Subscription;
+  private routerSub?: Subscription;
 
   constructor(
     private authService: AuthService,
     private pushNotificationService: PushNotificationService,
     private notificationsService: NotificationsService,
     private router: Router,
+    private menuCtrl: MenuController,
   ) {
     addIcons({
       homeOutline, megaphoneOutline, handLeftOutline,
       musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
-      notificationsOutline, peopleOutline,
+      notificationsOutline, peopleOutline, menuOutline,
     });
   }
 
@@ -239,6 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.isAdmin = user?.roles?.some(
         (r) => r.name === 'ADMIN' || r.name === 'SUPER_ADMIN'
       ) ?? false;
+      this.updateBottomTabs();
       if (user) {
         this.pushNotificationService.initialize();
       }
@@ -246,11 +72,33 @@ export class AppComponent implements OnInit, OnDestroy {
     this.notifSub = this.notificationsService.unreadCount$.subscribe((count) => {
       this.unreadCount = count;
     });
+    this.routerSub = this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+    ).subscribe((e) => {
+      this.activeTab = e.urlAfterRedirects.split('?')[0];
+      this.updateBottomTabs();
+    });
   }
 
   ngOnDestroy() {
     this.userSub?.unsubscribe();
     this.notifSub?.unsubscribe();
+    this.routerSub?.unsubscribe();
+  }
+
+  private updateBottomTabs() {
+    const hiddenRoutes = ['/login', '/register', '/verify-email', '/pending'];
+    this.showBottomTabs = !!this.currentUser?.isApproved &&
+      !hiddenRoutes.includes(this.activeTab);
+  }
+
+  getProfilePicUrl(pic: string): string {
+    if (!pic) return '';
+    return `${this.apiUrl}/uploads/${pic}`;
+  }
+
+  async openMenu() {
+    await this.menuCtrl.open();
   }
 
   async logout() {

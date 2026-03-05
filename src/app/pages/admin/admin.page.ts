@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonList, IonItem, IonLabel, IonBadge, IonMenuButton, IonButtons,
@@ -12,9 +12,10 @@ import {
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
-import { personAddOutline, trashOutline } from 'ionicons/icons';
+import { logOutOutline, personAddOutline, trashOutline } from 'ionicons/icons';
 import { environment } from '../../../environments/environment';
 import { User } from '../../interfaces/user.interface';
+import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { forkJoin } from 'rxjs';
 
@@ -54,6 +55,7 @@ interface Station {
   styleUrls: ['./admin.page.scss'],
 })
 export class AdminPage implements OnInit, ViewWillEnter {
+  isWeb = environment.platform === 'web';
   activeTab = 'accounts';
   pendingUsers: User[] = [];
   allUsers: User[] = [];
@@ -71,11 +73,13 @@ export class AdminPage implements OnInit, ViewWillEnter {
 
   constructor(
     private http: HttpClient,
+    private authService: AuthService,
     private profileService: ProfileService,
+    private router: Router,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
   ) {
-    addIcons({ personAddOutline, trashOutline });
+    addIcons({ logOutOutline, personAddOutline, trashOutline });
   }
 
   ngOnInit() {
@@ -189,7 +193,7 @@ export class AdminPage implements OnInit, ViewWillEnter {
     if (!role) return;
     this.http.post<User>(`${this.apiUrl}/users/${userId}/roles`, { role }).subscribe({
       next: async () => {
-        const toast = await this.toastCtrl.create({ message: `Role ${role} assigned`, duration: 2000, color: 'success' });
+        const toast = await this.toastCtrl.create({ message: `Role ${role} assigned`, duration: 2000, color: 'success', position: 'top' });
         await toast.present();
         this.loadAllUsers();
       },
@@ -213,12 +217,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
             if (!data.email || !data.password || !data.firstName || !data.lastName) return false;
             this.http.post(`${this.apiUrl}/users`, data).subscribe({
               next: async () => {
-                const toast = await this.toastCtrl.create({ message: 'User added', duration: 2000, color: 'success' });
+                const toast = await this.toastCtrl.create({ message: 'User added', duration: 2000, color: 'success', position: 'top' });
                 await toast.present();
                 this.loadAllUsers();
               },
               error: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Failed to add user', duration: 3000, color: 'danger' });
+                const toast = await this.toastCtrl.create({ message: 'Failed to add user', duration: 3000, color: 'danger', position: 'top' });
                 await toast.present();
               },
             });
@@ -242,12 +246,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
           handler: () => {
             this.http.delete(`${this.apiUrl}/users/${user.id}`).subscribe({
               next: async () => {
-                const toast = await this.toastCtrl.create({ message: 'User removed', duration: 2000, color: 'success' });
+                const toast = await this.toastCtrl.create({ message: 'User removed', duration: 2000, color: 'success', position: 'top' });
                 await toast.present();
                 this.loadAllUsers();
               },
               error: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Failed to remove user', duration: 3000, color: 'danger' });
+                const toast = await this.toastCtrl.create({ message: 'Failed to remove user', duration: 3000, color: 'danger', position: 'top' });
                 await toast.present();
               },
             });
@@ -269,12 +273,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
   approveProfileChange(id: string) {
     this.profileService.approveProfileChange(id).subscribe({
       next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Profile change approved.', duration: 2000, color: 'success' });
+        const toast = await this.toastCtrl.create({ message: 'Profile change approved.', duration: 2000, color: 'success', position: 'top' });
         await toast.present();
         this.loadPendingProfileChanges();
       },
       error: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Failed to approve profile change.', duration: 3000, color: 'danger' });
+        const toast = await this.toastCtrl.create({ message: 'Failed to approve profile change.', duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });
@@ -283,12 +287,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
   rejectProfileChange(id: string) {
     this.profileService.rejectProfileChange(id).subscribe({
       next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Profile change rejected.', duration: 2000, color: 'warning' });
+        const toast = await this.toastCtrl.create({ message: 'Profile change rejected.', duration: 2000, color: 'warning', position: 'top' });
         await toast.present();
         this.loadPendingProfileChanges();
       },
       error: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Failed to reject profile change.', duration: 3000, color: 'danger' });
+        const toast = await this.toastCtrl.create({ message: 'Failed to reject profile change.', duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });
@@ -297,12 +301,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
   approvePrayerRequest(id: string) {
     this.http.patch(`${this.apiUrl}/prayer-requests/${id}/approve`, {}).subscribe({
       next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Prayer request approved.', duration: 2000, color: 'success' });
+        const toast = await this.toastCtrl.create({ message: 'Prayer request approved.', duration: 2000, color: 'success', position: 'top' });
         await toast.present();
         this.loadPendingPrayerRequests();
       },
       error: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Failed to approve prayer request.', duration: 3000, color: 'danger' });
+        const toast = await this.toastCtrl.create({ message: 'Failed to approve prayer request.', duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });
@@ -311,12 +315,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
   rejectPrayerRequest(id: string) {
     this.http.patch(`${this.apiUrl}/prayer-requests/${id}/reject`, {}).subscribe({
       next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Prayer request rejected.', duration: 2000, color: 'warning' });
+        const toast = await this.toastCtrl.create({ message: 'Prayer request rejected.', duration: 2000, color: 'warning', position: 'top' });
         await toast.present();
         this.loadPendingPrayerRequests();
       },
       error: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Failed to reject prayer request.', duration: 3000, color: 'danger' });
+        const toast = await this.toastCtrl.create({ message: 'Failed to reject prayer request.', duration: 3000, color: 'danger', position: 'top' });
         await toast.present();
       },
     });
@@ -336,12 +340,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
             if (!data.name) return false;
             this.http.post(`${this.apiUrl}/youth-profiles/stations`, { name: data.name }).subscribe({
               next: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Station added', duration: 2000, color: 'success' });
+                const toast = await this.toastCtrl.create({ message: 'Station added', duration: 2000, color: 'success', position: 'top' });
                 await toast.present();
                 this.loadStations();
               },
               error: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Failed to add station', duration: 3000, color: 'danger' });
+                const toast = await this.toastCtrl.create({ message: 'Failed to add station', duration: 3000, color: 'danger', position: 'top' });
                 await toast.present();
               },
             });
@@ -365,12 +369,12 @@ export class AdminPage implements OnInit, ViewWillEnter {
           handler: () => {
             this.http.delete(`${this.apiUrl}/youth-profiles/stations/${station.id}`).subscribe({
               next: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Station removed', duration: 2000, color: 'success' });
+                const toast = await this.toastCtrl.create({ message: 'Station removed', duration: 2000, color: 'success', position: 'top' });
                 await toast.present();
                 this.loadStations();
               },
               error: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Failed to remove station', duration: 3000, color: 'danger' });
+                const toast = await this.toastCtrl.create({ message: 'Failed to remove station', duration: 3000, color: 'danger', position: 'top' });
                 await toast.present();
               },
             });
@@ -379,5 +383,10 @@ export class AdminPage implements OnInit, ViewWillEnter {
       ],
     });
     await alert.present();
+  }
+
+  async onLogout() {
+    await this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

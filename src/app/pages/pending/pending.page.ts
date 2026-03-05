@@ -11,6 +11,7 @@ import {
 import { addIcons } from 'ionicons';
 import { timeOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-pending',
@@ -20,6 +21,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, IonContent, IonButton, IonSpinner, IonIcon],
 })
 export class PendingPage {
+  isWeb = environment.platform === 'web';
   isChecking = false;
 
   constructor(
@@ -40,6 +42,7 @@ export class PendingPage {
             message: 'Your account has been approved!',
             duration: 2000,
             color: 'success',
+            position: 'top',
           });
           await toast.present();
           this.router.navigate(['/home']);
@@ -48,6 +51,7 @@ export class PendingPage {
             message: 'Your account is still pending approval.',
             duration: 2000,
             color: 'warning',
+            position: 'top',
           });
           await toast.present();
         }
@@ -58,6 +62,7 @@ export class PendingPage {
           message: 'Unable to check status. Please try again.',
           duration: 2000,
           color: 'danger',
+          position: 'top',
         });
         await toast.present();
       },
