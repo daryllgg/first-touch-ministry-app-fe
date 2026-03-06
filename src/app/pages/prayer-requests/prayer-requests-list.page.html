@@ -7,54 +7,68 @@
     </a>
   </div>
 
-  @if (isAdminOrPastor && pendingRequests.length > 0) {
-    <h2 class="section-title-web">Pending Approval</h2>
+  @if (isLoading) {
+    <h2 class="section-title-web">Prayer Requests</h2>
     <div class="card-grid">
-      @for (pr of pendingRequests; track pr.id) {
-        <div class="card pending-card-web">
-          @if (pr.image) {
-            <img [src]="getImageUrl(pr.image)" alt="Prayer request image" class="card-image-full" />
-          }
-          <div class="card-body-web">
-            <span class="badge badge-warning">Pending</span>
-            <p class="prayer-content-web">{{ pr.content }}</p>
-            <p class="meta-web">
-              By {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
-            </p>
-            <button class="btn btn-success btn-sm" (click)="approveRequest(pr.id)">Approve</button>
-          </div>
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton skeleton-text-lg" style="width:50%"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text" style="width:85%"></div>
+          <div class="skeleton skeleton-text-sm" style="width:40%"></div>
         </div>
       }
-    </div>
-  }
-
-  <h2 class="section-title-web">Prayer Requests</h2>
-  @if (prayerRequests.length === 0) {
-    <div class="empty-state-web">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
-      </svg>
-      <p>No prayer requests yet.</p>
     </div>
   } @else {
-    <div class="card-grid">
-      @for (pr of prayerRequests; track pr.id) {
-        <div class="card">
-          @if (pr.image) {
-            <img [src]="getImageUrl(pr.image)" alt="Prayer request image" class="card-image-full" />
-          }
-          <div class="card-body-web">
-            <p class="meta-web">
-              {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
-            </p>
-            <p class="prayer-content-web">{{ pr.content }}</p>
-            @if (pr.isApproved === false && pr.author.id === currentUserId) {
-              <span class="badge badge-warning">Pending approval</span>
+    @if (isAdminOrPastor && pendingRequests.length > 0) {
+      <h2 class="section-title-web">Pending Approval</h2>
+      <div class="card-grid">
+        @for (pr of pendingRequests; track pr.id) {
+          <div class="card pending-card-web">
+            @if (pr.image) {
+              <img [src]="getImageUrl(pr.image)" alt="Prayer request image" class="card-image-full" />
             }
+            <div class="card-body-web">
+              <span class="badge badge-warning">Pending</span>
+              <p class="prayer-content-web">{{ pr.content }}</p>
+              <p class="meta-web">
+                By {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
+              </p>
+              <button class="btn btn-success btn-sm" (click)="approveRequest(pr.id)">Approve</button>
+            </div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
+
+    <h2 class="section-title-web">Prayer Requests</h2>
+    @if (prayerRequests.length === 0) {
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+        </svg>
+        <p>No prayer requests yet.</p>
+      </div>
+    } @else {
+      <div class="card-grid">
+        @for (pr of prayerRequests; track pr.id) {
+          <div class="card">
+            @if (pr.image) {
+              <img [src]="getImageUrl(pr.image)" alt="Prayer request image" class="card-image-full" />
+            }
+            <div class="card-body-web">
+              <p class="meta-web">
+                {{ pr.author.firstName }} {{ pr.author.lastName }} &middot; {{ pr.createdAt | date:'mediumDate' }}
+              </p>
+              <p class="prayer-content-web">{{ pr.content }}</p>
+              @if (pr.isApproved === false && pr.author.id === currentUserId) {
+                <span class="badge badge-warning">Pending approval</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
   }
 } @else {
   <ion-header>
@@ -72,6 +86,18 @@
   </ion-header>
 
   <ion-content class="ion-padding">
+    @if (isLoading) {
+      <h2 class="section-title">Prayer Requests</h2>
+      @for (i of [1,2,3]; track i) {
+        <ion-card>
+          <ion-card-content>
+            <ion-skeleton-text [animated]="true" style="width:60%;height:16px"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width:100%;height:12px;margin-top:8px"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width:40%;height:10px;margin-top:6px"></ion-skeleton-text>
+          </ion-card-content>
+        </ion-card>
+      }
+    } @else {
     @if (isAdminOrPastor && pendingRequests.length > 0) {
       <h2 class="section-title">Pending Approval</h2>
       @for (pr of pendingRequests; track pr.id) {
@@ -121,6 +147,7 @@
       }
     }
 
+    }
     <ion-fab vertical="bottom" horizontal="end" slot="fixed">
       <ion-fab-button routerLink="/prayer-requests/new">
         <ion-icon name="add-outline"></ion-icon>

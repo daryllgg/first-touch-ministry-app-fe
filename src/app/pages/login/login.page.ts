@@ -14,9 +14,9 @@ import {
   IonInput,
   IonButton,
   IonSpinner,
-  ToastController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -39,12 +39,13 @@ export class LoginPage {
   isWeb = environment.platform === 'web';
   loginForm: FormGroup;
   isLoading = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -60,21 +61,25 @@ export class LoginPage {
     this.authService.login(email, password).subscribe({
       next: (res) => {
         this.isLoading = false;
-        if (res.user.isApproved) {
-          this.router.navigate(['/home']);
-        } else {
-          this.router.navigate(['/pending']);
+        switch (res.user.accountStatus) {
+          case 'APPROVED':
+            this.router.navigate(['/home']);
+            break;
+          case 'DECLINED':
+            this.toast.error(
+              res.user.declineReason
+                ? `Your account has been declined. Reason: ${res.user.declineReason}`
+                : 'Your account has been declined.',
+            );
+            this.authService.logout();
+            break;
+          default:
+            this.router.navigate(['/pending']);
         }
       },
-      error: async () => {
+      error: () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({
-          message: 'Invalid email or password',
-          duration: 3000,
-          color: 'danger',
-          position: 'top',
-        });
-        await toast.present();
+        this.toast.error('Invalid email or password');
       },
     });
   }

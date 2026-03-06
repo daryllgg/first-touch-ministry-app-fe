@@ -7,13 +7,14 @@ import {
   IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
   IonSpinner, IonSelect, IonSelectOption, IonDatetime, IonLabel,
   IonIcon, IonNote,
-  ToastController, AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline, imageOutline, personOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { YouthProfilesService } from '../../services/youth-profiles.service';
 import { YouthProfile, Station } from '../../interfaces/youth-profile.interface';
+import { ToastService } from '../../components/toast/toast.service';
+import { ModalService } from '../../components/modal/modal.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -46,8 +47,8 @@ export class YouthProfileFormPage implements OnInit {
     private youthProfilesService: YouthProfilesService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastCtrl: ToastController,
-    private alertCtrl: AlertController,
+    private toast: ToastService,
+    private modal: ModalService,
   ) {
     addIcons({ cameraOutline, imageOutline, personOutline });
 
@@ -177,7 +178,7 @@ export class YouthProfileFormPage implements OnInit {
     }
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (this.form.invalid) return;
 
     this.isLoading = true;
@@ -201,50 +202,26 @@ export class YouthProfileFormPage implements OnInit {
 
     if (this.isEditMode && this.profileId) {
       this.youthProfilesService.update(this.profileId, formData).subscribe({
-        next: async () => {
+        next: () => {
           this.isLoading = false;
-          const toast = await this.toastCtrl.create({
-            message: 'Profile updated',
-            duration: 2000,
-            color: 'success',
-            position: 'top',
-          });
-          await toast.present();
+          this.toast.success('Profile updated');
           this.router.navigate(['/youth-profiles', this.profileId]);
         },
-        error: async () => {
+        error: () => {
           this.isLoading = false;
-          const toast = await this.toastCtrl.create({
-            message: 'Failed to update profile',
-            duration: 3000,
-            color: 'danger',
-            position: 'top',
-          });
-          await toast.present();
+          this.toast.error('Failed to update profile');
         },
       });
     } else {
       this.youthProfilesService.create(formData).subscribe({
-        next: async () => {
+        next: () => {
           this.isLoading = false;
-          const toast = await this.toastCtrl.create({
-            message: 'Profile created',
-            duration: 2000,
-            color: 'success',
-            position: 'top',
-          });
-          await toast.present();
+          this.toast.success('Profile created');
           this.router.navigate(['/youth-profiles']);
         },
-        error: async () => {
+        error: () => {
           this.isLoading = false;
-          const toast = await this.toastCtrl.create({
-            message: 'Failed to create profile',
-            duration: 3000,
-            color: 'danger',
-            position: 'top',
-          });
-          await toast.present();
+          this.toast.error('Failed to create profile');
         },
       });
     }

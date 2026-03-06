@@ -7,13 +7,15 @@ import {
   IonList, IonItem, IonLabel, IonBackButton, IonButtons,
   IonBadge, IonIcon, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonNote, IonAvatar, IonRefresher, IonRefresherContent,
-  AlertController, ToastController, ViewWillEnter,
+  IonSkeletonText, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline } from 'ionicons/icons';
+import { checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline } from 'ionicons/icons';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { AuthService } from '../../services/auth.service';
 import { WorshipLineup, SubstitutionRequest } from '../../interfaces/worship-lineup.interface';
+import { ToastService } from '../../components/toast/toast.service';
+import { ModalService } from '../../components/modal/modal.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -25,6 +27,7 @@ import { environment } from '../../../environments/environment';
     IonList, IonItem, IonLabel, IonBackButton, IonButtons,
     IonBadge, IonIcon, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonNote, IonAvatar, IonRefresher, IonRefresherContent,
+    IonSkeletonText,
   ],
   templateUrl: './worship-lineup-detail.page.html',
   styleUrls: ['./worship-lineup-detail.page.scss'],
@@ -37,17 +40,20 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
   canRequestSubstitution = false;
   currentUserId: string | null = null;
   apiUrl = environment.apiUrl;
+  isLoading = true;
+  loadError = false;
   private lineupId: string | null = null;
+  private loadCount = 0;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private lineupsService: WorshipLineupsService,
     private authService: AuthService,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
+    private modal: ModalService,
   ) {
-    addIcons({ checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline });
+    addIcons({ checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline });
   }
 
   ngOnInit() {
@@ -57,17 +63,25 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
 
     this.currentUserId = this.authService.currentUser?.id ?? null;
     this.lineupId = this.route.snapshot.paramMap.get('id');
+    this.loadAll();
+  }
+
+  ionViewWillEnter() {
+    this.loadAll();
+  }
+
+  private loadAll() {
     if (this.lineupId) {
+      this.isLoading = true;
+      this.loadError = false;
+      this.loadCount = 2;
       this.loadLineup(this.lineupId);
       this.loadSubstitutionRequests(this.lineupId);
     }
   }
 
-  ionViewWillEnter() {
-    if (this.lineupId) {
-      this.loadLineup(this.lineupId);
-      this.loadSubstitutionRequests(this.lineupId);
-    }
+  private checkLoaded() {
+    if (--this.loadCount <= 0) this.isLoading = false;
   }
 
   loadLineup(id: string) {
@@ -79,32 +93,26 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
         const isSubmitter = data.submittedBy?.id === this.currentUserId;
 
         if (!isSubmitter && !isMember && !this.canReview) {
-          const alert = await this.alertCtrl.create({
-            header: 'Access Notice',
+          await this.modal.alert({
+            title: 'Access Notice',
             message: 'You are no longer part of this lineup.',
-            backdropDismiss: false,
-            buttons: [
-              {
-                text: 'Go Back',
-                handler: () => {
-                  this.router.navigate(['/worship-lineups']);
-                },
-              },
-            ],
           });
-          await alert.present();
+          this.router.navigate(['/worship-lineups']);
           return;
         }
 
         this.lineup = data;
         this.canRequestSubstitution = isMember;
+        this.checkLoaded();
       },
+      error: () => { this.loadError = true; this.checkLoaded(); },
     });
   }
 
   loadSubstitutionRequests(id: string) {
     this.lineupsService.findSubstitutionRequests(id).subscribe({
-      next: (data) => this.substitutionRequests = data,
+      next: (data) => { this.substitutionRequests = data; this.checkLoaded(); },
+      error: () => this.checkLoaded(),
     });
   }
 
@@ -129,153 +137,136 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
 
   async approve() {
     if (!this.lineup) return;
-    const alert = await this.alertCtrl.create({
-      header: 'Approve Lineup',
+    const result = await this.modal.prompt({
+      title: 'Approve Lineup',
       inputs: [
-        { name: 'comment', type: 'textarea', placeholder: 'Add a note (optional)' },
+        { key: 'comment', label: 'Add a note (optional)', type: 'textarea', placeholder: 'Add a note (optional)' },
       ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Approve',
-          handler: (data) => {
-            this.lineupsService.updateStatus(this.lineup!.id, 'APPROVED', data.comment || undefined).subscribe({
-              next: async (updated) => {
-                this.lineup = updated;
-                const toast = await this.toastCtrl.create({ message: 'Lineup approved', duration: 2000, color: 'success', position: 'top' });
-                await toast.present();
-              },
-            });
-            return true;
-          },
-        },
-      ],
+      confirmText: 'Approve',
     });
-    await alert.present();
+    if (result) {
+      this.lineupsService.updateStatus(this.lineup.id, 'APPROVED', result['comment'] || undefined).subscribe({
+        next: (updated) => {
+          this.lineup = updated;
+          this.toast.success('Lineup approved');
+        },
+      });
+    }
   }
 
   async reject() {
     if (!this.lineup) return;
-    const alert = await this.alertCtrl.create({
-      header: 'Decline Lineup',
+    const result = await this.modal.prompt({
+      title: 'Decline Lineup',
       inputs: [
-        { name: 'comment', type: 'textarea', placeholder: 'Reason for declining (optional)' },
+        { key: 'comment', label: 'Reason for declining (optional)', type: 'textarea', placeholder: 'Reason for declining (optional)' },
       ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Decline',
-          handler: (data) => {
-            this.lineupsService.updateStatus(this.lineup!.id, 'REJECTED', data.comment || undefined).subscribe({
-              next: async (updated) => {
-                this.lineup = updated;
-                const toast = await this.toastCtrl.create({ message: 'Lineup declined', duration: 2000, color: 'danger', position: 'top' });
-                await toast.present();
-              },
-            });
-            return true;
-          },
-        },
-      ],
+      confirmText: 'Decline',
     });
-    await alert.present();
+    if (result) {
+      this.lineupsService.updateStatus(this.lineup.id, 'REJECTED', result['comment'] || undefined).subscribe({
+        next: (updated) => {
+          this.lineup = updated;
+          this.toast.error('Lineup declined');
+        },
+      });
+    }
   }
 
-  async resubmit() {
+  resubmit() {
     if (!this.lineup) return;
     this.lineupsService.resubmit(this.lineup.id).subscribe({
-      next: async (data) => {
+      next: (data) => {
         this.lineup = data;
-        const toast = await this.toastCtrl.create({ message: 'Lineup resubmitted', duration: 2000, color: 'success', position: 'top' });
-        await toast.present();
+        this.toast.success('Lineup resubmitted');
       },
     });
+  }
+
+  async deleteLineup() {
+    if (!this.lineup) return;
+    const confirmed = await this.modal.confirm({
+      title: 'Delete Lineup',
+      message: 'Are you sure you want to delete this lineup? This action cannot be undone.',
+      confirmText: 'Delete',
+      confirmColor: 'danger',
+    });
+    if (confirmed) {
+      this.lineupsService.delete(this.lineup.id).subscribe({
+        next: () => {
+          this.toast.success('Lineup deleted');
+          this.router.navigate(['/worship-lineups']);
+        },
+        error: () => {
+          this.toast.error('Failed to delete lineup');
+        },
+      });
+    }
   }
 
   async requestChanges() {
     if (!this.lineup) return;
-    const alert = await this.alertCtrl.create({
-      header: 'Request Changes',
+    const result = await this.modal.prompt({
+      title: 'Request Changes',
       message: 'Please describe the changes needed:',
       inputs: [
-        { name: 'comment', type: 'textarea', placeholder: 'What changes are needed?' },
+        { key: 'comment', label: 'Changes needed', type: 'textarea', placeholder: 'What changes are needed?', required: true },
       ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Submit',
-          handler: (data) => {
-            if (!data.comment) return false;
-            this.lineupsService.requestChanges(this.lineup!.id, data.comment).subscribe({
-              next: async (updated) => {
-                this.lineup = updated;
-                const toast = await this.toastCtrl.create({ message: 'Changes requested', duration: 2000, color: 'warning', position: 'top' });
-                await toast.present();
-              },
-            });
-            return true;
-          },
-        },
-      ],
+      confirmText: 'Submit',
     });
-    await alert.present();
+    if (result && result['comment']) {
+      this.lineupsService.requestChanges(this.lineup.id, result['comment']).subscribe({
+        next: (updated) => {
+          this.lineup = updated;
+          this.toast.warning('Changes requested');
+        },
+      });
+    }
   }
 
   async requestSubstitution(memberId: string) {
-    const alert = await this.alertCtrl.create({
-      header: 'Request Substitution',
+    const result = await this.modal.prompt({
+      title: 'Request Substitution',
       inputs: [
-        { name: 'reason', type: 'textarea', placeholder: 'Reason for substitution' },
+        { key: 'reason', label: 'Reason for substitution', type: 'textarea', placeholder: 'Reason for substitution', required: true },
       ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Submit',
-          handler: (data) => {
-            if (!data.reason) return false;
-            this.lineupsService.createSubstitutionRequest({
-              lineupMemberId: memberId,
-              reason: data.reason,
-            }).subscribe({
-              next: async () => {
-                const toast = await this.toastCtrl.create({ message: 'Substitution request submitted', duration: 2000, color: 'success', position: 'top' });
-                await toast.present();
-                if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
-              },
-            });
-            return true;
-          },
+      confirmText: 'Submit',
+    });
+    if (result && result['reason']) {
+      this.lineupsService.createSubstitutionRequest({
+        lineupMemberId: memberId,
+        reason: result['reason'],
+      }).subscribe({
+        next: () => {
+          this.toast.success('Substitution request submitted');
+          if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
         },
-      ],
-    });
-    await alert.present();
+      });
+    }
   }
 
-  async approveSubstitution(requestId: string) {
+  approveSubstitution(requestId: string) {
     this.lineupsService.updateSubstitutionStatus(requestId, 'APPROVED').subscribe({
-      next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Substitution approved', duration: 2000, color: 'success', position: 'top' });
-        await toast.present();
+      next: () => {
+        this.toast.success('Substitution approved');
         if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
       },
     });
   }
 
-  async rejectSubstitution(requestId: string) {
+  rejectSubstitution(requestId: string) {
     this.lineupsService.updateSubstitutionStatus(requestId, 'REJECTED').subscribe({
-      next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Substitution rejected', duration: 2000, color: 'danger', position: 'top' });
-        await toast.present();
+      next: () => {
+        this.toast.error('Substitution rejected');
         if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
       },
     });
   }
 
-  async acceptSubstitution(requestId: string) {
+  acceptSubstitution(requestId: string) {
     this.lineupsService.acceptSubstitution(requestId).subscribe({
-      next: async () => {
-        const toast = await this.toastCtrl.create({ message: 'Substitution accepted', duration: 2000, color: 'success', position: 'top' });
-        await toast.present();
+      next: () => {
+        this.toast.success('Substitution accepted');
         if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
       },
     });

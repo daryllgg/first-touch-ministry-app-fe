@@ -51,6 +51,8 @@ export interface WorshipLineup {
   submittedBy: User;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CHANGES_REQUESTED';
   notes: string;
+  rehearsalDate?: string;
+  overallTheme?: string;
   reviewedBy: User | null;
   reviewedAt: string | null;
   members: LineupMember[];

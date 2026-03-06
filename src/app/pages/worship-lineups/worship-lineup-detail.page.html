@@ -1,6 +1,67 @@
 @if (isWeb) {
   <div class="detail-container-web">
-    @if (lineup) {
+    @if (isLoading) {
+      <!-- Skeleton: top bar -->
+      <div class="skeleton-card" style="display:flex;align-items:center;gap:12px">
+        <div class="skeleton" style="width:18px;height:18px;border-radius:4px;flex-shrink:0"></div>
+        <div class="skeleton skeleton-title" style="width:200px"></div>
+        <div class="skeleton skeleton-badge"></div>
+      </div>
+
+      <!-- Skeleton: 2-column grid -->
+      <div class="detail-grid-web">
+        <div class="detail-col-web">
+          <!-- Details card -->
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-text-lg" style="width:40%;margin-bottom:16px"></div>
+            <div class="skeleton skeleton-text" style="width:60%"></div>
+            <div class="skeleton skeleton-text" style="width:50%"></div>
+            <div class="skeleton skeleton-text" style="width:45%"></div>
+            <div class="skeleton skeleton-text" style="width:55%"></div>
+          </div>
+          <!-- Songs card -->
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-text-lg" style="width:30%;margin-bottom:16px"></div>
+            @for (i of [1,2,3]; track i) {
+              <div style="margin-bottom:12px">
+                <div class="skeleton skeleton-text" style="width:65%"></div>
+                <div class="skeleton skeleton-text-sm" style="width:40%"></div>
+              </div>
+            }
+          </div>
+          <!-- Members card -->
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-text-lg" style="width:50%;margin-bottom:16px"></div>
+            @for (i of [1,2,3,4]; track i) {
+              <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+                <div class="skeleton skeleton-avatar skeleton-avatar-md"></div>
+                <div style="flex:1">
+                  <div class="skeleton skeleton-text" style="width:60%"></div>
+                  <div class="skeleton skeleton-text-sm" style="width:35%"></div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="detail-col-web">
+          <!-- Review history card -->
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-text-lg" style="width:50%;margin-bottom:16px"></div>
+            @for (i of [1,2]; track i) {
+              <div style="margin-bottom:16px">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                  <div class="skeleton skeleton-avatar skeleton-avatar-sm"></div>
+                  <div class="skeleton skeleton-text" style="width:40%"></div>
+                  <div class="skeleton skeleton-badge"></div>
+                </div>
+                <div class="skeleton skeleton-text" style="width:80%"></div>
+                <div class="skeleton skeleton-text-sm" style="width:30%"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    } @else if (lineup) {
       <!-- Header bar: title, status, actions -->
       <div class="card detail-topbar-web">
         <div class="detail-topbar-left">
@@ -29,6 +90,12 @@
               Edit
             </a>
           }
+          @if (isSubmitter) {
+            <button class="btn btn-danger btn-sm" (click)="deleteLineup()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Delete
+            </button>
+          }
           @if (canReview && (lineup.status === 'PENDING' || lineup.status === 'CHANGES_REQUESTED')) {
             <button class="btn btn-success btn-sm" (click)="approve()">Approve</button>
             <button class="btn btn-danger btn-sm" (click)="reject()">Decline</button>
@@ -55,6 +122,18 @@
                 }
               </div>
             </div>
+            @if (lineup.rehearsalDate) {
+              <div class="detail-field-web">
+                <span class="field-label-web">Rehearsal Date</span>
+                <span class="date-chip-web">{{ lineup.rehearsalDate | date:'MMM d, y' }}</span>
+              </div>
+            }
+            @if (lineup.overallTheme) {
+              <div class="detail-field-web">
+                <span class="field-label-web">Overall Theme</span>
+                <span>{{ lineup.overallTheme }}</span>
+              </div>
+            }
             <div class="detail-field-web">
               <span class="field-label-web">Submitted by</span>
               <span>{{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</span>
@@ -120,9 +199,9 @@
 
         <!-- Right column: Review History + Substitutions -->
         <div class="detail-col-web">
-          @if (lineup.reviews && lineup.reviews.length > 0) {
-            <div class="card">
-              <h3 class="section-title-web">Review History</h3>
+          <div class="card">
+            <h3 class="section-title-web">Review History</h3>
+            @if (lineup.reviews && lineup.reviews.length > 0) {
               @for (review of sortedReviews; track review.id) {
                 <div class="review-entry-web">
                   <div class="review-header-web">
@@ -142,8 +221,10 @@
                   <p class="review-date-web">{{ review.createdAt | date:'medium' }}</p>
                 </div>
               }
-            </div>
-          }
+            } @else {
+              <p class="empty-review-web">No review history as of {{ lineup.updatedAt | date:'MMM d, y, h:mm a' }}</p>
+            }
+          </div>
 
           @if (substitutionRequests.length > 0) {
             <div class="card">
@@ -177,6 +258,13 @@
           }
         </div>
       </div>
+    } @else if (loadError) {
+      <div class="error-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h2>Lineup Not Found</h2>
+        <p>This lineup may have been deleted or removed by the Leader.</p>
+        <a routerLink="/worship-lineups" class="btn btn-primary">Back to Lineups</a>
+      </div>
     }
   </div>
 } @else {
@@ -194,7 +282,30 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    @if (lineup) {
+    @if (isLoading) {
+      <ion-card>
+        <ion-card-content>
+          <ion-skeleton-text [animated]="true" style="width:60%;height:20px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:40%;height:14px;margin-top:10px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:50%;height:14px;margin-top:8px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:35%;height:14px;margin-top:8px"></ion-skeleton-text>
+        </ion-card-content>
+      </ion-card>
+      <h3 class="section-title">Members</h3>
+      <ion-list>
+        @for (i of [1,2,3,4]; track i) {
+          <ion-item>
+            <ion-avatar slot="start">
+              <ion-skeleton-text [animated]="true" style="width:100%;height:100%"></ion-skeleton-text>
+            </ion-avatar>
+            <ion-label>
+              <ion-skeleton-text [animated]="true" style="width:55%;height:16px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:35%;height:12px;margin-top:6px"></ion-skeleton-text>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    } @else if (lineup) {
       <ion-card>
         <ion-card-header>
           <ion-card-title>
@@ -213,6 +324,12 @@
               <li>{{ date | date:'fullDate' }}</li>
             }
           </ul>
+          @if (lineup.rehearsalDate) {
+            <p><strong>Rehearsal Date:</strong> {{ lineup.rehearsalDate | date:'fullDate' }}</p>
+          }
+          @if (lineup.overallTheme) {
+            <p><strong>Overall Theme:</strong> {{ lineup.overallTheme }}</p>
+          }
           <p>
             <strong>Status:</strong>
             <ion-badge [color]="getStatusColor(lineup.status)">
@@ -242,6 +359,10 @@
               Edit
             </ion-button>
           }
+          <ion-button fill="outline" color="danger" (click)="deleteLineup()">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Delete
+          </ion-button>
         </div>
       }
 
@@ -306,8 +427,8 @@
         }
       </ion-list>
 
+      <h3 class="section-title">Review History</h3>
       @if (lineup.reviews && lineup.reviews.length > 0) {
-        <h3 class="section-title">Review History</h3>
         <div class="review-timeline">
           @for (review of sortedReviews; track review.id) {
             <div class="review-entry">
@@ -329,6 +450,8 @@
             </div>
           }
         </div>
+      } @else {
+        <p class="empty-review">No review history as of {{ lineup.updatedAt | date:'MMM d, y, h:mm a' }}</p>
       }
 
       @if (substitutionRequests.length > 0) {
@@ -363,6 +486,13 @@
           }
         </ion-list>
       }
+    } @else if (loadError) {
+      <div style="text-align:center;padding:48px 24px;color:#94a3b8;">
+        <ion-icon name="alert-circle-outline" style="font-size:56px;margin-bottom:12px;"></ion-icon>
+        <h2 style="color:#1e293b;font-size:1.1rem;margin:0 0 8px;">Lineup Not Found</h2>
+        <p style="margin:0 0 20px;font-size:0.9rem;">This lineup may have been deleted or removed by the Leader.</p>
+        <ion-button routerLink="/worship-lineups" fill="solid">Back to Lineups</ion-button>
+      </div>
     }
   </ion-content>
 }

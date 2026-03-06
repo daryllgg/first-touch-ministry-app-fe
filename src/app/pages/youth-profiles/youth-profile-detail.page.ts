@@ -14,6 +14,7 @@ import {
 } from 'ionicons/icons';
 import { YouthProfilesService } from '../../services/youth-profiles.service';
 import { AuthService } from '../../services/auth.service';
+import { AttendanceService } from '../../services/attendance.service';
 import { YouthProfile } from '../../interfaces/youth-profile.interface';
 import { environment } from '../../../environments/environment';
 
@@ -37,10 +38,18 @@ export class YouthProfileDetailPage implements OnInit {
   canEdit = false;
   apiUrl = environment.apiUrl;
 
+  // Attendance analytics
+  totalSessions = 0;
+  sessionsPresent = 0;
+  attendanceRate = 0;
+  monthlyAttendance: { month: string; present: number; total: number }[] = [];
+  attendanceLoading = true;
+
   constructor(
     private route: ActivatedRoute,
     private youthProfilesService: YouthProfilesService,
     private authService: AuthService,
+    private attendanceService: AttendanceService,
   ) {
     addIcons({
       createOutline, personOutline, callOutline,
@@ -67,11 +76,52 @@ export class YouthProfileDetailPage implements OnInit {
       next: (data) => {
         this.profile = data;
         this.isLoading = false;
+        this.loadAttendance(id);
       },
       error: () => {
         this.isLoading = false;
       },
     });
+  }
+
+  loadAttendance(youthProfileId: string) {
+    this.attendanceLoading = true;
+    this.attendanceService.findByYouthProfile(youthProfileId).subscribe({
+      next: (entries) => {
+        this.processAttendanceData(entries);
+        this.attendanceLoading = false;
+      },
+      error: () => {
+        this.attendanceLoading = false;
+      },
+    });
+  }
+
+  private processAttendanceData(entries: any[]) {
+    this.totalSessions = entries.length;
+    this.sessionsPresent = entries.filter(e => e.present).length;
+    this.attendanceRate = this.totalSessions > 0
+      ? Math.round((this.sessionsPresent / this.totalSessions) * 100)
+      : 0;
+
+    // Build monthly buckets for last 6 months
+    const now = new Date();
+    const months: { month: string; present: number; total: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = d.toLocaleString('default', { month: 'short' });
+      months.push({ month: label, present: 0, total: 0 });
+
+      for (const entry of entries) {
+        const entryDate = entry.attendanceRecord?.date || '';
+        if (entryDate.startsWith(key)) {
+          months[months.length - 1].total++;
+          if (entry.present) months[months.length - 1].present++;
+        }
+      }
+    }
+    this.monthlyAttendance = months;
   }
 
   getAge(birthDate: string): number {

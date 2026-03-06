@@ -63,6 +63,14 @@ export class NotificationsService implements OnDestroy {
     return this.http.patch<void>(`${this.apiUrl}/read-all`, {});
   }
 
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  deleteAll(): Observable<void> {
+    return this.http.delete<void>(this.apiUrl);
+  }
+
   refreshUnreadCount() {
     this.getUnreadCount().subscribe({
       next: (count) => this.unreadCountSubject.next(count),

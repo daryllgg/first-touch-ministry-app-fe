@@ -8,9 +8,9 @@ import {
   IonInput,
   IonButton,
   IonSpinner,
-  ToastController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -41,7 +41,7 @@ export class VerifyEmailPage {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
   ) {}
 
   onSendOtp() {
@@ -63,20 +63,20 @@ export class VerifyEmailPage {
           this.isLoading = false;
           this.step = 'otp';
           this.startResendCooldown();
-          this.showToast('Code already sent to your email', 'success');
+          this.toast.success('Code already sent to your email');
           return;
         }
 
         // Status is 'none' — send new OTP
         this.sendNewOtp();
       },
-      error: async (err) => {
+      error: (err) => {
         this.isLoading = false;
         const message =
           err.status === 409
             ? 'Email already registered'
             : 'Failed to send code. Please try again.';
-        this.showToast(message, 'danger');
+        this.toast.error(message);
       },
     });
   }
@@ -87,15 +87,15 @@ export class VerifyEmailPage {
         this.isLoading = false;
         this.step = 'otp';
         this.startResendCooldown();
-        this.showToast('Verification code sent to your email', 'success');
+        this.toast.success('Verification code sent to your email');
       },
-      error: async (err) => {
+      error: (err) => {
         this.isLoading = false;
         const message =
           err.status === 409
             ? 'Email already registered'
             : 'Failed to send code. Please try again.';
-        this.showToast(message, 'danger');
+        this.toast.error(message);
       },
     });
   }
@@ -111,9 +111,9 @@ export class VerifyEmailPage {
           queryParams: { email: this.email },
         });
       },
-      error: async () => {
+      error: () => {
         this.isLoading = false;
-        this.showToast('Invalid or expired code', 'danger');
+        this.toast.error('Invalid or expired code');
       },
     });
   }
@@ -140,15 +140,5 @@ export class VerifyEmailPage {
     this.otp = '';
     clearInterval(this.resendTimer);
     this.resendCooldown = 0;
-  }
-
-  private async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 3000,
-      color,
-      position: 'top',
-    });
-    await toast.present();
   }
 }

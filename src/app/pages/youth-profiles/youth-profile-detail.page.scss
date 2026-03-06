@@ -109,9 +109,24 @@ ion-card {
 /* ═══ Web Layout ═══ */
 
 .detail-container-web {
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 24px 16px;
+}
+
+.detail-grid-web {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-col-left,
+.detail-col-right {
+  min-width: 0;
 }
 
 .card {
@@ -270,6 +285,89 @@ ion-card {
   color: #94a3b8;
   margin-top: 8px;
   padding-bottom: 24px;
+}
+
+/* ═══ Attendance Analytics ═══ */
+
+.analytics-card-web {
+  position: sticky;
+  top: 88px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 16px 8px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a3a4a;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.chart-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin: 0 0 12px;
+}
+
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 160px;
+}
+
+.chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.chart-bar-bg {
+  flex: 1;
+  width: 100%;
+  background: #f1f5f9;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.chart-bar {
+  width: 100%;
+  background: #1a3a4a;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+  min-height: 2px;
+}
+
+.chart-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 6px;
 }
 
 .btn {

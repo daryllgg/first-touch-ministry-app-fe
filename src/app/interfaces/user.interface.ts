@@ -8,7 +8,13 @@ export interface User {
   birthday?: string;
   gender?: 'MALE' | 'FEMALE';
   address?: string;
-  isApproved: boolean;
+  middleName?: string;
+  invitedBy?: string;
+  facebookLink?: string;
+  firstDateAttendedChurch?: string;
+  dateBaptized?: string;
+  accountStatus: 'PENDING' | 'APPROVED' | 'DECLINED';
+  declineReason?: string;
   roles: { id: number; name: string }[];
   createdAt: string;
 }

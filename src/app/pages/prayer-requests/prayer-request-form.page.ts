@@ -5,9 +5,9 @@ import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonItem, IonTextarea, IonBackButton, IonButtons, IonSpinner,
-  ToastController,
 } from '@ionic/angular/standalone';
 import { PrayerRequestsService } from '../../services/prayer-requests.service';
+import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -32,7 +32,7 @@ export class PrayerRequestFormPage {
     private fb: FormBuilder,
     private prayerRequestsService: PrayerRequestsService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
   ) {
     this.form = this.fb.group({
       content: ['', [Validators.required]],
@@ -71,16 +71,14 @@ export class PrayerRequestFormPage {
     }
 
     this.prayerRequestsService.create(formData).subscribe({
-      next: async () => {
+      next: () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Prayer request submitted', duration: 2000, color: 'success', position: 'top' });
-        await toast.present();
+        this.toast.success('Prayer request submitted');
         this.router.navigate(['/prayer-requests']);
       },
-      error: async () => {
+      error: () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Failed to submit', duration: 3000, color: 'danger', position: 'top' });
-        await toast.present();
+        this.toast.error('Failed to submit');
       },
     });
   }

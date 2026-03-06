@@ -7,7 +7,6 @@ import {
   IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
   IonSpinner, IonSelect, IonSelectOption, IonLabel, IonIcon, IonList,
   IonDatetime, IonDatetimeButton, IonModal,
-  ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, trashOutline, calendarOutline } from 'ionicons/icons';
@@ -15,6 +14,7 @@ import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { InstrumentRole } from '../../interfaces/worship-lineup.interface';
 import { User } from '../../interfaces/user.interface';
 import { HttpClient } from '@angular/common/http';
+import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -41,8 +41,12 @@ export class WorshipLineupFormPage implements OnInit {
   editingDateIndex: number | null = null;
   lineupId: string | null = null;
   isEditMode = false;
+  showServiceDatePicker = false;
+  showRehearsalDatePicker = false;
+  private initialFormSnapshot: string = '';
 
   @ViewChild('dateModal') dateModal!: IonModal;
+  @ViewChild('rehearsalDateModal') rehearsalDateModal!: IonModal;
 
   private instrumentRoleToUserRoles: Record<string, string[]> = {
     'Singer': ['SINGER'],
@@ -69,7 +73,7 @@ export class WorshipLineupFormPage implements OnInit {
     private lineupsService: WorshipLineupsService,
     private http: HttpClient,
     private router: Router,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
   ) {
     addIcons({ addOutline, trashOutline, calendarOutline });
 
@@ -77,6 +81,8 @@ export class WorshipLineupFormPage implements OnInit {
       serviceType: ['', [Validators.required]],
       customServiceName: [''],
       notes: [''],
+      rehearsalDate: [''],
+      overallTheme: [''],
       dates: this.fb.array([]),
       members: this.fb.array([]),
       songs: this.fb.array([]),
@@ -110,6 +116,8 @@ export class WorshipLineupFormPage implements OnInit {
           serviceType: lineup.serviceType,
           customServiceName: lineup.customServiceName || '',
           notes: lineup.notes || '',
+          rehearsalDate: lineup.rehearsalDate || '',
+          overallTheme: lineup.overallTheme || '',
         });
 
         // Populate dates
@@ -136,6 +144,8 @@ export class WorshipLineupFormPage implements OnInit {
             }));
           });
         }
+
+        this.initialFormSnapshot = JSON.stringify(this.form.value);
       },
     });
   }
@@ -152,6 +162,27 @@ export class WorshipLineupFormPage implements OnInit {
     return this.form.get('songs') as FormArray;
   }
 
+  get hasChanges(): boolean {
+    if (!this.isEditMode) return true;
+    return JSON.stringify(this.form.value) !== this.initialFormSnapshot;
+  }
+
+  cancelEdit() {
+    this.router.navigate(['/worship-lineups', this.lineupId]);
+  }
+
+  toggleServiceDatePicker(event?: Event) {
+    event?.stopPropagation();
+    this.showServiceDatePicker = !this.showServiceDatePicker;
+    this.showRehearsalDatePicker = false;
+  }
+
+  toggleRehearsalDatePicker(event?: Event) {
+    event?.stopPropagation();
+    this.showRehearsalDatePicker = !this.showRehearsalDatePicker;
+    this.showServiceDatePicker = false;
+  }
+
   get isSpecialEvent(): boolean {
     return this.form.get('serviceType')?.value === 'SPECIAL_EVENT';
   }
@@ -166,8 +197,41 @@ export class WorshipLineupFormPage implements OnInit {
     this.dateModal.present();
   }
 
+  onWebDateSelect(event: any) {
+    const value = event.detail.value;
+    if (!value) return;
+    const dateStr = value.split('T')[0];
+    const exists = this.dates.controls.some(c => c.value === dateStr);
+    if (!exists) {
+      this.dates.push(this.fb.control(dateStr, [Validators.required]));
+    }
+  }
+
   removeDate(index: number) {
     this.dates.removeAt(index);
+  }
+
+  onWebRehearsalDateSelect(event: any) {
+    const value = event.detail.value;
+    if (!value) return;
+    this.form.patchValue({ rehearsalDate: value.split('T')[0] });
+    this.showRehearsalDatePicker = false;
+  }
+
+  onRehearsalDateConfirm(event: any) {
+    const value = event.detail.value;
+    if (value) {
+      this.form.patchValue({ rehearsalDate: value.split('T')[0] });
+    }
+    this.rehearsalDateModal.dismiss();
+  }
+
+  onRehearsalDateCancel() {
+    this.rehearsalDateModal.dismiss();
+  }
+
+  clearRehearsalDate() {
+    this.form.patchValue({ rehearsalDate: '' });
   }
 
   addMember() {
@@ -253,6 +317,8 @@ export class WorshipLineupFormPage implements OnInit {
       dates: formValue.dates,
       serviceType: formValue.serviceType,
       notes: formValue.notes || undefined,
+      rehearsalDate: formValue.rehearsalDate || undefined,
+      overallTheme: formValue.overallTheme || undefined,
       members: formValue.members.map((m: any) => ({
         userId: m.userId,
         instrumentRoleId: m.instrumentRoleId,
@@ -277,18 +343,16 @@ export class WorshipLineupFormPage implements OnInit {
       : this.lineupsService.create(payload);
 
     request$.subscribe({
-      next: async () => {
+      next: () => {
         this.isLoading = false;
         const msg = this.isEditMode ? 'Lineup updated' : 'Lineup created';
-        const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: 'success', position: 'top' });
-        await toast.present();
+        this.toast.success(msg);
         this.router.navigate(['/worship-lineups']);
       },
-      error: async () => {
+      error: () => {
         this.isLoading = false;
         const msg = this.isEditMode ? 'Failed to update lineup' : 'Failed to create lineup';
-        const toast = await this.toastCtrl.create({ message: msg, duration: 3000, color: 'danger', position: 'top' });
-        await toast.present();
+        this.toast.error(msg);
       },
     });
   }

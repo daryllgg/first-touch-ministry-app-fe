@@ -151,48 +151,57 @@ ion-badge {
   }
 }
 
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
-}
-
-.card {
+.table-card-web {
   background: white;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-.card-clickable {
-  cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.2s;
-  text-decoration: none;
-  color: inherit;
-  display: block;
+.profiles-table-web {
+  width: 100%;
+  border-collapse: collapse;
 
-  &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
   }
 }
 
-.profile-card-web {
-  padding: 16px 20px;
+.table-row-clickable {
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f8fafc;
+  }
 }
 
-.profile-card-content-web {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.profile-avatar-web {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+.table-avatar-web {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   overflow: hidden;
+  flex-shrink: 0;
 
   img {
     width: 100%;
@@ -202,8 +211,8 @@ ion-badge {
 }
 
 .avatar-placeholder-lg-web {
-  width: 100%;
-  height: 100%;
+  width: 40px;
+  height: 40px;
   background: #f1f5f9;
   border-radius: 50%;
   display: flex;
@@ -212,49 +221,130 @@ ion-badge {
   color: #94a3b8;
 }
 
-.profile-info-web {
-  flex: 1;
-  min-width: 0;
+.table-name-web {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
-  .profile-name-web {
-    margin: 0 0 2px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #1a3a4a;
-  }
+.profile-name-web {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a3a4a;
+}
 
-  .nickname-web {
-    font-style: italic;
-    color: #94a3b8;
-    font-size: 0.83rem;
-    margin: 0 0 2px;
-  }
+.nickname-web {
+  font-style: italic;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
 
-  .meta-web {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    margin: 0;
+@media (max-width: 640px) {
+  .hide-sm {
+    display: none;
   }
 }
 
-.gender-badge-web {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  flex-shrink: 0;
+/* ═══ Station Sub-Tabs ═══ */
 
-  &[data-gender="MALE"] {
-    background: #dbeafe;
-    color: #1e40af;
+.station-sub-tabs {
+  display: flex;
+  gap: 4px;
+  background: #e2e8f0;
+  padding: 3px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+
+  button {
+    padding: 7px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #1a3a4a;
+    }
+
+    &.active {
+      background: white;
+      color: #1a3a4a;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+/* ═══ Pagination ═══ */
+
+.pagination-web {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 12px 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  select {
+    padding: 4px 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    background: white;
+    cursor: pointer;
+    outline: none;
+
+    &:focus {
+      border-color: #1a3a4a;
+    }
+  }
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #1e293b;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: #1a3a4a;
+    background: #f8fafc;
   }
 
-  &[data-gender="FEMALE"] {
-    background: #e0e7ff;
-    color: #4338ca;
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background: #1a3a4a;
+    color: white;
+    border-color: #1a3a4a;
   }
 }
 

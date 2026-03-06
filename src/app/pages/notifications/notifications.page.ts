@@ -4,16 +4,18 @@ import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonList, IonItem, IonLabel, IonMenuButton, IonButtons, IonIcon,
-  IonRefresher, IonRefresherContent, ViewWillEnter,
+  IonRefresher, IonRefresherContent, IonSkeletonText,
+  IonItemSliding, IonItemOptions, IonItemOption, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   notificationsOffOutline, checkmarkDoneOutline, logOutOutline,
   megaphoneOutline, musicalNotesOutline, swapHorizontalOutline,
-  personAddOutline, chatbubbleOutline,
+  personAddOutline, chatbubbleOutline, trashOutline,
 } from 'ionicons/icons';
 import { NotificationsService } from '../../services/notifications.service';
 import { AuthService } from '../../services/auth.service';
+import { ModalService } from '../../components/modal/modal.service';
 import { AppNotification } from '../../interfaces/notification.interface';
 import { environment } from '../../../environments/environment';
 
@@ -24,7 +26,8 @@ import { environment } from '../../../environments/environment';
     CommonModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonList, IonItem, IonLabel, IonMenuButton, IonButtons, IonIcon,
-    IonRefresher, IonRefresherContent,
+    IonRefresher, IonRefresherContent, IonSkeletonText,
+    IonItemSliding, IonItemOptions, IonItemOption,
   ],
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
@@ -33,16 +36,18 @@ export class NotificationsPage implements OnInit, ViewWillEnter {
   isWeb = environment.platform === 'web';
   notifications: AppNotification[] = [];
   unreadCount = 0;
+  isLoading = true;
 
   constructor(
     private notificationsService: NotificationsService,
     private authService: AuthService,
+    private modal: ModalService,
     private router: Router,
   ) {
     addIcons({
       notificationsOffOutline, checkmarkDoneOutline, logOutOutline,
       megaphoneOutline, musicalNotesOutline, swapHorizontalOutline,
-      personAddOutline, chatbubbleOutline,
+      personAddOutline, chatbubbleOutline, trashOutline,
     });
   }
 
@@ -55,11 +60,14 @@ export class NotificationsPage implements OnInit, ViewWillEnter {
   }
 
   loadNotifications() {
+    this.isLoading = true;
     this.notificationsService.findAll().subscribe({
       next: (data) => {
         this.notifications = data;
         this.unreadCount = data.filter((n) => !n.isRead).length;
+        this.isLoading = false;
       },
+      error: () => this.isLoading = false,
     });
   }
 
@@ -125,6 +133,41 @@ export class NotificationsPage implements OnInit, ViewWillEnter {
         break;
       default:
         break;
+    }
+  }
+
+  async deleteNotification(notif: AppNotification, event?: Event) {
+    event?.stopPropagation();
+    const confirmed = await this.modal.confirm({
+      title: 'Delete Notification',
+      message: 'Are you sure you want to delete this notification?',
+      confirmText: 'Delete',
+      confirmColor: 'danger',
+    });
+    if (confirmed) {
+      this.notificationsService.delete(notif.id).subscribe({
+        next: () => {
+          this.loadNotifications();
+          this.notificationsService.refreshUnreadCount();
+        },
+      });
+    }
+  }
+
+  async clearAllNotifications() {
+    const confirmed = await this.modal.confirm({
+      title: 'Clear All Notifications',
+      message: 'Are you sure you want to delete all notifications? This cannot be undone.',
+      confirmText: 'Clear All',
+      confirmColor: 'danger',
+    });
+    if (confirmed) {
+      this.notificationsService.deleteAll().subscribe({
+        next: () => {
+          this.loadNotifications();
+          this.notificationsService.refreshUnreadCount();
+        },
+      });
     }
   }
 

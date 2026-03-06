@@ -7,10 +7,10 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonItem, IonInput, IonTextarea, IonBackButton, IonButtons, IonSpinner,
   IonSelect, IonSelectOption,
-  ToastController,
 } from '@ionic/angular/standalone';
 import { AnnouncementsService } from '../../services/announcements.service';
 import { User } from '../../interfaces/user.interface';
+import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -39,7 +39,7 @@ export class AnnouncementFormPage implements OnInit {
     private http: HttpClient,
     private announcementsService: AnnouncementsService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required]],
@@ -94,16 +94,14 @@ export class AnnouncementFormPage implements OnInit {
     }
 
     this.announcementsService.create(formData).subscribe({
-      next: async () => {
+      next: () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Announcement created', duration: 2000, color: 'success', position: 'top' });
-        await toast.present();
+        this.toast.success('Announcement created');
         this.router.navigate(['/announcements']);
       },
-      error: async () => {
+      error: () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({ message: 'Failed to create announcement', duration: 3000, color: 'danger', position: 'top' });
-        await toast.present();
+        this.toast.error('Failed to create announcement');
       },
     });
   }

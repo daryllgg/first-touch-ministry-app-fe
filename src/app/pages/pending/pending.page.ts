@@ -6,11 +6,11 @@ import {
   IonButton,
   IonSpinner,
   IonIcon,
-  ToastController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { timeOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -27,44 +27,34 @@ export class PendingPage {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private toast: ToastService,
   ) {
     addIcons({ timeOutline });
   }
 
-  async checkStatus() {
+  checkStatus() {
     this.isChecking = true;
     this.authService.getMe().subscribe({
-      next: async (user) => {
+      next: (user) => {
         this.isChecking = false;
-        if (user.isApproved) {
-          const toast = await this.toastCtrl.create({
-            message: 'Your account has been approved!',
-            duration: 2000,
-            color: 'success',
-            position: 'top',
-          });
-          await toast.present();
+        if (user.accountStatus === 'APPROVED') {
+          this.toast.success('Your account has been approved!');
           this.router.navigate(['/home']);
+        } else if (user.accountStatus === 'DECLINED') {
+          this.toast.error(
+            user.declineReason
+              ? `Your account has been declined. Reason: ${user.declineReason}`
+              : 'Your account has been declined.',
+          );
+          this.authService.logout();
+          this.router.navigate(['/login']);
         } else {
-          const toast = await this.toastCtrl.create({
-            message: 'Your account is still pending approval.',
-            duration: 2000,
-            color: 'warning',
-            position: 'top',
-          });
-          await toast.present();
+          this.toast.warning('Your account is still pending approval.');
         }
       },
-      error: async () => {
+      error: () => {
         this.isChecking = false;
-        const toast = await this.toastCtrl.create({
-          message: 'Unable to check status. Please try again.',
-          duration: 2000,
-          color: 'danger',
-          position: 'top',
-        });
-        await toast.present();
+        this.toast.error('Unable to check status. Please try again.');
       },
     });
   }

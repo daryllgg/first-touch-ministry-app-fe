@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonList, IonItem, IonLabel, IonMenuButton, IonButtons,
-  IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, ViewWillEnter,
+  IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, IonSkeletonText, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, logOutOutline } from 'ionicons/icons';
@@ -20,7 +20,7 @@ import { WorshipLineup } from '../../interfaces/worship-lineup.interface';
     CommonModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonList, IonItem, IonLabel, IonMenuButton, IonButtons,
-    IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent,
+    IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, IonSkeletonText,
   ],
   templateUrl: './worship-lineups-list.page.html',
   styleUrls: ['./worship-lineups-list.page.scss'],
@@ -29,6 +29,7 @@ export class WorshipLineupsListPage implements OnInit, ViewWillEnter {
   isWeb = environment.platform === 'web';
   lineups: WorshipLineup[] = [];
   canCreate = false;
+  isLoading = true;
 
   constructor(
     private lineupsService: WorshipLineupsService,
@@ -50,8 +51,10 @@ export class WorshipLineupsListPage implements OnInit, ViewWillEnter {
   }
 
   loadLineups() {
+    this.isLoading = true;
     this.lineupsService.findAll().subscribe({
-      next: (data) => this.lineups = data,
+      next: (data) => { this.lineups = data; this.isLoading = false; },
+      error: () => this.isLoading = false,
     });
   }
 

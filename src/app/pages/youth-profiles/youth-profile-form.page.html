@@ -1,7 +1,7 @@
 @if (isWeb) {
   <div class="form-container-web">
     <div class="card">
-      <h2 class="form-title">{{ isEditMode ? 'Edit' : 'New' }} Kids and Teens Profile</h2>
+      <h2 class="form-title">{{ isEditMode ? 'Edit' : 'New' }} Kids and Teens</h2>
 
       @if (isLoading && isEditMode && !existingProfile) {
         <div class="loading-web">
@@ -47,18 +47,19 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Nickname</label>
-              <input class="form-input" formControlName="nickname" placeholder="Nickname" />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Gender *</label>
-              <select class="form-select" formControlName="gender">
-                <option value="" disabled>Select gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-              </select>
+            <div class="form-row-web">
+              <div class="form-group">
+                <label class="form-label">Nickname</label>
+                <input class="form-input" formControlName="nickname" placeholder="Nickname" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gender *</label>
+                <select class="form-select" formControlName="gender">
+                  <option value="" disabled>Select gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
@@ -71,35 +72,37 @@
           <div class="form-section-web">
             <p class="section-label-web">Location & Contact</p>
 
-            <div class="form-group">
-              <label class="form-label">Station (Area)</label>
-              <select class="form-select" formControlName="stationId">
-                <option value="">-- Select station --</option>
-                @for (station of stations; track station.id) {
-                  <option [value]="station.id">{{ station.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Address</label>
-              <input class="form-input" formControlName="address" placeholder="Address" />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Contact Number *</label>
-              <div class="contact-input-web">
-                <span class="contact-prefix-web">+639</span>
-                <input class="form-input contact-number-web" formControlName="contactNumber" type="tel" inputmode="numeric" placeholder="9XXXXXXXXX" maxlength="9" />
+            <div class="form-row-web">
+              <div class="form-group">
+                <label class="form-label">Station (Area)</label>
+                <select class="form-select" formControlName="stationId">
+                  <option value="">-- Select station --</option>
+                  @for (station of stations; track station.id) {
+                    <option [value]="station.id">{{ station.name }}</option>
+                  }
+                </select>
               </div>
-              @if (form.get('contactNumber')?.touched && form.get('contactNumber')?.invalid) {
-                <p class="field-error-web">Enter a valid 9-digit number after +639</p>
-              }
+              <div class="form-group">
+                <label class="form-label">Address</label>
+                <input class="form-input" formControlName="address" placeholder="Address" />
+              </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Facebook Link</label>
-              <input class="form-input" formControlName="facebookLink" placeholder="Facebook profile URL" />
+            <div class="form-row-web">
+              <div class="form-group">
+                <label class="form-label">Contact Number *</label>
+                <div class="contact-input-web">
+                  <span class="contact-prefix-web">+639</span>
+                  <input class="form-input contact-number-web" formControlName="contactNumber" type="tel" inputmode="numeric" placeholder="9XXXXXXXXX" maxlength="9" />
+                </div>
+                @if (form.get('contactNumber')?.touched && form.get('contactNumber')?.invalid) {
+                  <p class="field-error-web">Enter a valid 9-digit number after +639</p>
+                }
+              </div>
+              <div class="form-group">
+                <label class="form-label">Facebook Link</label>
+                <input class="form-input" formControlName="facebookLink" placeholder="Facebook profile URL" />
+              </div>
             </div>
           </div>
 
@@ -141,7 +144,7 @@
       <ion-buttons slot="start">
         <ion-back-button [defaultHref]="isEditMode ? '/youth-profiles/' + profileId : '/youth-profiles'"></ion-back-button>
       </ion-buttons>
-      <ion-title>{{ isEditMode ? 'Edit' : 'New' }} Kids and Teens Profile</ion-title>
+      <ion-title>{{ isEditMode ? 'Edit' : 'New' }} Kids and Teens</ion-title>
     </ion-toolbar>
   </ion-header>
 

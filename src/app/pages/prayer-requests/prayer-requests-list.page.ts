@@ -6,7 +6,7 @@ import {
   IonList, IonItem, IonLabel, IonBadge, IonMenuButton, IonButtons,
   IonFab, IonFabButton, IonIcon,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle,
-  ViewWillEnter,
+  IonSkeletonText, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, logOutOutline } from 'ionicons/icons';
@@ -24,6 +24,7 @@ import { PrayerRequest } from '../../interfaces/prayer-request.interface';
     IonList, IonItem, IonLabel, IonBadge, IonMenuButton, IonButtons,
     IonFab, IonFabButton, IonIcon,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonCardSubtitle,
+    IonSkeletonText,
   ],
   templateUrl: './prayer-requests-list.page.html',
   styleUrls: ['./prayer-requests-list.page.scss'],
@@ -35,6 +36,8 @@ export class PrayerRequestsListPage implements OnInit, ViewWillEnter {
   isAdminOrPastor = false;
   currentUserId: string | null = null;
   apiUrl = environment.apiUrl;
+  isLoading = true;
+  private loadCount = 0;
 
   constructor(
     private prayerRequestsService: PrayerRequestsService,
@@ -49,29 +52,38 @@ export class PrayerRequestsListPage implements OnInit, ViewWillEnter {
       this.authService.hasRole('ADMIN') ||
       this.authService.hasRole('SUPER_ADMIN');
     this.currentUserId = this.authService.currentUser?.id ?? null;
-    this.loadPrayerRequests();
-    if (this.isAdminOrPastor) {
-      this.loadPendingRequests();
-    }
+    this.loadAll();
   }
 
   ionViewWillEnter() {
     this.currentUserId = this.authService.currentUser?.id ?? null;
+    this.loadAll();
+  }
+
+  private loadAll() {
+    this.isLoading = true;
+    this.loadCount = this.isAdminOrPastor ? 2 : 1;
     this.loadPrayerRequests();
     if (this.isAdminOrPastor) {
       this.loadPendingRequests();
     }
   }
 
+  private checkLoaded() {
+    if (--this.loadCount <= 0) this.isLoading = false;
+  }
+
   loadPrayerRequests() {
     this.prayerRequestsService.findAll().subscribe({
-      next: (data) => this.prayerRequests = data,
+      next: (data) => { this.prayerRequests = data; this.checkLoaded(); },
+      error: () => this.checkLoaded(),
     });
   }
 
   loadPendingRequests() {
     this.prayerRequestsService.findPending().subscribe({
-      next: (data) => this.pendingRequests = data,
+      next: (data) => { this.pendingRequests = data; this.checkLoaded(); },
+      error: () => this.checkLoaded(),
     });
   }
 

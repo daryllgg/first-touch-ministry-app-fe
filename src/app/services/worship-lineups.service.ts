@@ -23,6 +23,8 @@ export class WorshipLineupsService {
     serviceType: string;
     customServiceName?: string;
     notes?: string;
+    rehearsalDate?: string;
+    overallTheme?: string;
     members: { userId: string; instrumentRoleId: string }[];
     songs?: { title: string; link?: string; singerId?: string }[];
   }): Observable<WorshipLineup> {
@@ -34,6 +36,8 @@ export class WorshipLineupsService {
     serviceType: string;
     customServiceName?: string;
     notes?: string;
+    rehearsalDate?: string;
+    overallTheme?: string;
     members: { userId: string; instrumentRoleId: string; customRoleName?: string }[];
     songs?: { title: string; link?: string; singerId?: string }[];
   }): Observable<WorshipLineup> {
@@ -82,5 +86,9 @@ export class WorshipLineupsService {
 
   acceptSubstitution(id: string): Observable<SubstitutionRequest> {
     return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}/accept`, {});
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

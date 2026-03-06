@@ -9,8 +9,12 @@ export const approvedGuard: CanActivateFn = () => {
 
   return authService.getMe().pipe(
     map((user) => {
-      if (user.isApproved) {
+      if (user.accountStatus === 'APPROVED') {
         return true;
+      }
+      if (user.accountStatus === 'DECLINED') {
+        router.navigate(['/login']);
+        return false;
       }
       router.navigate(['/pending']);
       return false;

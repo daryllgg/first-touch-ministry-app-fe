@@ -1,0 +1,236 @@
+@if (isWeb) {
+  <div class="page-header-web">
+    <h1>Articles</h1>
+    @if (!showForm) {
+      <button class="btn btn-primary" (click)="openNewForm()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Article
+      </button>
+    }
+  </div>
+
+  @if (showForm) {
+    <div class="card form-card-web">
+      <div class="form-header-web">
+        <h2 class="form-title-web">{{ editingId ? 'Edit' : 'New' }} Article</h2>
+        <button class="btn btn-outline btn-sm" (click)="showPreview = !showPreview">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          {{ showPreview ? 'Edit' : 'Preview' }}
+        </button>
+      </div>
+
+      @if (showPreview) {
+        <!-- Preview Pane -->
+        <div class="preview-pane">
+          <h1 class="preview-title">{{ title || 'Untitled' }}</h1>
+          <div class="preview-caption">{{ caption || 'No content yet...' }}</div>
+          @if (existingImages.length > 0 || imagePreviewUrls.length > 0) {
+            <div class="preview-images">
+              @for (img of existingImages; track img) {
+                <img [src]="getExistingImageUrl(img)" alt="Image" class="preview-image" />
+              }
+              @for (url of imagePreviewUrls; track url) {
+                <img [src]="url" alt="Preview" class="preview-image" />
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Edit Form -->
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input class="form-input" [(ngModel)]="title" placeholder="Article title" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Caption *</label>
+          <div class="mention-wrapper">
+            <textarea class="form-textarea" [(ngModel)]="caption" (input)="onCaptionInput($event)" placeholder="Write the article content... Use @ to mention users" rows="8"></textarea>
+            @if (showMentionDropdown && filteredMentionUsers.length > 0) {
+              <div class="mention-dropdown">
+                @for (user of filteredMentionUsers; track user.id) {
+                  <div class="mention-item" (click)="selectInlineMention(user)">{{ user.firstName }} {{ user.lastName }}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (mentionedUserIds.length > 0) {
+          <div class="form-group">
+            <label class="form-label">Mentioned Users</label>
+            <div class="mention-tags">
+              @for (uid of mentionedUserIds; track uid) {
+                @if (getMentionedUser(uid); as user) {
+                  <span class="mention-tag">
+                    {{ user.firstName }} {{ user.lastName }}
+                    <button (click)="removeMention(uid)">&times;</button>
+                  </span>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Existing images (edit mode) -->
+        @if (editingId && existingImages.length > 0) {
+          <div class="form-group">
+            <label class="form-label">Current Images</label>
+            <div class="existing-images-grid">
+              @for (img of existingImages; track img; let i = $index) {
+                <div class="existing-image-item">
+                  <img [src]="getExistingImageUrl(img)" alt="Existing image" />
+                  <button type="button" class="image-remove-btn" (click)="removeExistingImage(i)" title="Remove image">&times;</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="form-group">
+          <label class="form-label">{{ editingId ? 'Add More Images' : 'Images' }}</label>
+          <input type="file" accept="image/*" multiple (change)="onFileSelect($event)" class="form-input" />
+          @if (imagePreviewUrls.length > 0) {
+            <div class="image-previews-web">
+              @for (url of imagePreviewUrls; track url; let i = $index) {
+                <div class="image-preview-item-web">
+                  <img [src]="url" alt="Preview" />
+                  <button type="button" class="image-remove-btn" (click)="removeImage(i)">&times;</button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div class="form-actions-web">
+        <button class="btn btn-outline" (click)="cancelForm()">Cancel</button>
+        <button class="btn btn-outline" (click)="saveDraft()" [disabled]="isSubmitting">
+          @if (isSubmitting) {
+            <span class="spinner spinner-dark"></span>
+          } @else {
+            Save as Draft
+          }
+        </button>
+        <button class="btn btn-primary" (click)="publishArticle()" [disabled]="isSubmitting">
+          @if (isSubmitting) {
+            <span class="spinner"></span>
+          } @else {
+            {{ editingId ? 'Update & Publish' : 'Publish' }}
+          }
+        </button>
+      </div>
+    </div>
+  } @else {
+    @if (isLoading) {
+      <div class="card-list-web">
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-card" style="display:flex;gap:16px;align-items:center;padding:16px 20px">
+            <div class="skeleton" style="width:60px;height:60px;border-radius:8px;flex-shrink:0"></div>
+            <div style="flex:1">
+              <div class="skeleton skeleton-title" style="width:50%"></div>
+              <div class="skeleton skeleton-text" style="margin-top:6px"></div>
+              <div class="skeleton skeleton-text-sm" style="width:30%;margin-top:6px"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (articles.length === 0) {
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+          <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+        </svg>
+        <p>No articles yet. Create your first article!</p>
+      </div>
+    } @else {
+      <div class="card-list-web">
+        @for (article of articles; track article.id) {
+          <div class="card article-item-web">
+            @if (article.images && article.images.length > 0) {
+              <div class="article-thumb-web">
+                <img [src]="getImageUrl(article.images[0])" [alt]="article.title" />
+              </div>
+            } @else {
+              <div class="article-thumb-web article-thumb-placeholder-web">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>
+              </div>
+            }
+            <div class="article-info-web">
+              <div class="article-title-row">
+                <h3>{{ article.title }}</h3>
+                @if (article.status === 'DRAFT') {
+                  <span class="badge-draft">DRAFT</span>
+                }
+              </div>
+              <p class="article-caption-preview-web">{{ article.caption | slice:0:100 }}{{ article.caption.length > 100 ? '...' : '' }}</p>
+              <span class="article-meta-sm-web">{{ article.author.firstName }} {{ article.author.lastName }} &middot; {{ article.createdAt | date:'MMM d, y' }}</span>
+            </div>
+            <div class="article-actions-web">
+              <button class="btn-icon-web" (click)="openEditForm(article)" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </button>
+              <button class="btn-icon-web btn-danger-icon" (click)="deleteArticle(article)" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+} @else {
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/home"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Articles</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    @if (isLoading) {
+      @for (i of [1,2,3]; track i) {
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:12px;background:white;border-radius:10px;box-shadow:0 1px 6px rgba(26,58,74,0.06)">
+          <ion-skeleton-text [animated]="true" style="width:50px;height:50px;border-radius:8px"></ion-skeleton-text>
+          <div style="flex:1">
+            <ion-skeleton-text [animated]="true" style="width:60%;height:16px"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width:80%;height:12px;margin-top:6px"></ion-skeleton-text>
+          </div>
+        </div>
+      }
+    } @else if (articles.length === 0) {
+      <div style="text-align:center;padding:48px 16px;color:var(--ion-color-medium)">
+        <ion-icon name="newspaper-outline" style="font-size:64px;opacity:0.4"></ion-icon>
+        <p>No articles yet.</p>
+      </div>
+    } @else {
+      @for (article of articles; track article.id) {
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;padding:14px;background:white;border-radius:10px;box-shadow:0 1px 6px rgba(26,58,74,0.06)">
+          @if (article.images && article.images.length > 0) {
+            <img [src]="getImageUrl(article.images[0])" style="width:50px;height:50px;border-radius:8px;object-fit:cover" />
+          }
+          <div style="flex:1;min-width:0" [routerLink]="['/articles', article.id]">
+            <div style="display:flex;align-items:center;gap:8px">
+              <h3 style="font-size:0.95rem;font-weight:600;color:var(--ion-color-secondary);margin:0 0 4px">{{ article.title }}</h3>
+              @if (article.status === 'DRAFT') {
+                <span style="font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:4px;background:#fef3c7;color:#92400e;letter-spacing:0.5px">DRAFT</span>
+              }
+            </div>
+            <p style="font-size:0.82rem;color:#94a3b8;margin:0">{{ article.createdAt | date:'MMM d, y' }}</p>
+          </div>
+          <ion-button fill="clear" color="danger" (click)="deleteArticle(article)">
+            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      }
+    }
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button (click)="openNewForm()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </ion-content>
+}

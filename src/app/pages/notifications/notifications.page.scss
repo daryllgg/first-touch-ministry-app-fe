@@ -19,7 +19,6 @@ ion-item {
 
   &.unread {
     --background: #e8f4fd;
-    border-left: 4px solid var(--ion-color-primary);
     box-shadow: 0 2px 12px rgba(26, 58, 74, 0.12);
   }
 }
@@ -121,7 +120,6 @@ ion-item {
 
   &.unread-web {
     background: #e8f4fd;
-    border-left: 4px solid #1a3a4a;
     box-shadow: 0 2px 12px rgba(26, 58, 74, 0.12);
   }
 }
@@ -182,6 +180,40 @@ ion-item {
   flex-shrink: 0;
   margin-top: 6px;
   box-shadow: 0 0 6px rgba(26, 58, 74, 0.4);
+}
+
+.btn-danger-outline-web {
+  color: #ef4444;
+  border-color: #fecaca;
+
+  &:hover {
+    border-color: #ef4444;
+    background: #fef2f2;
+  }
+}
+
+.delete-btn-web {
+  flex-shrink: 0;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+
+  .notification-card-web:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: #ef4444;
+    background: #fef2f2;
+  }
 }
 
 .empty-state-web {

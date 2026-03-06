@@ -169,9 +169,11 @@
   }
 
   &.active {
-    background: #e8f1f5;
+    background: #d5e6ed;
     color: var(--ion-color-primary);
     font-weight: 600;
+    border-left: 3px solid var(--ion-color-primary);
+    padding-left: 11px;
 
     svg { color: var(--ion-color-primary); }
   }

@@ -9,7 +9,23 @@
     }
   </div>
 
-  @if (lineups.length === 0) {
+  @if (isLoading) {
+    <div class="card-grid">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div class="skeleton skeleton-title" style="width:55%"></div>
+            <div class="skeleton skeleton-badge"></div>
+          </div>
+          <div class="skeleton skeleton-text-sm" style="width:60%;margin-bottom:12px"></div>
+          <div style="display:flex;gap:12px">
+            <div class="skeleton skeleton-text-sm" style="width:80px"></div>
+            <div class="skeleton skeleton-text-sm" style="width:100px"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (lineups.length === 0) {
     <div class="empty-state-web">
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 18V5l12-2v13"></path>
@@ -68,7 +84,20 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    @if (lineups.length === 0) {
+    @if (isLoading) {
+      <ion-list>
+        @for (i of [1,2,3,4]; track i) {
+          <ion-item>
+            <ion-label>
+              <ion-skeleton-text [animated]="true" style="width:60%;height:18px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:80%;height:13px;margin-top:8px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:50%;height:13px;margin-top:4px"></ion-skeleton-text>
+            </ion-label>
+            <ion-skeleton-text [animated]="true" slot="end" style="width:70px;height:22px;border-radius:20px"></ion-skeleton-text>
+          </ion-item>
+        }
+      </ion-list>
+    } @else if (lineups.length === 0) {
       <p>No worship lineups yet.</p>
     } @else {
       <ion-list>

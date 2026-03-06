@@ -9,27 +9,59 @@
     <img src="assets/logos/FTM Logomark.png" alt="FTM" class="greeting-logo" />
   </div>
 
-  @if (announcements.length > 0) {
-    <p class="section-label">Recent Announcements</p>
-    <div class="announcements-grid">
-      @for (a of announcements; track a.id) {
-        <a class="announcement-card" routerLink="/announcements">
-          <div class="announcement-dot"></div>
-          <div class="announcement-info">
-            <h3>{{ a.title }}</h3>
-            <p>{{ a.content | slice:0:100 }}{{ a.content.length > 100 ? '...' : '' }}</p>
-            <span class="announcement-date">{{ a.createdAt | date:'MMM d, y' }}</span>
-          </div>
-        </a>
-      }
+  @if (isLoading) {
+    <p class="section-label">Latest Article</p>
+    <div class="skeleton-card featured-skeleton-web" style="padding:0;overflow:hidden">
+      <div class="skeleton" style="width:100%;height:300px;border-radius:0"></div>
+      <div style="padding:20px">
+        <div class="skeleton skeleton-title" style="width:60%"></div>
+        <div class="skeleton skeleton-text" style="margin-top:10px"></div>
+        <div class="skeleton skeleton-text" style="width:80%;margin-top:6px"></div>
+        <div class="skeleton skeleton-text-sm" style="width:35%;margin-top:12px"></div>
+      </div>
     </div>
+  } @else if (articles.length > 0) {
+    <p class="section-label">Latest Article</p>
+    <a class="featured-article-web" [routerLink]="['/articles', articles[0].id]">
+      @if (articles[0].images && articles[0].images.length > 0) {
+        <div class="gallery-wrapper-featured">
+          <div class="gallery-container" (scroll)="onGalleryScroll($event)">
+            @for (img of articles[0].images; track img) {
+              <div class="gallery-slide">
+                <img [src]="getImageUrl(img)" [alt]="articles[0].title" />
+              </div>
+            }
+          </div>
+          @if (articles[0].images.length > 1) {
+            <div class="gallery-dots">
+              @for (img of articles[0].images; track img; let i = $index) {
+                <button class="gallery-dot" [class.active]="i === activeSlide" (click)="goToSlide(i); $event.preventDefault(); $event.stopPropagation()"></button>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="featured-placeholder-web">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+        </div>
+      }
+      <div class="featured-body-web">
+        <h2 class="featured-title-web">{{ articles[0].title }}</h2>
+        <p class="featured-caption-web">{{ articles[0].caption | slice:0:200 }}{{ articles[0].caption.length > 200 ? '...' : '' }}</p>
+        <div class="article-meta-web">
+          <span>{{ articles[0].author.firstName }} {{ articles[0].author.lastName }}</span>
+          <span>&middot;</span>
+          <span>{{ articles[0].createdAt | date:'MMM d, y' }}</span>
+        </div>
+      </div>
+    </a>
   } @else {
     <div class="empty-state-web">
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m3 11 18-5v12L3 14v-3z"></path>
-        <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+        <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
       </svg>
-      <p>No announcements yet.</p>
+      <p>No articles yet.</p>
     </div>
   }
 } @else {
@@ -58,23 +90,48 @@
       <img src="assets/logos/FTM Logomark.png" alt="FTM" class="greeting-logo" />
     </div>
 
-    <!-- Recent Announcements -->
-    @if (announcements.length > 0) {
-      <p class="section-label">Recent Announcements</p>
-      @for (a of announcements; track a.id) {
-        <div class="announcement-item" routerLink="/announcements">
-          <div class="announcement-dot"></div>
-          <div class="announcement-info">
-            <h3>{{ a.title }}</h3>
-            <p>{{ a.content | slice:0:80 }}{{ a.content.length > 80 ? '...' : '' }}</p>
-            <span class="announcement-date">{{ a.createdAt | date:'MMM d, y' }}</span>
-          </div>
+    <!-- Latest Article -->
+    @if (isLoading) {
+      <p class="section-label">Latest Article</p>
+      <div class="featured-article-mobile">
+        <ion-skeleton-text [animated]="true" style="width:100%;height:200px;border-radius:12px 12px 0 0"></ion-skeleton-text>
+        <div style="padding:16px">
+          <ion-skeleton-text [animated]="true" style="width:70%;height:18px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:100%;height:14px;margin-top:8px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:40%;height:12px;margin-top:8px"></ion-skeleton-text>
         </div>
-      }
+      </div>
+    } @else if (articles.length > 0) {
+      <p class="section-label">Latest Article</p>
+      <div class="featured-article-mobile" [routerLink]="['/articles', articles[0].id]">
+        @if (articles[0].images && articles[0].images.length > 0) {
+          <div class="featured-gallery-mobile">
+            <div class="gallery-container" (scroll)="onGalleryScroll($event)">
+              @for (img of articles[0].images; track img) {
+                <div class="gallery-slide-mobile">
+                  <img [src]="getImageUrl(img)" [alt]="articles[0].title" />
+                </div>
+              }
+            </div>
+            @if (articles[0].images.length > 1) {
+              <div class="gallery-dots-mobile">
+                @for (img of articles[0].images; track img; let i = $index) {
+                  <span class="gallery-dot-mobile" [class.active]="i === activeSlide"></span>
+                }
+              </div>
+            }
+          </div>
+        }
+        <div class="featured-body-mobile">
+          <h3>{{ articles[0].title }}</h3>
+          <p>{{ articles[0].caption | slice:0:120 }}{{ articles[0].caption.length > 120 ? '...' : '' }}</p>
+          <span class="announcement-date">{{ articles[0].author.firstName }} {{ articles[0].author.lastName }} &middot; {{ articles[0].createdAt | date:'MMM d, y' }}</span>
+        </div>
+      </div>
     } @else {
       <div class="empty-state">
-        <ion-icon name="megaphone-outline"></ion-icon>
-        <p>No announcements yet.</p>
+        <ion-icon name="newspaper-outline"></ion-icon>
+        <p>No articles yet.</p>
       </div>
     }
   </ion-content>

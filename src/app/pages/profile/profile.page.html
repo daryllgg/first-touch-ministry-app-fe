@@ -29,18 +29,24 @@
           </button>
           <input type="file" #fileInput hidden accept="image/*" (change)="onProfilePictureChange($event)" />
         </div>
-        <h2 class="profile-name-web">{{ user.firstName }} {{ user.lastName }}</h2>
-        <p class="profile-email-web">{{ user.email }}</p>
-        <div class="profile-roles-web">
-          @for (role of user.roles; track role.id) {
-            <span class="badge-web badge-primary-web">{{ role.name }}</span>
-          }
+        <div class="profile-header-info">
+          <h2 class="profile-name-web">{{ user.firstName }} {{ user.middleName ? user.middleName + ' ' : '' }}{{ user.lastName }}</h2>
+          <p class="profile-email-web">{{ user.email }}</p>
+          <div class="profile-roles-web">
+            @for (role of user.roles; track role.id) {
+              <span class="badge-web badge-primary-web">{{ role.name }}</span>
+            }
+          </div>
         </div>
       </div>
 
       @if (!editMode) {
         <!-- View Mode -->
         <div class="profile-fields-web">
+          <div class="profile-field-web">
+            <label>Middle Name</label>
+            <p>{{ user.middleName || 'Not set' }}</p>
+          </div>
           <div class="profile-field-web">
             <label>Contact Number</label>
             <p>{{ user.contactNumber || 'Not set' }}</p>
@@ -54,6 +60,22 @@
             <p>{{ user.gender || 'Not set' }}</p>
           </div>
           <div class="profile-field-web">
+            <label>Facebook Link</label>
+            <p>{{ user.facebookLink || 'Not set' }}</p>
+          </div>
+          <div class="profile-field-web">
+            <label>Invited By</label>
+            <p>{{ user.invitedBy || 'Not set' }}</p>
+          </div>
+          <div class="profile-field-web">
+            <label>First Date Attended Church</label>
+            <p>{{ user.firstDateAttendedChurch || 'Not set' }}</p>
+          </div>
+          <div class="profile-field-web">
+            <label>Date Baptized</label>
+            <p>{{ user.dateBaptized || 'Not set' }}</p>
+          </div>
+          <div class="profile-field-web profile-field-full">
             <label>Address</label>
             <p>{{ user.address || 'Not set' }}</p>
           </div>
@@ -64,6 +86,10 @@
           <div class="form-group-web">
             <label for="firstName">First Name</label>
             <input id="firstName" type="text" formControlName="firstName" class="input-web" />
+          </div>
+          <div class="form-group-web">
+            <label for="middleName">Middle Name</label>
+            <input id="middleName" type="text" formControlName="middleName" class="input-web" />
           </div>
           <div class="form-group-web">
             <label for="lastName">Last Name</label>
@@ -86,6 +112,22 @@
             </select>
           </div>
           <div class="form-group-web">
+            <label for="facebookLink">Facebook Link</label>
+            <input id="facebookLink" type="url" formControlName="facebookLink" class="input-web" placeholder="https://facebook.com/yourprofile" />
+          </div>
+          <div class="form-group-web">
+            <label for="invitedBy">Invited By</label>
+            <input id="invitedBy" type="text" formControlName="invitedBy" class="input-web" />
+          </div>
+          <div class="form-group-web">
+            <label for="firstDateAttendedChurch">First Date Attended Church</label>
+            <input id="firstDateAttendedChurch" type="date" formControlName="firstDateAttendedChurch" class="input-web" />
+          </div>
+          <div class="form-group-web">
+            <label for="dateBaptized">Date Baptized</label>
+            <input id="dateBaptized" type="date" formControlName="dateBaptized" class="input-web" />
+          </div>
+          <div class="form-group-web form-group-full">
             <label for="address">Address</label>
             <textarea id="address" formControlName="address" class="input-web textarea-web" rows="3"></textarea>
           </div>
@@ -145,7 +187,7 @@
           </ion-button>
           <input type="file" #fileInput hidden accept="image/*" capture="environment" (change)="onProfilePictureChange($event)" />
         </div>
-        <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
+        <h2 class="profile-name">{{ user.firstName }} {{ user.middleName ? user.middleName + ' ' : '' }}{{ user.lastName }}</h2>
         <p class="profile-email">{{ user.email }}</p>
         <div class="profile-roles">
           @for (role of user.roles; track role.id) {
@@ -157,6 +199,12 @@
       @if (!editMode) {
         <!-- View Mode -->
         <ion-list class="profile-details" lines="full">
+          <ion-item>
+            <ion-label>
+              <p>Middle Name</p>
+              <h3>{{ user.middleName || 'Not set' }}</h3>
+            </ion-label>
+          </ion-item>
           <ion-item>
             <ion-label>
               <p>Contact Number</p>
@@ -177,6 +225,30 @@
           </ion-item>
           <ion-item>
             <ion-label>
+              <p>Facebook Link</p>
+              <h3>{{ user.facebookLink || 'Not set' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Invited By</p>
+              <h3>{{ user.invitedBy || 'Not set' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>First Date Attended Church</p>
+              <h3>{{ user.firstDateAttendedChurch || 'Not set' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Date Baptized</p>
+              <h3>{{ user.dateBaptized || 'Not set' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
               <p>Address</p>
               <h3>{{ user.address || 'Not set' }}</h3>
             </ion-label>
@@ -190,6 +262,13 @@
               <ion-input
                 formControlName="firstName"
                 label="First Name"
+                labelPlacement="floating"
+              ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                formControlName="middleName"
+                label="Middle Name"
                 labelPlacement="floating"
               ></ion-input>
             </ion-item>
@@ -226,6 +305,37 @@
                 <ion-select-option value="MALE">Male</ion-select-option>
                 <ion-select-option value="FEMALE">Female</ion-select-option>
               </ion-select>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                formControlName="facebookLink"
+                label="Facebook Link"
+                labelPlacement="floating"
+                type="url"
+              ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                formControlName="invitedBy"
+                label="Invited By"
+                labelPlacement="floating"
+              ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                formControlName="firstDateAttendedChurch"
+                label="First Date Attended Church"
+                labelPlacement="floating"
+                type="date"
+              ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                formControlName="dateBaptized"
+                label="Date Baptized"
+                labelPlacement="floating"
+                type="date"
+              ></ion-input>
             </ion-item>
             <ion-item>
               <ion-textarea

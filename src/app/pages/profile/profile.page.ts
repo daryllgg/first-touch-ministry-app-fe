@@ -5,7 +5,6 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
   IonButton, IonItem, IonInput, IonLabel, IonSelect, IonSelectOption,
   IonList, IonAvatar, IonIcon, IonSpinner, IonBadge, IonTextarea,
-  ToastController, AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { createOutline, cameraOutline, personCircleOutline, logOutOutline } from 'ionicons/icons';
@@ -14,6 +13,8 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { User } from '../../interfaces/user.interface';
+import { ToastService } from '../../components/toast/toast.service';
+import { ModalService } from '../../components/modal/modal.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -40,18 +41,23 @@ export class ProfilePage implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private profileService: ProfileService,
-    private toastCtrl: ToastController,
-    private alertCtrl: AlertController,
+    private toast: ToastService,
+    private modal: ModalService,
     private router: Router,
   ) {
     addIcons({ createOutline, cameraOutline, personCircleOutline, logOutOutline });
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
+      middleName: [''],
       lastName: ['', Validators.required],
       contactNumber: [''],
       birthday: [''],
       gender: [''],
       address: [''],
+      invitedBy: [''],
+      facebookLink: [''],
+      firstDateAttendedChurch: [''],
+      dateBaptized: [''],
     });
   }
 
@@ -73,11 +79,16 @@ export class ProfilePage implements OnInit {
     if (this.user) {
       this.profileForm.patchValue({
         firstName: this.user.firstName || '',
+        middleName: this.user.middleName || '',
         lastName: this.user.lastName || '',
         contactNumber: this.user.contactNumber || '',
         birthday: this.user.birthday || '',
         gender: this.user.gender || '',
         address: this.user.address || '',
+        invitedBy: this.user.invitedBy || '',
+        facebookLink: this.user.facebookLink || '',
+        firstDateAttendedChurch: this.user.firstDateAttendedChurch || '',
+        dateBaptized: this.user.dateBaptized || '',
       });
     }
   }
@@ -89,7 +100,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  async onSave() {
+  onSave() {
     if (this.profileForm.invalid) return;
     this.isLoading = true;
 
@@ -98,67 +109,50 @@ export class ProfilePage implements OnInit {
     const formVal = this.profileForm.value;
     if (this.user) {
       if (formVal.firstName && formVal.firstName !== this.user.firstName) changes['firstName'] = formVal.firstName;
+      if (formVal.middleName !== (this.user.middleName || '')) changes['middleName'] = formVal.middleName;
       if (formVal.lastName && formVal.lastName !== this.user.lastName) changes['lastName'] = formVal.lastName;
       if (formVal.contactNumber !== (this.user.contactNumber || '')) changes['contactNumber'] = formVal.contactNumber;
       if (formVal.birthday !== (this.user.birthday || '')) changes['birthday'] = formVal.birthday;
       if (formVal.gender !== (this.user.gender || '')) changes['gender'] = formVal.gender;
       if (formVal.address !== (this.user.address || '')) changes['address'] = formVal.address;
+      if (formVal.invitedBy !== (this.user.invitedBy || '')) changes['invitedBy'] = formVal.invitedBy;
+      if (formVal.facebookLink !== (this.user.facebookLink || '')) changes['facebookLink'] = formVal.facebookLink;
+      if (formVal.firstDateAttendedChurch !== (this.user.firstDateAttendedChurch || '')) changes['firstDateAttendedChurch'] = formVal.firstDateAttendedChurch;
+      if (formVal.dateBaptized !== (this.user.dateBaptized || '')) changes['dateBaptized'] = formVal.dateBaptized;
     }
 
     if (Object.keys(changes).length === 0) {
       this.isLoading = false;
       this.editMode = false;
-      const toast = await this.toastCtrl.create({
-        message: 'No changes detected.',
-        duration: 2000,
-        color: 'warning',
-        position: 'top',
-      });
-      await toast.present();
+      this.toast.warning('No changes detected.');
       return;
     }
 
     this.profileService.updateProfile(changes).subscribe({
-      next: async () => {
+      next: () => {
         this.isLoading = false;
         this.editMode = false;
-        const toast = await this.toastCtrl.create({
-          message: 'Profile changes submitted for admin approval.',
-          duration: 3000,
-          color: 'success',
-          position: 'top',
-        });
-        await toast.present();
+        this.toast.success('Profile changes submitted for admin approval.');
       },
-      error: async () => {
+      error: () => {
         this.isLoading = false;
-        const toast = await this.toastCtrl.create({
-          message: 'Failed to submit profile changes.',
-          duration: 3000,
-          color: 'danger',
-          position: 'top',
-        });
-        await toast.present();
+        this.toast.error('Failed to submit profile changes.');
       },
     });
   }
 
   async onPickProfilePicture() {
-    const alert = await this.alertCtrl.create({
-      header: 'Update Profile Picture',
-      buttons: [
-        {
-          text: 'Take Photo',
-          handler: () => { this.takeProfilePhoto(); },
-        },
-        {
-          text: 'Choose from Gallery',
-          handler: () => { this.chooseFromGallery(); },
-        },
-        { text: 'Cancel', role: 'cancel' },
-      ],
+    const confirmed = await this.modal.confirm({
+      title: 'Update Profile Picture',
+      message: 'Choose how to update your profile picture:',
+      confirmText: 'Take Photo',
+      cancelText: 'Choose from Gallery',
     });
-    await alert.present();
+    if (confirmed) {
+      this.takeProfilePhoto();
+    } else {
+      this.chooseFromGallery();
+    }
   }
 
   private async takeProfilePhoto() {
@@ -207,30 +201,18 @@ export class ProfilePage implements OnInit {
     formData.append('file', file);
 
     this.profileService.uploadProfilePicture(formData).subscribe({
-      next: async (updatedUser) => {
+      next: (updatedUser) => {
         this.user = updatedUser;
         this.authService.refreshCurrentUser();
-        const toast = await this.toastCtrl.create({
-          message: 'Profile picture updated.',
-          duration: 2000,
-          color: 'success',
-          position: 'top',
-        });
-        await toast.present();
+        this.toast.success('Profile picture updated.');
       },
-      error: async () => {
-        const toast = await this.toastCtrl.create({
-          message: 'Failed to upload profile picture.',
-          duration: 3000,
-          color: 'danger',
-          position: 'top',
-        });
-        await toast.present();
+      error: () => {
+        this.toast.error('Failed to upload profile picture.');
       },
     });
   }
 
-  async onProfilePictureChange(event: Event) {
+  onProfilePictureChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
@@ -239,25 +221,13 @@ export class ProfilePage implements OnInit {
     formData.append('file', file);
 
     this.profileService.uploadProfilePicture(formData).subscribe({
-      next: async (updatedUser) => {
+      next: (updatedUser) => {
         this.user = updatedUser;
         this.authService.refreshCurrentUser();
-        const toast = await this.toastCtrl.create({
-          message: 'Profile picture updated.',
-          duration: 2000,
-          color: 'success',
-          position: 'top',
-        });
-        await toast.present();
+        this.toast.success('Profile picture updated.');
       },
-      error: async () => {
-        const toast = await this.toastCtrl.create({
-          message: 'Failed to upload profile picture.',
-          duration: 3000,
-          color: 'danger',
-          position: 'top',
-        });
-        await toast.present();
+      error: () => {
+        this.toast.error('Failed to upload profile picture.');
       },
     });
   }

@@ -51,6 +51,16 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/announcements/announcement-form.page').then((m) => m.AnnouncementFormPage),
   },
   {
+    path: 'articles/manage',
+    canActivate: [authGuard, approvedGuard, roleGuard('ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/articles/articles-manage.page').then((m) => m.ArticlesManagePage),
+  },
+  {
+    path: 'articles/:id',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/articles/article-detail.page').then((m) => m.ArticleDetailPage),
+  },
+  {
     path: 'prayer-requests',
     canActivate: [authGuard, approvedGuard],
     loadComponent: () => import('./pages/prayer-requests/prayer-requests-list.page').then((m) => m.PrayerRequestsListPage),

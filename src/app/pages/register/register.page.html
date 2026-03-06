@@ -1,78 +1,231 @@
 @if (isWeb) {
-  <div class="auth-split">
-    <div class="auth-brand">
-      <div class="auth-brand-content">
-        <img src="assets/logos/FTM Logo_white.png" alt="FTM Logo" class="auth-logo-web" />
-        <p class="auth-tagline">Touching God. Touching People.</p>
+  <div class="register-wizard-web">
+    <div class="wizard-brand">
+      <div class="wizard-brand-content">
+        <img src="assets/logos/FTM Logo_white.png" alt="FTM Logo" class="wizard-logo" />
+        <p class="wizard-tagline">Touching God. Touching People.</p>
       </div>
     </div>
 
-    <div class="auth-form-panel">
-      <div class="auth-form-wrapper">
-        <h1>Create your account</h1>
-        <p class="auth-subtitle">Join First Touch Ministry</p>
+    <div class="wizard-content">
+      <div class="wizard-inner">
+        <!-- Progress indicator -->
+        <div class="wizard-progress">
+          @for (step of [1,2,3]; track step) {
+            @if (step > 1) {
+              <div class="step-line" [class.completed]="currentStep > step - 1"></div>
+            }
+            <div class="step-indicator"
+              [class.active]="currentStep === step"
+              [class.completed]="currentStep > step">
+              @if (currentStep > step) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                {{ step }}
+              }
+            </div>
+          }
+        </div>
+
+        <h1 class="wizard-title">{{ stepTitle }}</h1>
+        <p class="wizard-subtitle">{{ stepSubtitle }}</p>
 
         <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div class="form-group">
-              <label class="form-label">First Name</label>
-              <input type="text" class="form-input" formControlName="firstName" placeholder="First Name" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Last Name</label>
-              <input type="text" class="form-input" formControlName="lastName" placeholder="Last Name" />
-            </div>
-          </div>
+          @switch (currentStep) {
+            <!-- Step 1: Personal Information -->
+            @case (1) {
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label class="form-label">First Name <span class="required">*</span></label>
+                  <input type="text" class="form-input" formControlName="firstName" placeholder="First name" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Middle Name</label>
+                  <input type="text" class="form-input" formControlName="middleName" placeholder="Middle name" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name <span class="required">*</span></label>
+                  <input type="text" class="form-input" formControlName="lastName" placeholder="Last name" />
+                </div>
+              </div>
 
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" formControlName="email" placeholder="Email" />
-          </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Birthday <span class="required-star">*</span></label>
+                  <div class="date-picker-wrapper">
+                    <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('birthday', $event)">
+                      <span [class.placeholder]="!registerForm.get('birthday')?.value">
+                        {{ registerForm.get('birthday')?.value ? formatDisplayDate(registerForm.get('birthday')?.value) : 'Select date' }}
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </button>
+                    @if (showBirthdayPicker) {
+                      <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
+                        <ion-datetime
+                          presentation="date"
+                          [value]="registerForm.get('birthday')?.value || ''"
+                          (ionChange)="onDateChange($event, 'birthday')"
+                          [max]="'2020-12-31'"
+                        ></ion-datetime>
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Gender <span class="required-star">*</span></label>
+                  <select class="form-select" formControlName="gender">
+                    <option value="">Select...</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                  </select>
+                </div>
+              </div>
 
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" formControlName="password" placeholder="Minimum 8 characters" />
-            @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-              <span class="form-error">Password must be at least 8 characters</span>
+              <div class="form-group">
+                <label class="form-label">Contact Number</label>
+                <input type="tel" class="form-input" formControlName="contactNumber" placeholder="+639XXXXXXXXX" inputmode="tel" />
+                @if (registerForm.get('contactNumber')?.hasError('pattern') && registerForm.get('contactNumber')?.touched) {
+                  <span class="form-error">Must be in +639XXXXXXXXX format</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Address</label>
+                <textarea class="form-textarea" formControlName="address" rows="2" placeholder="Your address"></textarea>
+              </div>
             }
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">Contact Number</label>
-            <input type="tel" class="form-input" formControlName="contactNumber" placeholder="+639XXXXXXXXX" inputmode="tel" />
-            @if (registerForm.get('contactNumber')?.hasError('pattern') && registerForm.get('contactNumber')?.touched) {
-              <span class="form-error">Must be in +639XXXXXXXXX format</span>
+            <!-- Step 2: Account Setup -->
+            @case (2) {
+              <div class="form-group">
+                <label class="form-label">Email <span class="required">*</span></label>
+                <input type="email" class="form-input" formControlName="email" placeholder="Email" />
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Password <span class="required">*</span></label>
+                  <div class="input-password-wrapper">
+                    <input [type]="showPassword ? 'text' : 'password'" class="form-input" formControlName="password" placeholder="Minimum 8 characters" />
+                    <button type="button" class="password-toggle-btn" (click)="showPassword = !showPassword">
+                      @if (showPassword) {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      } @else {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
+                    </button>
+                  </div>
+                  @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+                    <span class="form-error">Password must be at least 8 characters</span>
+                  }
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Confirm Password <span class="required">*</span></label>
+                  <div class="input-password-wrapper">
+                    <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-input" formControlName="confirmPassword" placeholder="Confirm password" />
+                    <button type="button" class="password-toggle-btn" (click)="showConfirmPassword = !showConfirmPassword">
+                      @if (showConfirmPassword) {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      } @else {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
+                    </button>
+                  </div>
+                  @if (registerForm.get('confirmPassword')?.touched && registerForm.hasError('passwordMismatch')) {
+                    <span class="form-error">Passwords do not match</span>
+                  }
+                </div>
+              </div>
             }
-          </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div class="form-group">
-              <label class="form-label">Birthday</label>
-              <input type="date" class="form-input" formControlName="birthday" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Gender</label>
-              <select class="form-select" formControlName="gender">
-                <option value="">Select...</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-              </select>
-            </div>
-          </div>
+            <!-- Step 3: Church Details -->
+            @case (3) {
+              <div class="form-group">
+                <label class="form-label">Invited By</label>
+                <input type="text" class="form-input" formControlName="invitedBy" placeholder="Who invited you?" list="memberNamesList" (input)="onInvitedByInput()" />
+                <datalist id="memberNamesList">
+                  @for (name of filteredMemberNames; track name) {
+                    <option [value]="name"></option>
+                  }
+                </datalist>
+              </div>
 
-          <div class="form-group">
-            <label class="form-label">Address</label>
-            <textarea class="form-textarea" formControlName="address" rows="2" placeholder="Address"></textarea>
-          </div>
+              <div class="form-group">
+                <label class="form-label">Facebook Link</label>
+                <input type="url" class="form-input" formControlName="facebookLink" placeholder="https://facebook.com/yourprofile" />
+              </div>
 
-          <button type="submit" class="btn btn-primary btn-block btn-lg" [disabled]="registerForm.invalid || isLoading">
-            @if (isLoading) {
-              <span class="spinner"></span>
-            } @else {
-              Register
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">First Date Attended Church</label>
+                  <div class="date-picker-wrapper">
+                    <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('firstDate', $event)">
+                      <span [class.placeholder]="!registerForm.get('firstDateAttendedChurch')?.value">
+                        {{ registerForm.get('firstDateAttendedChurch')?.value ? formatDisplayDate(registerForm.get('firstDateAttendedChurch')?.value) : 'Select date' }}
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </button>
+                    @if (showFirstDatePicker) {
+                      <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
+                        <ion-datetime
+                          presentation="date"
+                          [value]="registerForm.get('firstDateAttendedChurch')?.value || ''"
+                          (ionChange)="onDateChange($event, 'firstDateAttendedChurch')"
+                        ></ion-datetime>
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Date Baptized</label>
+                  <div class="date-picker-wrapper">
+                    <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('baptized', $event)">
+                      <span [class.placeholder]="!registerForm.get('dateBaptized')?.value">
+                        {{ registerForm.get('dateBaptized')?.value ? formatDisplayDate(registerForm.get('dateBaptized')?.value) : 'Select date' }}
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </button>
+                    @if (showBaptizedPicker) {
+                      <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
+                        <ion-datetime
+                          presentation="date"
+                          [value]="registerForm.get('dateBaptized')?.value || ''"
+                          (ionChange)="onDateChange($event, 'dateBaptized')"
+                        ></ion-datetime>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
             }
-          </button>
+          }
         </form>
+
+        <!-- Navigation -->
+        <div class="wizard-nav">
+          @if (currentStep > 1) {
+            <button type="button" class="btn btn-outline" (click)="prevStep()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Back
+            </button>
+          } @else {
+            <div></div>
+          }
+          @if (currentStep < totalSteps) {
+            <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed()">
+              Next
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          } @else {
+            <button type="button" class="btn btn-primary" (click)="onRegister()" [disabled]="registerForm.invalid || isLoading">
+              @if (isLoading) {
+                <span class="spinner"></span>
+              } @else {
+                Register
+              }
+            </button>
+          }
+        </div>
 
         <p class="auth-footer-text">
           Already have an account? <a routerLink="/login">Sign In</a>
@@ -82,117 +235,152 @@
   </div>
 } @else {
   <ion-content>
-    <div class="register-wrapper">
-      <div class="auth-container">
-        <div class="app-branding">
-          <h1>FTM App</h1>
-          <p class="app-subtitle">First Touch Ministry</p>
-        </div>
-        <p class="auth-description">Register to join FTM App</p>
+    <div class="wizard-mobile">
+      <!-- Progress indicator -->
+      <div class="wizard-progress-mobile">
+        @for (step of [1,2,3]; track step) {
+          <div class="step-dot-mobile"
+            [class.active]="currentStep === step"
+            [class.completed]="currentStep > step">
+          </div>
+          @if (step < 3) {
+            <div class="step-line-mobile" [class.completed]="currentStep > step"></div>
+          }
+        }
+      </div>
 
-        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
-          <ion-item>
-            <ion-input
-              type="text"
-              formControlName="firstName"
-              label="First Name"
-              labelPlacement="floating"
-            ></ion-input>
-          </ion-item>
+      <div class="wizard-header-mobile">
+        <h1>{{ stepTitle }}</h1>
+        <p>{{ stepSubtitle }}</p>
+      </div>
 
-          <ion-item>
-            <ion-input
-              type="text"
-              formControlName="lastName"
-              label="Last Name"
-              labelPlacement="floating"
-            ></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-input
-              type="email"
-              formControlName="email"
-              label="Email"
-              labelPlacement="floating"
-            ></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-input
-              type="password"
-              formControlName="password"
-              label="Password"
-              labelPlacement="floating"
-            ></ion-input>
-          </ion-item>
-
-          @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-            <p class="error-text">Password must be at least 8 characters</p>
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+        @switch (currentStep) {
+          @case (1) {
+            <ion-item>
+              <ion-input type="text" formControlName="firstName" label="First Name *" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input type="text" formControlName="middleName" label="Middle Name" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input type="text" formControlName="lastName" label="Last Name *" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item button="true" (click)="toggleDatePicker('birthday')">
+              <ion-label>
+                <p style="font-size:0.75rem;color:#94a3b8;margin:0 0 2px">Birthday <span style="color:#ef4444">*</span></p>
+                <h2 style="font-size:0.95rem;margin:0">{{ registerForm.get('birthday')?.value ? formatDisplayDate(registerForm.get('birthday')?.value) : 'Select date' }}</h2>
+              </ion-label>
+            </ion-item>
+            @if (showBirthdayPicker) {
+              <div class="date-picker-mobile">
+                <ion-datetime
+                  presentation="date"
+                  [value]="registerForm.get('birthday')?.value || ''"
+                  (ionChange)="onDateChange($event, 'birthday')"
+                  [max]="'2020-12-31'"
+                ></ion-datetime>
+              </div>
+            }
+            <ion-item>
+              <ion-select formControlName="gender" label="Gender *" labelPlacement="floating" interface="popover">
+                <ion-select-option value="MALE">Male</ion-select-option>
+                <ion-select-option value="FEMALE">Female</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item>
+              <ion-input type="tel" formControlName="contactNumber" label="Contact Number (+639XXXXXXXXX)" labelPlacement="floating" inputmode="tel"></ion-input>
+            </ion-item>
+            @if (registerForm.get('contactNumber')?.hasError('pattern') && registerForm.get('contactNumber')?.touched) {
+              <p class="error-text">Must be in +639XXXXXXXXX format</p>
+            }
+            <ion-item>
+              <ion-textarea formControlName="address" label="Address" labelPlacement="floating" rows="2"></ion-textarea>
+            </ion-item>
           }
 
-          <ion-item>
-            <ion-input
-              type="tel"
-              formControlName="contactNumber"
-              label="Contact Number (+639XXXXXXXXX)"
-              labelPlacement="floating"
-              inputmode="tel"
-            ></ion-input>
-          </ion-item>
-
-          @if (registerForm.get('contactNumber')?.hasError('pattern') && registerForm.get('contactNumber')?.touched) {
-            <p class="error-text">Must be in +639XXXXXXXXX format</p>
+          @case (2) {
+            <ion-item>
+              <ion-input type="email" formControlName="email" label="Email" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password" label="Password *" labelPlacement="floating"></ion-input>
+            </ion-item>
+            @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+              <p class="error-text">Password must be at least 8 characters</p>
+            }
+            <ion-item>
+              <ion-input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" label="Confirm Password *" labelPlacement="floating"></ion-input>
+            </ion-item>
+            @if (registerForm.get('confirmPassword')?.touched && registerForm.hasError('passwordMismatch')) {
+              <p class="error-text">Passwords do not match</p>
+            }
           }
 
-          <ion-item>
-            <ion-input
-              type="date"
-              formControlName="birthday"
-              label="Birthday"
-              labelPlacement="floating"
-            ></ion-input>
-          </ion-item>
+          @case (3) {
+            <ion-item>
+              <ion-input type="text" formControlName="invitedBy" label="Invited By" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input type="url" formControlName="facebookLink" label="Facebook Link" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item button="true" (click)="toggleDatePicker('firstDate')">
+              <ion-label>
+                <p style="font-size:0.75rem;color:#94a3b8;margin:0 0 2px">First Date Attended Church</p>
+                <h2 style="font-size:0.95rem;margin:0">{{ registerForm.get('firstDateAttendedChurch')?.value ? formatDisplayDate(registerForm.get('firstDateAttendedChurch')?.value) : 'Select date' }}</h2>
+              </ion-label>
+            </ion-item>
+            @if (showFirstDatePicker) {
+              <div class="date-picker-mobile">
+                <ion-datetime
+                  presentation="date"
+                  [value]="registerForm.get('firstDateAttendedChurch')?.value || ''"
+                  (ionChange)="onDateChange($event, 'firstDateAttendedChurch')"
+                ></ion-datetime>
+              </div>
+            }
+            <ion-item button="true" (click)="toggleDatePicker('baptized')">
+              <ion-label>
+                <p style="font-size:0.75rem;color:#94a3b8;margin:0 0 2px">Date Baptized</p>
+                <h2 style="font-size:0.95rem;margin:0">{{ registerForm.get('dateBaptized')?.value ? formatDisplayDate(registerForm.get('dateBaptized')?.value) : 'Select date' }}</h2>
+              </ion-label>
+            </ion-item>
+            @if (showBaptizedPicker) {
+              <div class="date-picker-mobile">
+                <ion-datetime
+                  presentation="date"
+                  [value]="registerForm.get('dateBaptized')?.value || ''"
+                  (ionChange)="onDateChange($event, 'dateBaptized')"
+                ></ion-datetime>
+              </div>
+            }
+          }
+        }
+      </form>
 
-          <ion-item>
-            <ion-select
-              formControlName="gender"
-              label="Gender"
-              labelPlacement="floating"
-              interface="popover"
-            >
-              <ion-select-option value="MALE">Male</ion-select-option>
-              <ion-select-option value="FEMALE">Female</ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item>
-            <ion-textarea
-              formControlName="address"
-              label="Address"
-              labelPlacement="floating"
-              rows="2"
-            ></ion-textarea>
-          </ion-item>
-
-          <ion-button
-            expand="block"
-            type="submit"
-            [disabled]="registerForm.invalid || isLoading"
-            class="auth-btn"
-          >
+      <!-- Mobile navigation -->
+      <div class="wizard-nav-mobile">
+        @if (currentStep > 1) {
+          <ion-button fill="outline" (click)="prevStep()">Back</ion-button>
+        } @else {
+          <div></div>
+        }
+        @if (currentStep < totalSteps) {
+          <ion-button (click)="nextStep()" [disabled]="!canProceed()">Next</ion-button>
+        } @else {
+          <ion-button (click)="onRegister()" [disabled]="registerForm.invalid || isLoading">
             @if (isLoading) {
               <ion-spinner name="crescent"></ion-spinner>
             } @else {
               Register
             }
           </ion-button>
-        </form>
+        }
+      </div>
 
-        <div class="auth-link">
-          <span>Already have an account?</span>
-          <a routerLink="/login">Sign In</a>
-        </div>
+      <div class="auth-link">
+        <span>Already have an account?</span>
+        <a routerLink="/login">Sign In</a>
       </div>
     </div>
   </ion-content>

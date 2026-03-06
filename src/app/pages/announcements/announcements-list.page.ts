@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
-  IonBadge,
+  IonBadge, IonSkeletonText,
   ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -22,7 +22,7 @@ import { User } from '../../interfaces/user.interface';
     CommonModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
-    IonBadge,
+    IonBadge, IonSkeletonText,
   ],
   templateUrl: './announcements-list.page.html',
   styleUrls: ['./announcements-list.page.scss'],
@@ -32,6 +32,7 @@ export class AnnouncementsListPage implements OnInit, ViewWillEnter {
   announcements: Announcement[] = [];
   canCreate = false;
   apiUrl = environment.apiUrl;
+  isLoading = true;
 
   constructor(
     private announcementsService: AnnouncementsService,
@@ -54,8 +55,10 @@ export class AnnouncementsListPage implements OnInit, ViewWillEnter {
   }
 
   loadAnnouncements() {
+    this.isLoading = true;
     this.announcementsService.findAll().subscribe({
-      next: (data) => this.announcements = data,
+      next: (data) => { this.announcements = data; this.isLoading = false; },
+      error: () => this.isLoading = false,
     });
   }
 
