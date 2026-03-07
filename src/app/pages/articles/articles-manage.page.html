@@ -101,25 +101,25 @@
             </div>
           }
         </div>
-      }
 
-      <div class="form-actions-web">
-        <button class="btn btn-outline" (click)="cancelForm()">Cancel</button>
-        <button class="btn btn-outline" (click)="saveDraft()" [disabled]="isSubmitting">
-          @if (isSubmitting) {
-            <span class="spinner spinner-dark"></span>
-          } @else {
-            Save as Draft
-          }
-        </button>
-        <button class="btn btn-primary" (click)="publishArticle()" [disabled]="isSubmitting">
-          @if (isSubmitting) {
-            <span class="spinner"></span>
-          } @else {
-            {{ editingId ? 'Update & Publish' : 'Publish' }}
-          }
-        </button>
-      </div>
+        <div class="form-actions-web">
+          <button class="btn btn-outline" (click)="cancelForm()">Cancel</button>
+          <button class="btn btn-outline" (click)="saveDraft()" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+              <span class="spinner spinner-dark"></span>
+            } @else {
+              Save as Draft
+            }
+          </button>
+          <button class="btn btn-primary" (click)="publishArticle()" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+              <span class="spinner"></span>
+            } @else {
+              {{ editingId ? 'Update & Publish' : 'Publish' }}
+            }
+          </button>
+        </div>
+      }
     </div>
   } @else {
     @if (isLoading) {

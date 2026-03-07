@@ -88,6 +88,11 @@ export class AdminPage implements OnInit, ViewWillEnter {
     'LEADER', 'OUTREACH_WORKER', 'ADMIN',
   ];
 
+  getRolesForUser(user: any): string[] {
+    const userRoleNames = (user.roles || []).map((r: any) => typeof r === 'string' ? r : r.name);
+    return this.availableRoles.filter(role => !userRoleNames.includes(role));
+  }
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,

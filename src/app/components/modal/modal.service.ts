@@ -9,6 +9,7 @@ export interface ModalInput {
   required?: boolean;
   placeholder?: string;
   value?: any;
+  visibleWhen?: { key: string; values: string[] };
 }
 
 export interface ModalConfig {

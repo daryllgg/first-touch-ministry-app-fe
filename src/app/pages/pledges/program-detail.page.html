@@ -1,0 +1,284 @@
+@if (isWeb) {
+  <div class="page-header-web">
+    <div>
+      <a routerLink="/pledges" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Programs
+      </a>
+      @if (program) {
+        <h1>{{ program.name }}</h1>
+      }
+    </div>
+    <div style="display:flex;gap:10px">
+      @if (program) {
+        <a [routerLink]="['/pledges/programs', program.id, 'edit']" class="btn btn-outline">Edit</a>
+        <button class="btn btn-danger-outline" (click)="deleteProgram()">Delete</button>
+      }
+      <button class="btn btn-primary" (click)="openAddForm()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Pledgee
+      </button>
+    </div>
+  </div>
+
+  @if (program) {
+    <div class="card program-info-card">
+      <div class="program-info-row">
+        <div>
+          <span class="info-label">Type</span>
+          <span class="type-badge" [ngClass]="getProgramTypeClass(program.type)">{{ getProgramTypeBadge(program.type) }}</span>
+        </div>
+        <div>
+          <span class="info-label">Status</span>
+          <span class="status-badge" [ngClass]="program.isActive ? 'status-active' : 'status-inactive'">{{ program.isActive ? 'Active' : 'Inactive' }}</span>
+        </div>
+        @if (program.programMonths?.length) {
+          <div>
+            <span class="info-label">Months</span>
+            <span>{{ program.programMonths!.length }} months ({{ formatMonth(program.programMonths![0]) }} – {{ formatMonth(program.programMonths![program.programMonths!.length - 1]) }})</span>
+          </div>
+        } @else {
+          <div>
+            <span class="info-label">Start Date</span>
+            <span>{{ formatDate(program.startDate!) }}</span>
+          </div>
+          <div>
+            <span class="info-label">End Date</span>
+            <span>{{ formatDate(program.endDate!) }}</span>
+          </div>
+        }
+        @if (program.conductedDate) {
+          <div>
+            <span class="info-label">Date Conducted</span>
+            <span>{{ formatDate(program.conductedDate) }}</span>
+          </div>
+        }
+      </div>
+      @if (program.description) {
+        <p class="program-description">{{ program.description }}</p>
+      }
+    </div>
+  }
+
+  @if (showAddForm) {
+    <div class="card add-pledgee-card">
+      <h3 class="add-form-title">Add Pledgee</h3>
+      <div class="add-form-grid">
+        <div class="form-group">
+          <label class="form-label">Member <span class="required">*</span></label>
+          <select class="form-select" [(ngModel)]="addForm.userId">
+            <option value="" disabled>Select member</option>
+            @for (user of availableUsers; track user.id) {
+              <option [value]="user.id">{{ user.firstName }} {{ user.lastName }}</option>
+            }
+          </select>
+        </div>
+        @if (isFaithPledge && hasProgramMonths) {
+          <div class="form-group">
+            <label class="form-label">Default Amount</label>
+            <input type="number" class="form-input" [(ngModel)]="addForm.defaultAmount" (ngModelChange)="onDefaultAmountChange()" placeholder="Pre-fill all months" />
+            <span class="form-hint">Sets the same amount for all months</span>
+          </div>
+          <div class="form-group form-group-full monthly-amounts-section">
+            <label class="form-label">Monthly Amounts <span class="required">*</span></label>
+            <div class="monthly-amounts-table">
+              <div class="monthly-header">
+                <span>Month</span>
+                <span>Amount</span>
+              </div>
+              @for (month of sortedProgramMonths; track month) {
+                <div class="monthly-row">
+                  <span class="monthly-label">{{ formatMonth(month) }}</span>
+                  <input type="number" class="form-input monthly-amount-input" [(ngModel)]="monthlyAmountInputs[month]" placeholder="0.00" />
+                </div>
+              }
+              <div class="monthly-total">
+                <span>Total</span>
+                <span class="total-value">{{ formatCurrency(monthlyAmountsTotal) }}</span>
+              </div>
+            </div>
+          </div>
+        } @else if (isFaithPledge) {
+          <div class="form-group">
+            <label class="form-label">Monthly Amount <span class="required">*</span></label>
+            <input type="number" class="form-input" [(ngModel)]="addForm.pledgeAmount" placeholder="0.00" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Months</label>
+            <input type="number" class="form-input" [(ngModel)]="addForm.totalMonths" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Start Month</label>
+            <input type="month" class="form-input" [(ngModel)]="addForm.startMonth" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Month</label>
+            <input type="text" class="form-input" [value]="addFormEndMonth ? formatMonth(addFormEndMonth) : '—'" disabled />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Amount</label>
+            <input type="text" class="form-input total-amount-field" [value]="formatCurrency(addFormTotalAmount)" disabled />
+          </div>
+        } @else {
+          <div class="form-group">
+            <label class="form-label">Amount <span class="required">*</span></label>
+            <input type="number" class="form-input" [(ngModel)]="addForm.pledgeAmount" placeholder="0.00" />
+          </div>
+        }
+        <div class="form-group form-group-full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" [(ngModel)]="addForm.notes" rows="2" placeholder="Optional notes"></textarea>
+        </div>
+      </div>
+      <div class="add-form-actions">
+        <button class="btn btn-outline" (click)="cancelAddForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitAddPledgee()" [disabled]="isAddingPledgee">
+          @if (isAddingPledgee) {
+            <span class="spinner"></span>
+          } @else {
+            Add Pledgee
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="card table-card-web">
+      <table class="profiles-table-web">
+        <thead><tr><th>Name</th><th>Pledge</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+        <tbody>
+          @for (i of [1,2,3,4]; track i) {
+            <tr><td><div class="skeleton skeleton-text" style="width:60%"></div></td><td><div class="skeleton skeleton-text" style="width:40%"></div></td><td><div class="skeleton skeleton-text" style="width:40%"></div></td><td><div class="skeleton skeleton-text" style="width:40%"></div></td><td><div class="skeleton skeleton-text" style="width:30%"></div></td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (pledges.length === 0) {
+    <div class="empty-state-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+      <p>No pledgees yet. Add one to get started.</p>
+    </div>
+  } @else {
+    <div class="card table-card-web">
+      <table class="profiles-table-web">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>{{ program?.type === 'FAITH_PLEDGE' ? (hasProgramMonths ? 'Total Pledge' : 'Monthly') : 'Pledge Amount' }}</th>
+            @if (program?.type === 'FAITH_PLEDGE' && !hasProgramMonths) {
+              <th>Period</th>
+              <th>Total Amount</th>
+            }
+            <th>Total Paid</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th style="width:50px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pledge of pledges; track pledge.id) {
+            <tr class="table-row-clickable" (click)="toggleExpand(pledge.id)">
+              <td style="font-weight:600;color:#1a3a4a">{{ pledge.user.firstName }} {{ pledge.user.lastName }}</td>
+              @if (program?.type === 'FAITH_PLEDGE' && pledge.monthlyAmounts) {
+                <td style="font-weight:600">{{ formatCurrency(getTotalAmount(pledge)) }}</td>
+              } @else if (program?.type === 'FAITH_PLEDGE') {
+                <td>{{ formatCurrency(pledge.pledgeAmount) }}/mo</td>
+                <td class="period-cell">{{ formatMonth(pledge.startMonth!) }} – {{ formatMonth(getEndMonth(pledge)) }}</td>
+                <td style="font-weight:600">{{ formatCurrency(getTotalAmount(pledge)) }}</td>
+              } @else {
+                <td>{{ formatCurrency(pledge.pledgeAmount) }}</td>
+              }
+              <td style="color:#059669;font-weight:600">{{ formatCurrency(getTotalPaid(pledge)) }}</td>
+              <td [style.color]="getBalance(pledge) > 0 ? '#dc2626' : '#059669'">{{ formatCurrency(getBalance(pledge)) }}</td>
+              <td><span class="status-badge" [ngClass]="getStatusClass(getStatus(pledge))">{{ getStatusLabel(getStatus(pledge)) }}</span></td>
+              <td>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [style.transform]="expandedPledgeId === pledge.id ? 'rotate(180deg)' : ''" style="transition:transform 0.2s"><path d="m6 9 6 6 6-6"/></svg>
+              </td>
+            </tr>
+            @if (expandedPledgeId === pledge.id) {
+              <tr>
+                <td [attr.colspan]="program?.type === 'FAITH_PLEDGE' && !hasProgramMonths ? 8 : 6" class="expanded-cell">
+                  <div class="expanded-content">
+                    <div class="expanded-actions">
+                      <button class="btn btn-primary btn-sm" (click)="recordPayment(pledge); $event.stopPropagation()">Record Payment</button>
+                      <button class="btn btn-danger-outline btn-sm" (click)="deletePledge(pledge); $event.stopPropagation()">Remove Pledgee</button>
+                    </div>
+                    @if (pledge.payments.length > 0) {
+                      <table class="payments-sub-table">
+                        <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Ref #</th><th>Month</th><th>Notes</th><th></th></tr></thead>
+                        <tbody>
+                          @for (payment of pledge.payments; track payment.id) {
+                            <tr>
+                              <td>{{ formatDate(payment.date) }}</td>
+                              <td style="font-weight:600;color:#059669">{{ formatCurrency(payment.amount) }}</td>
+                              <td>{{ payment.paymentMethod }}</td>
+                              <td>{{ payment.referenceNumber || '—' }}</td>
+                              <td>{{ payment.month || '—' }}</td>
+                              <td>{{ payment.notes || '—' }}</td>
+                              <td>
+                                <button class="icon-btn-danger" (click)="deletePayment(payment.id); $event.stopPropagation()" title="Delete">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <p class="no-payments">No payments recorded yet.</p>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+} @else {
+  <!-- MOBILE -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start"><ion-back-button defaultHref="/pledges"></ion-back-button></ion-buttons>
+      <ion-title>{{ program?.name || 'Program' }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    @if (program) {
+      <div class="card" style="padding:16px;margin-bottom:16px">
+        <p style="margin:0;color:var(--ion-color-medium)">{{ getProgramTypeBadge(program.type) }} &middot; {{ program.isActive ? 'Active' : 'Inactive' }}</p>
+        @if (program.conductedDate) {
+          <p style="margin:6px 0 0;font-size:0.85rem;color:var(--ion-color-medium)">Conducted: {{ formatDate(program.conductedDate) }}</p>
+        }
+        @if (program.description) {
+          <p style="margin:8px 0 0;font-size:0.9rem">{{ program.description }}</p>
+        }
+      </div>
+    }
+    <ion-button expand="block" (click)="addPledgeeMobile()" style="margin-bottom:16px">Add Pledgee</ion-button>
+    @if (isLoading) {
+      <ion-spinner style="display:block;margin:32px auto"></ion-spinner>
+    } @else if (pledges.length === 0) {
+      <div style="text-align:center;padding:32px;color:var(--ion-color-medium)"><p>No pledgees yet.</p></div>
+    } @else {
+      @for (pledge of pledges; track pledge.id) {
+        <div class="card" style="padding:16px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong style="color:var(--ion-color-secondary)">{{ pledge.user.firstName }} {{ pledge.user.lastName }}</strong>
+            <span class="status-badge" [ngClass]="getStatusClass(getStatus(pledge))" style="font-size:0.7rem">{{ getStatusLabel(getStatus(pledge)) }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-top:8px;color:var(--ion-color-medium)">
+            <span>Pledged: {{ formatCurrency(getTotalAmount(pledge)) }}</span>
+            <span style="color:#059669">Paid: {{ formatCurrency(getTotalPaid(pledge)) }}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <ion-button size="small" (click)="recordPayment(pledge)">Record Payment</ion-button>
+            <ion-button size="small" fill="outline" color="danger" (click)="deletePledge(pledge)">Remove</ion-button>
+          </div>
+        </div>
+      }
+    }
+  </ion-content>
+}

@@ -121,14 +121,21 @@ ion-badge {
   }
 }
 
+.search-row-web {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
 .search-bar-web {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 10px;
   background: white;
   border-radius: 10px;
   padding: 10px 16px;
-  margin-bottom: 20px;
   box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
 
   svg {
@@ -362,4 +369,117 @@ ion-badge {
     font-size: 1rem;
     margin: 0;
   }
+}
+
+/* ═══ Attendance Mode ═══ */
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  background: #e8f1f5;
+  color: #1a3a4a;
+  white-space: nowrap;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #d5e6ed;
+  }
+}
+
+.attendance-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.attendance-date-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin: 0;
+  }
+}
+
+.attendance-date-input {
+  width: 180px;
+  padding: 8px 12px !important;
+  font-size: 0.9rem !important;
+}
+
+.attendance-mark-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1e293b;
+  padding-bottom: 4px;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1a3a4a;
+    cursor: pointer;
+  }
+}
+
+.attendance-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #1a3a4a;
+  cursor: pointer;
+}
+
+.attendance-notes-input {
+  width: 200px;
+  padding: 6px 10px !important;
+  font-size: 0.85rem !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+.absent-row {
+  background: #fef2f2;
+}
+
+.attendance-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

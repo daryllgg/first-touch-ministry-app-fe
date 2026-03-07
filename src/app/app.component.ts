@@ -11,9 +11,10 @@ import { addIcons } from 'ionicons';
 import {
   homeOutline, megaphoneOutline, handLeftOutline,
   musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
-  notificationsOutline, peopleOutline, menuOutline,
+  notificationsOutline, peopleOutline, menuOutline, heartOutline,
 } from 'ionicons/icons';
 import { AuthService } from './services/auth.service';
+import { PinService } from './services/pin.service';
 import { PushNotificationService } from './services/push-notifications.service';
 import { NotificationsService } from './services/notifications.service';
 import { User } from './interfaces/user.interface';
@@ -60,6 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
+    private pinService: PinService,
     private pushNotificationService: PushNotificationService,
     private notificationsService: NotificationsService,
     private modalService: ModalService,
@@ -69,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
     addIcons({
       homeOutline, megaphoneOutline, handLeftOutline,
       musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
-      notificationsOutline, peopleOutline, menuOutline,
+      notificationsOutline, peopleOutline, menuOutline, heartOutline,
     });
   }
 
@@ -208,6 +210,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async logout() {
     await this.pushNotificationService.unregister();
+    this.pinService.clearVerification();
     await this.authService.logout();
     this.router.navigate(['/login']);
   }

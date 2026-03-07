@@ -1,0 +1,217 @@
+.form-card-web {
+  max-width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-actions-web {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.page-header-web {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+}
+
+/* Date picker */
+.date-picker-wrapper {
+  position: relative;
+}
+
+.date-picker-trigger {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  background: white;
+  color: #1e293b;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: #1a3a4a;
+  }
+
+  svg {
+    color: #94a3b8;
+    flex-shrink: 0;
+  }
+
+  .placeholder {
+    color: #94a3b8;
+  }
+}
+
+.date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+
+  ion-datetime {
+    --background: white;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.date-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin: 8px 0 0;
+}
+
+/* Month checkboxes for FAITH_PLEDGE */
+.months-section {
+  margin-bottom: 20px;
+}
+
+.months-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.year-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.year-select {
+  width: 100px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+.month-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.month-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  color: #475569;
+  background: white;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #1a3a4a;
+  }
+
+  &.checked {
+    border-color: #1a3a4a;
+    background: #f0f7fa;
+    color: #1a3a4a;
+    font-weight: 600;
+  }
+
+  &.select-all {
+    grid-column: 1 / -1;
+    background: #f8fafc;
+    border-style: dashed;
+    font-size: 0.85rem;
+    color: #64748b;
+    justify-content: center;
+  }
+}
+
+.months-summary {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.month-checkboxes-mobile {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.month-check-mobile {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #475569;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #1a3a4a;
+  }
+
+  &.checked {
+    border-color: #1a3a4a;
+    background: #f0f7fa;
+    font-weight: 600;
+  }
+}

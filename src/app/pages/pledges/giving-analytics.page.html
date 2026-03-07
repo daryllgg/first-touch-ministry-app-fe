@@ -1,0 +1,176 @@
+@if (isWeb) {
+  <div class="page-header-web">
+    <div>
+      <a routerLink="/pledges" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back
+      </a>
+      <h1>Giving Analytics</h1>
+    </div>
+    <div>
+      <select class="form-select year-select" [(ngModel)]="selectedYear" (ngModelChange)="onYearChange()">
+        @for (year of yearOptions; track year) {
+          <option [value]="year">{{ year }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (isLoadingSummary) {
+    <div class="summary-cards">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="card summary-card">
+          <div class="skeleton skeleton-text" style="width:60%"></div>
+          <div class="skeleton skeleton-title" style="width:40%;margin-top:8px"></div>
+        </div>
+      }
+    </div>
+  } @else if (summary) {
+    <div class="summary-cards">
+      <div class="card summary-card">
+        <span class="summary-label">Total Collected</span>
+        <span class="summary-value">{{ formatCurrency(summary.grandTotal) }}</span>
+      </div>
+      @for (prog of summary.programs; track prog.programId) {
+        <div class="card summary-card">
+          <span class="summary-label">{{ prog.programName }}</span>
+          <span class="summary-value">{{ formatCurrency(+prog.total) }}</span>
+          <span class="summary-sub">{{ prog.pledgeeCount }} pledgee{{ +prog.pledgeeCount !== 1 ? 's' : '' }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Monthly Trends Chart -->
+  <div class="card chart-card">
+    <h3>Monthly Giving Trends — {{ selectedYear }}</h3>
+    @if (isLoadingTrends) {
+      <div style="display:flex;align-items:flex-end;gap:12px;height:200px;padding-top:20px">
+        @for (i of [1,2,3,4,5,6,7,8,9,10,11,12]; track i) {
+          <div class="skeleton" [style.width.px]="40" [style.height.%]="20 + (i * 5)" style="border-radius:4px 4px 0 0;flex:1"></div>
+        }
+      </div>
+    } @else {
+      <div class="chart-container">
+        @for (month of monthLabels; track month; let i = $index) {
+          <div class="chart-bar-wrapper">
+            <div class="chart-bar-bg">
+              <div class="chart-bar" [style.height.%]="getBarHeight(i)" [title]="formatCurrency(getMonthTotal(i))"></div>
+            </div>
+            <span class="chart-label">{{ month }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Compliance Section -->
+  @if (programs.length > 0) {
+    <div class="card compliance-card">
+      <div class="compliance-header">
+        <h3>Faith Pledge Compliance</h3>
+        <select class="form-select" [(ngModel)]="selectedProgramId" (ngModelChange)="onProgramChange()" style="width:auto">
+          @for (prog of programs; track prog.id) {
+            <option [value]="prog.id">{{ prog.name }}</option>
+          }
+        </select>
+      </div>
+
+      @if (compliance) {
+        <div class="compliance-rate">
+          <span class="compliance-rate-value">{{ compliance.complianceRate }}%</span>
+          <span class="compliance-rate-label">compliance rate</span>
+        </div>
+      }
+
+      @if (isLoadingCompliance) {
+        <div style="padding:20px"><div class="skeleton skeleton-text" style="width:100%;height:200px;border-radius:8px"></div></div>
+      } @else if (compliance && compliance.pledgees.length > 0) {
+        <table class="compliance-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Months Paid</th>
+              <th>Months Due</th>
+              <th>Amount Paid</th>
+              <th>Amount Due</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of compliance.pledgees; track p.pledgeId) {
+              <tr [class.row-behind]="p.status === 'BEHIND'">
+                <td style="font-weight:600;color:#1a3a4a">{{ p.firstName }} {{ p.lastName }}</td>
+                <td>{{ p.monthsPaid }}</td>
+                <td>{{ p.monthsDue }}</td>
+                <td style="color:#059669">{{ formatCurrency(p.totalPaid) }}</td>
+                <td>{{ formatCurrency(p.amountDue) }}</td>
+                <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ getStatusLabel(p.status) }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p style="text-align:center;color:#94a3b8;padding:20px">No pledgees found for this program.</p>
+      }
+    </div>
+
+    <!-- Overdue Section -->
+    @if (getOverduePledgees().length > 0) {
+      <div class="card overdue-card">
+        <h3>Overdue Pledgees</h3>
+        <table class="compliance-table">
+          <thead>
+            <tr><th>Name</th><th>Months Behind</th><th>Amount Owed</th></tr>
+          </thead>
+          <tbody>
+            @for (p of getOverduePledgees(); track p.pledgeId) {
+              <tr>
+                <td style="font-weight:600;color:#1a3a4a">{{ p.firstName }} {{ p.lastName }}</td>
+                <td style="color:#dc2626;font-weight:600">{{ p.monthsDue - p.monthsPaid }}</td>
+                <td style="color:#dc2626;font-weight:600">{{ formatCurrency(p.amountDue - p.totalPaid) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+} @else {
+  <!-- MOBILE -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start"><ion-back-button defaultHref="/pledges"></ion-back-button></ion-buttons>
+      <ion-title>Analytics</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    @if (isLoadingSummary) {
+      <ion-spinner style="display:block;margin:32px auto"></ion-spinner>
+    } @else if (summary) {
+      <div class="card" style="padding:16px;margin-bottom:12px;text-align:center">
+        <p style="margin:0;color:var(--ion-color-medium);font-size:0.8rem;text-transform:uppercase">Total Collected {{ selectedYear }}</p>
+        <p style="margin:4px 0 0;font-size:1.4rem;font-weight:700;color:var(--ion-color-secondary)">{{ formatCurrency(summary.grandTotal) }}</p>
+      </div>
+      @for (prog of summary.programs; track prog.programId) {
+        <div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:600;color:var(--ion-color-secondary)">{{ prog.programName }}</span>
+          <span style="color:#059669;font-weight:600">{{ formatCurrency(+prog.total) }}</span>
+        </div>
+      }
+    }
+
+    @if (compliance) {
+      <div class="card" style="padding:16px;margin-top:16px">
+        <h3 style="margin:0 0 8px;font-size:1rem;color:var(--ion-color-secondary)">Compliance: {{ compliance.complianceRate }}%</h3>
+        @for (p of compliance.pledgees; track p.pledgeId) {
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.85rem;border-bottom:1px solid #f1f5f9">
+            <span>{{ p.firstName }} {{ p.lastName }}</span>
+            <span class="status-badge" [ngClass]="getStatusClass(p.status)" style="font-size:0.7rem">{{ getStatusLabel(p.status) }}</span>
+          </div>
+        }
+      </div>
+    }
+  </ion-content>
+}

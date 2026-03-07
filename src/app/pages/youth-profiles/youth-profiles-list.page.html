@@ -9,15 +9,23 @@
     }
   </div>
 
-  <div class="search-bar-web">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-    <input
-      type="text"
-      class="form-input"
-      placeholder="Search by name or station..."
-      [(ngModel)]="searchTerm"
-      (input)="onSearchChange()"
-    />
+  <div class="search-row-web">
+    <div class="search-bar-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input
+        type="text"
+        class="form-input"
+        placeholder="Search by name or station..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+      />
+    </div>
+    @if (isStationSelected && canCreate && !attendanceMode) {
+      <button class="btn btn-secondary" (click)="toggleAttendanceMode()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Record Attendance
+      </button>
+    }
   </div>
 
   <!-- Station Sub-Tabs -->
@@ -69,19 +77,46 @@
       <p>No youth profiles found.</p>
     </div>
   } @else {
+    @if (attendanceMode) {
+      <!-- Attendance Toolbar -->
+      <div class="attendance-toolbar">
+        <div class="attendance-date-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input attendance-date-input" [(ngModel)]="attendanceDate" />
+        </div>
+        <label class="attendance-mark-all">
+          <input type="checkbox" [checked]="allPresent" (change)="toggleAllPresent($any($event.target).checked)" />
+          <span>Mark All Present</span>
+        </label>
+      </div>
+    }
+
     <div class="card table-card-web">
       <table class="profiles-table-web">
         <thead>
           <tr>
+            @if (attendanceMode) {
+              <th style="width:50px">Present</th>
+            }
             <th>Photo</th>
             <th>Name</th>
-            <th class="hide-sm">Station</th>
+            @if (!attendanceMode) {
+              <th class="hide-sm">Station</th>
+            }
             <th>Age</th>
+            @if (attendanceMode) {
+              <th>Notes</th>
+            }
           </tr>
         </thead>
         <tbody>
-          @for (profile of paginatedProfiles; track profile.id) {
-            <tr class="table-row-clickable" [routerLink]="['/youth-profiles', profile.id]">
+          @for (profile of (attendanceMode ? filteredProfiles : paginatedProfiles); track profile.id) {
+            <tr [class.table-row-clickable]="!attendanceMode" [routerLink]="attendanceMode ? null : ['/youth-profiles', profile.id]" [class.absent-row]="attendanceMode && !attendanceEntries.get(profile.id)?.present">
+              @if (attendanceMode) {
+                <td>
+                  <input type="checkbox" class="attendance-checkbox" [checked]="attendanceEntries.get(profile.id)?.present" (change)="togglePresent(profile.id)" />
+                </td>
+              }
               <td>
                 <div class="table-avatar-web">
                   @if (getPhotoUrl(profile.photo)) {
@@ -104,32 +139,55 @@
                   }
                 </div>
               </td>
-              <td class="hide-sm">{{ profile.station?.name || '—' }}</td>
+              @if (!attendanceMode) {
+                <td class="hide-sm">{{ profile.station?.name || '—' }}</td>
+              }
               <td>{{ getAge(profile.birthDate) }}</td>
+              @if (attendanceMode) {
+                <td>
+                  @if (!attendanceEntries.get(profile.id)?.present) {
+                    <input type="text" class="form-input attendance-notes-input" placeholder="Reason (optional)" [value]="attendanceEntries.get(profile.id)?.notes || ''" (input)="updateNotes(profile.id, $any($event.target).value)" />
+                  }
+                </td>
+              }
             </tr>
           }
         </tbody>
       </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination-web">
-      <div class="pagination-info">
-        <span>Showing {{ (currentPage - 1) * pageSize + 1 }}–{{ currentPage * pageSize < filteredProfiles.length ? currentPage * pageSize : filteredProfiles.length }} of {{ filteredProfiles.length }}</span>
-        <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
-          @for (size of pageSizeOptions; track size) {
-            <option [value]="size">{{ size }} per page</option>
+    @if (attendanceMode) {
+      <!-- Attendance Actions -->
+      <div class="attendance-actions">
+        <button class="btn btn-outline" (click)="toggleAttendanceMode()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitAttendance()" [disabled]="isSubmittingAttendance || !attendanceDate">
+          @if (isSubmittingAttendance) {
+            <span class="spinner"></span>
+          } @else {
+            Submit Attendance
           }
-        </select>
+        </button>
       </div>
-      <div class="pagination-controls">
-        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Prev</button>
-        @for (page of pageNumbers; track page) {
-          <button class="pagination-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
-        }
-        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+    } @else {
+      <!-- Pagination -->
+      <div class="pagination-web">
+        <div class="pagination-info">
+          <span>Showing {{ (currentPage - 1) * pageSize + 1 }}–{{ currentPage * pageSize < filteredProfiles.length ? currentPage * pageSize : filteredProfiles.length }} of {{ filteredProfiles.length }}</span>
+          <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }} per page</option>
+            }
+          </select>
+        </div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Prev</button>
+          @for (page of pageNumbers; track page) {
+            <button class="pagination-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+          }
+          <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+        </div>
       </div>
-    </div>
+    }
   }
 } @else {
   <ion-header>

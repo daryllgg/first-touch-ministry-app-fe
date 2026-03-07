@@ -20,7 +20,8 @@ import { ModalConfig, ModalInput, ModalService } from './modal.service';
           @if (config.type === 'prompt' && config.inputs) {
             <div class="modal-form">
               @for (input of config.inputs; track input.key) {
-                @if (input.type === 'checkbox') {
+                @if (!isInputVisible(input)) {
+                } @else if (input.type === 'checkbox') {
                   <label class="modal-checkbox-label">
                     <input
                       type="checkbox"
@@ -81,6 +82,7 @@ import { ModalConfig, ModalInput, ModalService } from './modal.service';
               [class.modal-btn-primary]="!config.confirmColor || config.confirmColor === 'primary'"
               [class.modal-btn-danger]="config.confirmColor === 'danger'"
               [class.modal-btn-warning]="config.confirmColor === 'warning'"
+              [disabled]="config.type === 'prompt' && !isFormValid"
               (click)="onConfirm()"
             >
               {{ config.confirmText || (config.type === 'alert' ? 'OK' : 'Confirm') }}
@@ -215,6 +217,12 @@ import { ModalConfig, ModalInput, ModalService } from './modal.service';
       transform: scale(0.98);
     }
 
+    .modal-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .modal-btn-cancel {
       background: transparent;
       color: #64748b;
@@ -289,6 +297,23 @@ export class ModalComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown.escape')
   onEscape() {
     if (this.config) this.onCancel();
+  }
+
+  isInputVisible(input: ModalInput): boolean {
+    if (!input.visibleWhen) return true;
+    const depValue = this.formValues[input.visibleWhen.key];
+    return input.visibleWhen.values.includes(depValue);
+  }
+
+  get isFormValid(): boolean {
+    if (!this.config?.inputs) return true;
+    return this.config.inputs
+      .filter(input => input.required && this.isInputVisible(input))
+      .every(input => {
+        const val = this.formValues[input.key];
+        if (input.type === 'checkbox') return true;
+        return val !== undefined && val !== null && String(val).trim() !== '';
+      });
   }
 
   onConfirm() {

@@ -3,6 +3,7 @@ import { authGuard } from './guards/auth.guard';
 import { approvedGuard } from './guards/approved.guard';
 import { roleGuard } from './guards/role.guard';
 import { guestGuard } from './guards/guest.guard';
+import { pinGuard } from './guards/pin.guard';
 
 export const routes: Routes = [
   {
@@ -114,6 +115,31 @@ export const routes: Routes = [
     path: 'youth-profiles/:id/edit',
     canActivate: [authGuard, approvedGuard],
     loadComponent: () => import('./pages/youth-profiles/youth-profile-form.page').then((m) => m.YouthProfileFormPage),
+  },
+  {
+    path: 'pledges',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/pledges/pledges.page').then((m) => m.PledgesPage),
+  },
+  {
+    path: 'pledges/programs/new',
+    canActivate: [authGuard, approvedGuard, pinGuard, roleGuard('PASTOR', 'ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/pledges/program-form.page').then((m) => m.ProgramFormPage),
+  },
+  {
+    path: 'pledges/programs/:id/edit',
+    canActivate: [authGuard, approvedGuard, pinGuard, roleGuard('PASTOR', 'ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/pledges/program-form.page').then((m) => m.ProgramFormPage),
+  },
+  {
+    path: 'pledges/programs/:id',
+    canActivate: [authGuard, approvedGuard, pinGuard, roleGuard('PASTOR', 'ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/pledges/program-detail.page').then((m) => m.ProgramDetailPage),
+  },
+  {
+    path: 'pledges/analytics',
+    canActivate: [authGuard, approvedGuard, pinGuard, roleGuard('PASTOR', 'ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/pledges/giving-analytics.page').then((m) => m.GivingAnalyticsPage),
   },
   {
     path: '',

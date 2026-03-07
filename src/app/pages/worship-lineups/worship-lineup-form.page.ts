@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -169,6 +169,12 @@ export class WorshipLineupFormPage implements OnInit {
 
   cancelEdit() {
     this.router.navigate(['/worship-lineups', this.lineupId]);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.showServiceDatePicker = false;
+    this.showRehearsalDatePicker = false;
   }
 
   toggleServiceDatePicker(event?: Event) {

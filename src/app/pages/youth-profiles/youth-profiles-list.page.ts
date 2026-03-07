@@ -10,7 +10,9 @@ import {
 import { addIcons } from 'ionicons';
 import { addOutline, logOutOutline, personOutline } from 'ionicons/icons';
 import { YouthProfilesService } from '../../services/youth-profiles.service';
+import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../components/toast/toast.service';
 import { YouthProfile, Station } from '../../interfaces/youth-profile.interface';
 import { environment } from '../../../environments/environment';
 
@@ -44,9 +46,17 @@ export class YouthProfilesListPage implements OnInit, ViewWillEnter {
   pageSize = 10;
   pageSizeOptions = [10, 20, 50];
 
+  // Attendance
+  attendanceMode = false;
+  attendanceDate = '';
+  attendanceEntries = new Map<string, { present: boolean; notes: string }>();
+  isSubmittingAttendance = false;
+
   constructor(
     private youthProfilesService: YouthProfilesService,
+    private attendanceService: AttendanceService,
     private authService: AuthService,
+    private toast: ToastService,
     private router: Router,
   ) {
     addIcons({ addOutline, logOutOutline, personOutline });
@@ -92,7 +102,12 @@ export class YouthProfilesListPage implements OnInit, ViewWillEnter {
   onStationTabChange(tab: string) {
     this.activeStationTab = tab;
     this.currentPage = 1;
+    this.attendanceMode = false;
     this.applyFilter();
+  }
+
+  get isStationSelected(): boolean {
+    return this.activeStationTab !== 'all' && this.activeStationTab !== 'analytics';
   }
 
   applyFilter() {
@@ -139,6 +154,69 @@ export class YouthProfilesListPage implements OnInit, ViewWillEnter {
   onPageSizeChange(size: number) {
     this.pageSize = size;
     this.currentPage = 1;
+  }
+
+  // Attendance
+  toggleAttendanceMode() {
+    this.attendanceMode = !this.attendanceMode;
+    if (this.attendanceMode) {
+      this.attendanceDate = new Date().toISOString().split('T')[0];
+      this.attendanceEntries = new Map();
+      for (const p of this.filteredProfiles) {
+        this.attendanceEntries.set(p.id, { present: true, notes: '' });
+      }
+    }
+  }
+
+  get allPresent(): boolean {
+    for (const entry of this.attendanceEntries.values()) {
+      if (!entry.present) return false;
+    }
+    return true;
+  }
+
+  toggleAllPresent(checked: boolean) {
+    for (const entry of this.attendanceEntries.values()) {
+      entry.present = checked;
+    }
+  }
+
+  togglePresent(profileId: string) {
+    const entry = this.attendanceEntries.get(profileId);
+    if (entry) entry.present = !entry.present;
+  }
+
+  updateNotes(profileId: string, notes: string) {
+    const entry = this.attendanceEntries.get(profileId);
+    if (entry) entry.notes = notes;
+  }
+
+  submitAttendance() {
+    if (!this.attendanceDate) {
+      this.toast.error('Please select a date');
+      return;
+    }
+    this.isSubmittingAttendance = true;
+    const entries = this.filteredProfiles.map(p => ({
+      youthProfileId: p.id,
+      present: this.attendanceEntries.get(p.id)?.present ?? true,
+      notes: this.attendanceEntries.get(p.id)?.notes || undefined,
+    }));
+    this.attendanceService.create({
+      date: this.attendanceDate,
+      stationId: this.activeStationTab,
+      entries,
+    }).subscribe({
+      next: () => {
+        this.toast.success('Attendance recorded successfully');
+        this.attendanceMode = false;
+        this.isSubmittingAttendance = false;
+      },
+      error: () => {
+        this.toast.error('Failed to record attendance');
+        this.isSubmittingAttendance = false;
+      },
+    });
   }
 
   getAge(birthDate: string): number {
