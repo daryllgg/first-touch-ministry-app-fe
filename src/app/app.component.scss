@@ -1,3 +1,103 @@
+/* ─── Global Loading Progress Bar ─── */
+.global-progress-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 5px;
+  z-index: 99999;
+  background: rgba(26, 58, 74, 0.15);
+  overflow: hidden;
+
+  &.web-progress {
+    top: 64px;
+  }
+
+  &.mobile-progress {
+    top: calc(env(safe-area-inset-top, 0px) + 56px);
+  }
+}
+
+.global-progress-bar-inner {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, #1a3a4a, #4a8fa8);
+  border-radius: 2px;
+  animation: progress-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ─── Disable interactive elements while loading ─── */
+.app-loading {
+  button,
+  a[routerLink],
+  input,
+  select,
+  textarea,
+  ion-button,
+  ion-item[button],
+  ion-segment-button,
+  ion-select,
+  ion-input,
+  ion-textarea,
+  ion-checkbox,
+  ion-toggle,
+  ion-radio,
+  ion-searchbar,
+  ion-fab-button,
+  .btn,
+  .card-clickable,
+  .tab-item,
+  .sidebar-link,
+  .topbar-icon-btn,
+  .topbar-user {
+    pointer-events: none;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+}
+
+/* ─── Slow Loading Message (30s+) ─── */
+.slow-loading-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  padding: 32px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 100000;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #475569;
+    text-align: center;
+  }
+}
+
+.slow-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(26, 58, 74, 0.15);
+  border-radius: 50%;
+  border-top-color: #1a3a4a;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .menu-toolbar {
   --background: #1a3a4a;
   --color: white;

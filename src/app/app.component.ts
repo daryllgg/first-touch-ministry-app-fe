@@ -17,6 +17,7 @@ import { AuthService } from './services/auth.service';
 import { PinService } from './services/pin.service';
 import { PushNotificationService } from './services/push-notifications.service';
 import { NotificationsService } from './services/notifications.service';
+import { LoadingService } from './services/loading.service';
 import { User } from './interfaces/user.interface';
 import { AppNotification } from './interfaces/notification.interface';
 import { Subscription, filter } from 'rxjs';
@@ -68,6 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private pushNotificationService: PushNotificationService,
     private notificationsService: NotificationsService,
     private modalService: ModalService,
+    public loadingService: LoadingService,
     private router: Router,
     private menuCtrl: MenuController,
   ) {

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   platform: 'mobile' as 'mobile' | 'web',
-  apiUrl: 'https://api.yourchurch.com',
+  apiUrl: 'https://api.firsttouchministry.com',
 };

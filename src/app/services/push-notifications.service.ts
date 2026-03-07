@@ -23,24 +23,24 @@ export class PushNotificationService {
         '@capacitor/push-notifications'
       );
 
-      const permission = await PushNotifications.requestPermissions();
-      if (permission.receive !== 'granted') return;
-
-      await PushNotifications.register();
-
-      PushNotifications.addListener('registration', (token) => {
+      // Set up listeners BEFORE calling register() to avoid missing events
+      await PushNotifications.addListener('registration', (token) => {
         this.currentToken = token.value;
         this.registerToken(token.value);
       });
 
-      PushNotifications.addListener(
+      await PushNotifications.addListener('registrationError', (error) => {
+        console.error('Push registration error:', JSON.stringify(error));
+      });
+
+      await PushNotifications.addListener(
         'pushNotificationReceived',
         (notification) => {
           console.log('Push received in foreground:', notification);
         },
       );
 
-      PushNotifications.addListener(
+      await PushNotifications.addListener(
         'pushNotificationActionPerformed',
         (action) => {
           const data = action.notification.data;
@@ -50,6 +50,11 @@ export class PushNotificationService {
           }
         },
       );
+
+      const permission = await PushNotifications.requestPermissions();
+      if (permission.receive !== 'granted') return;
+
+      await PushNotifications.register();
     } catch (error) {
       console.warn('Push notifications not available:', error);
     }
@@ -78,10 +83,11 @@ export class PushNotificationService {
 
   private getRouteForEntity(entityType: string, entityId: string): string[] {
     switch (entityType) {
-      case 'WORSHIP_LINEUP': return ['/worship-lineups', entityId];
-      case 'ARTICLE': return ['/articles', entityId];
-      case 'PRAYER_REQUEST': return ['/prayer-requests'];
-      case 'PROFILE_CHANGE': return ['/profile'];
+      case 'worship-lineup': return ['/worship-lineups', entityId];
+      case 'article': return ['/articles', entityId];
+      case 'prayer-request': return ['/prayer-requests'];
+      case 'profile-change-request': return ['/profile'];
+      case 'user': return ['/profile'];
       default: return ['/notifications'];
     }
   }

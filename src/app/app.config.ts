@@ -2,6 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { loadingInterceptor } from './interceptors/loading.interceptor';
 import { timeoutInterceptor } from './interceptors/timeout.interceptor';
 import { provideIonicAngular, IonicRouteStrategy } from '@ionic/angular/standalone';
 
@@ -11,7 +12,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideHttpClient(withInterceptors([authInterceptor, timeoutInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor, timeoutInterceptor])),
     provideIonicAngular(),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
   ],

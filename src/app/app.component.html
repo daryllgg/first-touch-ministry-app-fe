@@ -4,9 +4,21 @@
 @if (isWeb) {
   <!-- Toast always available on web -->
   <app-toast-container></app-toast-container>
+  <!-- Global loading progress bar -->
+  @if (loadingService.isLoading$ | async) {
+    <div class="global-progress-bar web-progress">
+      <div class="global-progress-bar-inner"></div>
+    </div>
+    @if (loadingService.isSlow$ | async) {
+      <div class="slow-loading-message">
+        <div class="slow-spinner"></div>
+        <p>We're currently working on it, please wait...</p>
+      </div>
+    }
+  }
   <!-- ═══ WEB LAYOUT: Sidebar + Top Bar ═══ -->
   @if (showWebShell && currentUser) {
-    <div class="web-layout">
+    <div class="web-layout" [class.app-loading]="loadingService.isLoading$ | async">
       <!-- Top Bar -->
       <header class="topbar">
         <div class="topbar-left">
@@ -147,7 +159,18 @@
   }
 } @else {
   <!-- ═══ MOBILE LAYOUT: Ionic Menu + Bottom Tabs ═══ -->
-  <ion-app>
+  <ion-app [class.app-loading]="loadingService.isLoading$ | async">
+    @if (loadingService.isLoading$ | async) {
+      <div class="global-progress-bar mobile-progress">
+        <div class="global-progress-bar-inner"></div>
+      </div>
+      @if (loadingService.isSlow$ | async) {
+        <div class="slow-loading-message">
+          <div class="slow-spinner"></div>
+          <p>We're currently working on it, please wait...</p>
+        </div>
+      }
+    }
     @if (currentUser) {
       <ion-menu contentId="main-content" type="overlay">
         <ion-header>

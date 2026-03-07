@@ -125,11 +125,18 @@ export class NotificationsPage implements OnInit, ViewWillEnter {
 
   private navigateToEntity(entityType: string, entityId: string) {
     switch (entityType) {
-      case 'announcement':
-        this.router.navigate(['/announcements']);
-        break;
       case 'worship-lineup':
         this.router.navigate(['/worship-lineups', entityId]);
+        break;
+      case 'article':
+        this.router.navigate(['/articles', entityId]);
+        break;
+      case 'prayer-request':
+        this.router.navigate(['/prayer-requests']);
+        break;
+      case 'profile-change-request':
+      case 'user':
+        this.router.navigate(['/profile']);
         break;
       default:
         break;
