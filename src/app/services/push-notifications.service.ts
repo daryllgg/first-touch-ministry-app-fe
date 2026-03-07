@@ -45,10 +45,8 @@ export class PushNotificationService {
         (action) => {
           const data = action.notification.data;
           if (data?.relatedEntityType && data?.relatedEntityId) {
-            this.router.navigate([
-              `/${data.relatedEntityType}`,
-              data.relatedEntityId,
-            ]);
+            const route = this.getRouteForEntity(data.relatedEntityType, data.relatedEntityId);
+            this.router.navigate(route);
           }
         },
       );
@@ -75,6 +73,16 @@ export class PushNotificationService {
         .subscribe();
     } catch (error) {
       console.warn('Error unregistering push token:', error);
+    }
+  }
+
+  private getRouteForEntity(entityType: string, entityId: string): string[] {
+    switch (entityType) {
+      case 'WORSHIP_LINEUP': return ['/worship-lineups', entityId];
+      case 'ARTICLE': return ['/articles', entityId];
+      case 'PRAYER_REQUEST': return ['/prayer-requests'];
+      case 'PROFILE_CHANGE': return ['/profile'];
+      default: return ['/notifications'];
     }
   }
 
