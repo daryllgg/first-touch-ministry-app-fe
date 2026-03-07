@@ -15,6 +15,7 @@ import { ProfileService } from '../../services/profile.service';
 import { User } from '../../interfaces/user.interface';
 import { ToastService } from '../../components/toast/toast.service';
 import { ModalService } from '../../components/modal/modal.service';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -25,12 +26,14 @@ import { environment } from '../../../environments/environment';
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton,
     IonButton, IonItem, IonInput, IonLabel, IonSelect, IonSelectOption,
     IonList, IonAvatar, IonIcon, IonSpinner, IonBadge, IonTextarea,
+    DatePickerComponent,
   ],
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss'],
 })
 export class ProfilePage implements OnInit {
   isWeb = environment.platform === 'web';
+  todayDate = new Date().toISOString().split('T')[0];
   user: User | null = null;
   editMode = false;
   isLoading = false;

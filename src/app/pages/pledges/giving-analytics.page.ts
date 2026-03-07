@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-  IonBackButton, IonButtons, IonSpinner,
+  IonBackButton, IonButtons, IonSpinner, IonSelect, IonSelectOption,
 } from '@ionic/angular/standalone';
 import { PledgesService } from '../../services/pledges.service';
 import {
@@ -18,7 +18,7 @@ import { environment } from '../../../environments/environment';
   imports: [
     CommonModule, FormsModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-    IonBackButton, IonButtons, IonSpinner,
+    IonBackButton, IonButtons, IonSpinner, IonSelect, IonSelectOption,
   ],
   templateUrl: './giving-analytics.page.html',
   styleUrls: ['./giving-analytics.page.scss'],

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
-  IonSpinner, IonSelect, IonSelectOption, IonDatetime, IonLabel,
+  IonSpinner, IonSelect, IonSelectOption, IonLabel,
   IonIcon, IonNote,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -15,6 +15,7 @@ import { YouthProfilesService } from '../../services/youth-profiles.service';
 import { YouthProfile, Station } from '../../interfaces/youth-profile.interface';
 import { ToastService } from '../../components/toast/toast.service';
 import { ModalService } from '../../components/modal/modal.service';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -24,8 +25,9 @@ import { environment } from '../../../environments/environment';
     CommonModule, ReactiveFormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
-    IonSpinner, IonSelect, IonSelectOption, IonDatetime, IonLabel,
+    IonSpinner, IonSelect, IonSelectOption, IonLabel,
     IonIcon, IonNote,
+    DatePickerComponent,
   ],
   templateUrl: './youth-profile-form.page.html',
   styleUrls: ['./youth-profile-form.page.scss'],
@@ -167,15 +169,6 @@ export class YouthProfileFormPage implements OnInit {
       u8arr[n] = bstr.charCodeAt(n);
     }
     return new File([u8arr], filename, { type: mime });
-  }
-
-  onDateChange(event: any) {
-    const value = event.detail.value;
-    if (value) {
-      // Extract just the date part (YYYY-MM-DD) from the ISO string
-      const dateOnly = value.substring(0, 10);
-      this.form.patchValue({ birthDate: dateOnly });
-    }
   }
 
   onSubmit() {

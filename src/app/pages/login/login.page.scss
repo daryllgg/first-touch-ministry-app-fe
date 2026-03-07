@@ -56,6 +56,17 @@ ion-item {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
+.password-item {
+  .password-eye-btn {
+    --color: #94a3b8;
+    --padding-start: 4px;
+    --padding-end: 4px;
+    margin: 0;
+    height: 36px;
+    font-size: 20px;
+  }
+}
+
 .auth-link {
   text-align: center;
   margin-top: 28px;

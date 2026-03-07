@@ -80,6 +80,99 @@
   gap: 8px;
 }
 
+/* ═══ Mobile Edit Mode ═══ */
+
+.edit-form-mobile {
+  padding-bottom: 24px;
+}
+
+.edit-section-mobile {
+  margin-bottom: 20px;
+}
+
+.edit-section-title-mobile {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin: 0 0 10px 4px;
+}
+
+.edit-list-mobile {
+  background: transparent;
+  padding: 0;
+}
+
+.edit-item-mobile {
+  --background: white;
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
+
+  ion-input, ion-textarea, ion-select {
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+  }
+
+  app-date-picker {
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  ::ng-deep app-date-picker .date-picker-trigger {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 1rem;
+    color: #1e293b;
+  }
+}
+
+// ─── Mobile Sticky Submit Bar ───
+
+.sticky-submit-bar {
+  position: fixed;
+  bottom: 64px;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.sticky-btn {
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.8; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.sticky-btn-primary {
+  background: #1a3a4a;
+  color: white;
+  flex: 1;
+}
+
+.sticky-btn-outline {
+  background: white;
+  color: #1a3a4a;
+  border: 1.5px solid #e2e8f0;
+}
+
 .loading-wrapper {
   display: flex;
   justify-content: center;
@@ -362,5 +455,114 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ═══ Responsive — Tablet / Small screens ═══ */
+
+@media (max-width: 768px) {
+  // Page header: stack title and actions, reduce font size
+  .page-header-web {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .header-actions-web {
+    width: 100%;
+
+    .btn-outline-web,
+    .btn-primary-web {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  // Card: reduce padding, remove fixed widths
+  .profile-card-web {
+    padding: 20px 16px;
+  }
+
+  // Profile header: stack vertically (avatar on top, info below)
+  .profile-header-web {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+
+  .profile-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .profile-roles-web {
+    justify-content: center;
+  }
+
+  .profile-name-web {
+    font-size: 1.15rem;
+  }
+
+  .profile-email-web {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+
+  // View mode fields: collapse 2-column grid to 1 column
+  .profile-fields-web {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .profile-field-full {
+    grid-column: 1;
+  }
+
+  // Edit mode form: collapse 2-column grid to 1 column
+  .profile-form-web {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .form-group-full {
+    grid-column: 1;
+  }
+
+  // Form actions: stack buttons vertically on small screens
+  .form-actions-web {
+    grid-column: 1;
+    flex-direction: column;
+
+    .btn-primary-web,
+    .btn-outline-web {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  // Buttons: slightly reduce padding
+  .btn-primary-web {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+
+  .btn-outline-web {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
+  // Input fields: slightly smaller padding
+  .input-web {
+    padding: 9px 12px;
+    font-size: 0.88rem;
   }
 }

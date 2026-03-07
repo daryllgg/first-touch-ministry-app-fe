@@ -7,7 +7,7 @@ import {
   IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, IonSkeletonText, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, logOutOutline } from 'ionicons/icons';
+import { addOutline, logOutOutline, musicalNotesOutline, peopleOutline } from 'ionicons/icons';
 import { environment } from '../../../environments/environment';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { AuthService } from '../../services/auth.service';
@@ -36,7 +36,7 @@ export class WorshipLineupsListPage implements OnInit, ViewWillEnter {
     private authService: AuthService,
     private router: Router,
   ) {
-    addIcons({ addOutline, logOutOutline });
+    addIcons({ addOutline, logOutOutline, musicalNotesOutline, peopleOutline });
   }
 
   ngOnInit() {

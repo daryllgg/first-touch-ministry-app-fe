@@ -1,14 +1,16 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-  IonBackButton, IonButtons, IonSpinner, IonDatetime,
+  IonBackButton, IonButtons, IonSpinner,
+  IonItem, IonInput, IonSelect, IonSelectOption, IonTextarea, IonLabel,
 } from '@ionic/angular/standalone';
 import { PledgesService } from '../../services/pledges.service';
 import { ToastService } from '../../components/toast/toast.service';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -17,7 +19,9 @@ import { environment } from '../../../environments/environment';
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-    IonBackButton, IonButtons, IonSpinner, IonDatetime,
+    IonBackButton, IonButtons, IonSpinner,
+    IonItem, IonInput, IonSelect, IonSelectOption, IonTextarea, IonLabel,
+    DatePickerComponent,
   ],
   templateUrl: './program-form.page.html',
   styleUrls: ['./program-form.page.scss'],
@@ -28,10 +32,6 @@ export class ProgramFormPage implements OnInit {
   isLoading = false;
   programId: string | null = null;
   isEditMode = false;
-
-  showStartDatePicker = false;
-  showEndDatePicker = false;
-  showConductedDatePicker = false;
 
   // Month checkboxes for FAITH_PLEDGE
   selectedYear = new Date().getFullYear();
@@ -94,42 +94,8 @@ export class ProgramFormPage implements OnInit {
     }
   }
 
-  @HostListener('document:click')
-  onDocumentClick() {
-    this.showStartDatePicker = false;
-    this.showEndDatePicker = false;
-    this.showConductedDatePicker = false;
-  }
-
-  toggleDatePicker(picker: string, event: Event) {
-    event.stopPropagation();
-    const isOpen = picker === 'start' ? this.showStartDatePicker
-      : picker === 'end' ? this.showEndDatePicker
-      : this.showConductedDatePicker;
-    this.showStartDatePicker = false;
-    this.showEndDatePicker = false;
-    this.showConductedDatePicker = false;
-    if (!isOpen) {
-      if (picker === 'start') this.showStartDatePicker = true;
-      else if (picker === 'end') this.showEndDatePicker = true;
-      else this.showConductedDatePicker = true;
-    }
-  }
-
-  onDateChange(event: any, field: string) {
-    const value = event.detail.value;
-    if (value) {
-      this.form.get(field)?.setValue(value.split('T')[0]);
-    }
-    this.showStartDatePicker = false;
-    this.showEndDatePicker = false;
-    this.showConductedDatePicker = false;
-  }
-
-  formatDisplayDate(value: string): string {
-    if (!value) return '';
-    const date = new Date(value + 'T00:00:00');
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  onDatePickerChange(value: string, field: string) {
+    this.form.get(field)?.setValue(value);
   }
 
   // --- Month Checkboxes ---

@@ -274,223 +274,294 @@
         <ion-back-button defaultHref="/worship-lineups"></ion-back-button>
       </ion-buttons>
       <ion-title>Lineup Details</ion-title>
+      @if (lineup) {
+        <ion-buttons slot="end">
+          @if (isSubmitter && lineup.status !== 'APPROVED' && lineup.status !== 'REJECTED') {
+            <ion-button [routerLink]="['/worship-lineups', lineup.id, 'edit']">
+              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+          @if (isSubmitter) {
+            <ion-button color="danger" (click)="deleteLineup()">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+        </ion-buttons>
+      }
     </ion-toolbar>
   </ion-header>
 
-  <ion-content class="ion-padding">
+  <ion-content>
     <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
     @if (isLoading) {
-      <ion-card>
-        <ion-card-content>
-          <ion-skeleton-text [animated]="true" style="width:60%;height:20px"></ion-skeleton-text>
-          <ion-skeleton-text [animated]="true" style="width:40%;height:14px;margin-top:10px"></ion-skeleton-text>
-          <ion-skeleton-text [animated]="true" style="width:50%;height:14px;margin-top:8px"></ion-skeleton-text>
-          <ion-skeleton-text [animated]="true" style="width:35%;height:14px;margin-top:8px"></ion-skeleton-text>
-        </ion-card-content>
-      </ion-card>
-      <h3 class="section-title">Members</h3>
-      <ion-list>
-        @for (i of [1,2,3,4]; track i) {
-          <ion-item>
-            <ion-avatar slot="start">
-              <ion-skeleton-text [animated]="true" style="width:100%;height:100%"></ion-skeleton-text>
-            </ion-avatar>
-            <ion-label>
-              <ion-skeleton-text [animated]="true" style="width:55%;height:16px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:35%;height:12px;margin-top:6px"></ion-skeleton-text>
-            </ion-label>
-          </ion-item>
-        }
-      </ion-list>
+      <div class="mobile-detail-content">
+        <!-- Skeleton: Title + status -->
+        <div class="mobile-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <ion-skeleton-text [animated]="true" style="width:55%;height:22px"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width:70px;height:24px;border-radius:20px"></ion-skeleton-text>
+          </div>
+          <ion-skeleton-text [animated]="true" style="width:70%;height:14px;margin-bottom:10px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:50%;height:14px;margin-bottom:10px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width:60%;height:14px"></ion-skeleton-text>
+        </div>
+        <!-- Skeleton: Songs -->
+        <div class="mobile-card">
+          <ion-skeleton-text [animated]="true" style="width:30%;height:14px;margin-bottom:16px"></ion-skeleton-text>
+          @for (i of [1,2]; track i) {
+            <div style="margin-bottom:12px">
+              <ion-skeleton-text [animated]="true" style="width:60%;height:16px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:40%;height:12px;margin-top:6px"></ion-skeleton-text>
+            </div>
+          }
+        </div>
+        <!-- Skeleton: Members -->
+        <div class="mobile-card">
+          <ion-skeleton-text [animated]="true" style="width:45%;height:14px;margin-bottom:16px"></ion-skeleton-text>
+          @for (i of [1,2,3]; track i) {
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <ion-skeleton-text [animated]="true" style="width:40px;height:40px;border-radius:50%;flex-shrink:0"></ion-skeleton-text>
+              <div style="flex:1">
+                <ion-skeleton-text [animated]="true" style="width:60%;height:15px"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width:35%;height:12px;margin-top:5px"></ion-skeleton-text>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
     } @else if (lineup) {
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>
+      <div class="mobile-detail-content">
+        <!-- Title + Status Header -->
+        <div class="mobile-detail-header">
+          <h2 class="mobile-detail-title">
             @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
               {{ lineup.customServiceName }}
             } @else {
               {{ formatServiceType(lineup.serviceType) }}
             }
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p><strong>Service Type:</strong> {{ formatServiceType(lineup.serviceType) }}</p>
-          <p><strong>Dates:</strong></p>
-          <ul class="dates-list">
-            @for (date of lineup.dates; track date) {
-              <li>{{ date | date:'fullDate' }}</li>
+          </h2>
+          <span class="mobile-status-badge" [attr.data-status]="lineup.status">
+            @if (lineup.status === 'CHANGES_REQUESTED') {
+              Changes Requested
+            } @else {
+              {{ lineup.status }}
             }
-          </ul>
+          </span>
+        </div>
+
+        <!-- Service Info Card -->
+        <div class="mobile-card">
+          <div class="mobile-section-label">Service Information</div>
+          <div class="mobile-field">
+            <span class="mobile-field-label">Service Type</span>
+            <span class="mobile-field-value">{{ formatServiceType(lineup.serviceType) }}</span>
+          </div>
+          <div class="mobile-field">
+            <span class="mobile-field-label">Dates</span>
+            <div class="mobile-field-value">
+              <div class="mobile-date-chips">
+                @for (date of lineup.dates; track date) {
+                  <span class="mobile-date-chip">{{ date | date:'MMM d, y' }}</span>
+                }
+              </div>
+            </div>
+          </div>
           @if (lineup.rehearsalDate) {
-            <p><strong>Rehearsal Date:</strong> {{ lineup.rehearsalDate | date:'fullDate' }}</p>
+            <div class="mobile-field">
+              <span class="mobile-field-label">Rehearsal</span>
+              <span class="mobile-field-value">
+                <span class="mobile-date-chip">{{ lineup.rehearsalDate | date:'MMM d, y' }}</span>
+              </span>
+            </div>
           }
           @if (lineup.overallTheme) {
-            <p><strong>Overall Theme:</strong> {{ lineup.overallTheme }}</p>
+            <div class="mobile-field">
+              <span class="mobile-field-label">Theme</span>
+              <span class="mobile-field-value">{{ lineup.overallTheme }}</span>
+            </div>
           }
-          <p>
-            <strong>Status:</strong>
-            <ion-badge [color]="getStatusColor(lineup.status)">
-              @if (lineup.status === 'CHANGES_REQUESTED') {
-                Changes Requested
-              } @else {
-                {{ lineup.status }}
-              }
-            </ion-badge>
-          </p>
-          <p><strong>Submitted by:</strong> {{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</p>
+          <div class="mobile-field">
+            <span class="mobile-field-label">Submitted by</span>
+            <span class="mobile-field-value">{{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</span>
+          </div>
           @if (lineup.notes) {
-            <p><strong>Notes:</strong> {{ lineup.notes }}</p>
+            <div class="mobile-field">
+              <span class="mobile-field-label">Notes</span>
+              <span class="mobile-field-value">{{ lineup.notes }}</span>
+            </div>
           }
           @if (lineup.reviewedBy) {
-            <p><strong>Reviewed by:</strong> {{ lineup.reviewedBy.firstName }} {{ lineup.reviewedBy.lastName }}</p>
-            <p><strong>Reviewed at:</strong> {{ lineup.reviewedAt | date:'medium' }}</p>
-          }
-        </ion-card-content>
-      </ion-card>
-
-      @if (isSubmitter) {
-        <div class="submitter-actions">
-          @if (lineup.status !== 'APPROVED' && lineup.status !== 'REJECTED') {
-            <ion-button fill="outline" [routerLink]="['/worship-lineups', lineup.id, 'edit']">
-              <ion-icon name="create-outline" slot="start"></ion-icon>
-              Edit
-            </ion-button>
-          }
-          <ion-button fill="outline" color="danger" (click)="deleteLineup()">
-            <ion-icon name="trash-outline" slot="start"></ion-icon>
-            Delete
-          </ion-button>
-        </div>
-      }
-
-      @if (canReview && (lineup.status === 'PENDING' || lineup.status === 'CHANGES_REQUESTED')) {
-        <div class="review-actions">
-          <ion-button color="success" (click)="approve()">
-            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-            Approve
-          </ion-button>
-          <ion-button color="danger" (click)="reject()">
-            <ion-icon name="close-outline" slot="start"></ion-icon>
-            Decline
-          </ion-button>
-          <ion-button color="warning" (click)="requestChanges()">
-            <ion-icon name="alert-circle-outline" slot="start"></ion-icon>
-            Request Changes
-          </ion-button>
-        </div>
-      }
-
-      @if (lineup.songs && lineup.songs.length > 0) {
-        <h3 class="section-title">Songs</h3>
-        <ion-list>
-          @for (song of lineup.songs; track song.id) {
-            <ion-item>
-              <ion-label>
-                <h2>{{ song.title }}</h2>
-                @if (song.link) {
-                  <p><a [href]="song.link" target="_blank" rel="noopener noreferrer">{{ song.link }}</a></p>
-                }
-                @if (song.singer) {
-                  <p>Singer: {{ song.singer.firstName }} {{ song.singer.lastName }}</p>
-                }
-              </ion-label>
-            </ion-item>
-          }
-        </ion-list>
-      }
-
-      <h3 class="section-title">Members</h3>
-      <ion-list>
-        @for (member of lineup.members; track member.id) {
-          <ion-item>
-            <ion-avatar slot="start">
-              @if (member.user.profilePicture) {
-                <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
-              } @else {
-                <div class="avatar-placeholder">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
-              }
-            </ion-avatar>
-            <ion-label>
-              <h2>{{ member.user.firstName }} {{ member.user.lastName }}</h2>
-              <p>{{ member.instrumentRole.name }}</p>
-            </ion-label>
-            @if (isMyMember(member.id)) {
-              <ion-button fill="outline" size="small" slot="end" (click)="requestSubstitution(member.id)">
-                <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
-                Sub
-              </ion-button>
-            }
-          </ion-item>
-        }
-      </ion-list>
-
-      <h3 class="section-title">Review History</h3>
-      @if (lineup.reviews && lineup.reviews.length > 0) {
-        <div class="review-timeline">
-          @for (review of sortedReviews; track review.id) {
-            <div class="review-entry">
-              <div class="review-header">
-                <div class="reviewer-avatar">
-                  @if (review.reviewer.profilePicture) {
-                    <img [src]="apiUrl + '/uploads/' + review.reviewer.profilePicture" alt="" />
-                  } @else {
-                    <div class="avatar-placeholder-sm">{{ review.reviewer.firstName[0] }}{{ review.reviewer.lastName[0] }}</div>
-                  }
-                </div>
-                <strong>{{ review.reviewer.firstName }} {{ review.reviewer.lastName }}</strong>
-                <ion-badge [color]="getStatusColor(review.status)" class="review-badge">{{ review.status }}</ion-badge>
-              </div>
-              @if (review.comment) {
-                <p class="review-comment">{{ review.comment }}</p>
-              }
-              <p class="review-date">{{ review.createdAt | date:'medium' }}</p>
+            <div class="mobile-field">
+              <span class="mobile-field-label">Reviewed by</span>
+              <span class="mobile-field-value">{{ lineup.reviewedBy.firstName }} {{ lineup.reviewedBy.lastName }} &middot; {{ lineup.reviewedAt | date:'medium' }}</span>
             </div>
           }
         </div>
-      } @else {
-        <p class="empty-review">No review history as of {{ lineup.updatedAt | date:'MMM d, y, h:mm a' }}</p>
-      }
 
-      @if (substitutionRequests.length > 0) {
-        <h3 class="section-title">Substitution Requests</h3>
-        <ion-list>
-          @for (req of substitutionRequests; track req.id) {
-            <ion-item>
-              <ion-label>
-                <h2>{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }} ({{ req.lineupMember.instrumentRole.name }})</h2>
-                <p>{{ req.reason }}</p>
-                @if (req.substituteUser) {
-                  <p>Substitute: {{ req.substituteUser.firstName }} {{ req.substituteUser.lastName }}</p>
-                }
-              </ion-label>
-              <div slot="end" class="sub-actions">
-                <ion-badge [color]="getStatusColor(req.status)">{{ req.status }}</ion-badge>
-                @if (canReview && req.status === 'PENDING') {
-                  <ion-button fill="clear" size="small" color="success" (click)="approveSubstitution(req.id)">
-                    <ion-icon name="checkmark-outline"></ion-icon>
-                  </ion-button>
-                  <ion-button fill="clear" size="small" color="danger" (click)="rejectSubstitution(req.id)">
-                    <ion-icon name="close-outline"></ion-icon>
-                  </ion-button>
-                }
-                @if (req.status === 'APPROVED' && req.substituteUser === null && currentUserId !== req.requestedBy.id) {
-                  <ion-button fill="outline" size="small" color="tertiary" (click)="acceptSubstitution(req.id)">
-                    Accept
-                  </ion-button>
+        <!-- Songs Card -->
+        @if (lineup.songs && lineup.songs.length > 0) {
+          <div class="mobile-card">
+            <div class="mobile-section-label">Songs</div>
+            @for (song of lineup.songs; track song.id; let idx = $index) {
+              <div class="mobile-song-item" [class.mobile-song-item-last]="idx === lineup.songs.length - 1">
+                <div class="mobile-song-number">{{ idx + 1 }}</div>
+                <div class="mobile-song-info">
+                  <div class="mobile-song-title">{{ song.title }}</div>
+                  @if (song.singer) {
+                    <div class="mobile-song-meta">Singer: {{ song.singer.firstName }} {{ song.singer.lastName }}</div>
+                  }
+                  @if (song.link) {
+                    <a class="mobile-song-link" [href]="song.link" target="_blank" rel="noopener noreferrer">
+                      <ion-icon name="link-outline"></ion-icon>
+                      Open link
+                    </a>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Members Card -->
+        <div class="mobile-card">
+          <div class="mobile-section-label">Singers & Musicians ({{ lineup.members.length }})</div>
+          @for (member of lineup.members; track member.id; let idx = $index) {
+            <div class="mobile-member-item" [class.mobile-member-item-last]="idx === lineup.members.length - 1">
+              <div class="mobile-member-avatar">
+                @if (member.user.profilePicture) {
+                  <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
+                } @else {
+                  <div class="mobile-avatar-initials">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
                 }
               </div>
-            </ion-item>
+              <div class="mobile-member-info">
+                <div class="mobile-member-name">{{ member.user.firstName }} {{ member.user.lastName }}</div>
+                <div class="mobile-member-role">{{ member.instrumentRole.name }}</div>
+              </div>
+              @if (isMyMember(member.id)) {
+                <button class="mobile-sub-btn" (click)="requestSubstitution(member.id)">
+                  <ion-icon name="swap-horizontal-outline"></ion-icon>
+                  Sub
+                </button>
+              }
+            </div>
           }
-        </ion-list>
+        </div>
+
+        <!-- Review History Card -->
+        <div class="mobile-card">
+          <div class="mobile-section-label">Review History</div>
+          @if (lineup.reviews && lineup.reviews.length > 0) {
+            <div class="mobile-review-timeline">
+              @for (review of sortedReviews; track review.id; let idx = $index) {
+                <div class="mobile-review-entry" [attr.data-status]="review.status.toLowerCase()">
+                  <div class="mobile-review-dot" [attr.data-status]="review.status.toLowerCase()"></div>
+                  @if (idx < sortedReviews.length - 1) {
+                    <div class="mobile-review-line"></div>
+                  }
+                  <div class="mobile-review-content">
+                    <div class="mobile-review-header">
+                      <div class="mobile-reviewer-avatar">
+                        @if (review.reviewer.profilePicture) {
+                          <img [src]="apiUrl + '/uploads/' + review.reviewer.profilePicture" alt="" />
+                        } @else {
+                          <div class="mobile-avatar-initials-sm">{{ review.reviewer.firstName[0] }}{{ review.reviewer.lastName[0] }}</div>
+                        }
+                      </div>
+                      <div class="mobile-reviewer-info">
+                        <span class="mobile-reviewer-name">{{ review.reviewer.firstName }} {{ review.reviewer.lastName }}</span>
+                        <span class="mobile-review-date">{{ review.createdAt | date:'medium' }}</span>
+                      </div>
+                      <span class="mobile-review-badge" [attr.data-status]="review.status.toLowerCase()">
+                        @if (review.status === 'CHANGES_REQUESTED') {
+                          Changes
+                        } @else {
+                          {{ review.status }}
+                        }
+                      </span>
+                    </div>
+                    @if (review.comment) {
+                      <p class="mobile-review-comment">{{ review.comment }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="mobile-empty-state">
+              <ion-icon name="time-outline"></ion-icon>
+              <p>No review history yet</p>
+            </div>
+          }
+        </div>
+
+        <!-- Substitution Requests Card -->
+        @if (substitutionRequests.length > 0) {
+          <div class="mobile-card">
+            <div class="mobile-section-label">Substitution Requests</div>
+            @for (req of substitutionRequests; track req.id; let idx = $index) {
+              <div class="mobile-sub-request" [class.mobile-sub-request-last]="idx === substitutionRequests.length - 1">
+                <div class="mobile-sub-request-header">
+                  <div class="mobile-sub-request-info">
+                    <div class="mobile-member-name">{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }}</div>
+                    <div class="mobile-member-role">{{ req.lineupMember.instrumentRole.name }}</div>
+                  </div>
+                  <span class="mobile-review-badge" [attr.data-status]="req.status.toLowerCase()">{{ req.status }}</span>
+                </div>
+                <div class="mobile-sub-request-reason">{{ req.reason }}</div>
+                @if (req.substituteUser) {
+                  <div class="mobile-sub-request-substitute">Substitute: {{ req.substituteUser.firstName }} {{ req.substituteUser.lastName }}</div>
+                }
+                @if (canReview && req.status === 'PENDING') {
+                  <div class="mobile-sub-request-actions">
+                    <button class="mobile-action-btn mobile-action-approve" (click)="approveSubstitution(req.id)">
+                      <ion-icon name="checkmark-outline"></ion-icon>
+                      Approve
+                    </button>
+                    <button class="mobile-action-btn mobile-action-decline" (click)="rejectSubstitution(req.id)">
+                      <ion-icon name="close-outline"></ion-icon>
+                      Decline
+                    </button>
+                  </div>
+                }
+                @if (req.status === 'APPROVED' && req.substituteUser === null && currentUserId !== req.requestedBy.id) {
+                  <div class="mobile-sub-request-actions">
+                    <button class="mobile-action-btn mobile-action-accept" (click)="acceptSubstitution(req.id)">
+                      Accept Substitution
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Review Actions — sticky bottom bar -->
+      @if (canReview && (lineup.status === 'PENDING' || lineup.status === 'CHANGES_REQUESTED')) {
+        <div class="mobile-review-action-bar">
+          <button class="mobile-review-btn mobile-review-btn-approve" (click)="approve()">
+            <ion-icon name="checkmark-outline"></ion-icon>
+            Approve
+          </button>
+          <button class="mobile-review-btn mobile-review-btn-decline" (click)="reject()">
+            <ion-icon name="close-outline"></ion-icon>
+            Decline
+          </button>
+          <button class="mobile-review-btn mobile-review-btn-changes" (click)="requestChanges()">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            Changes
+          </button>
+        </div>
       }
     } @else if (loadError) {
-      <div style="text-align:center;padding:48px 24px;color:#94a3b8;">
-        <ion-icon name="alert-circle-outline" style="font-size:56px;margin-bottom:12px;"></ion-icon>
-        <h2 style="color:#1e293b;font-size:1.1rem;margin:0 0 8px;">Lineup Not Found</h2>
-        <p style="margin:0 0 20px;font-size:0.9rem;">This lineup may have been deleted or removed by the Leader.</p>
+      <div class="mobile-error-state">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <h2>Lineup Not Found</h2>
+        <p>This lineup may have been deleted or removed by the Leader.</p>
         <ion-button routerLink="/worship-lineups" fill="solid">Back to Lineups</ion-button>
       </div>
     }

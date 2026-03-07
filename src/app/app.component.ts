@@ -11,7 +11,7 @@ import { addIcons } from 'ionicons';
 import {
   homeOutline, megaphoneOutline, handLeftOutline,
   musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
-  notificationsOutline, peopleOutline, menuOutline, heartOutline,
+  notificationsOutline, peopleOutline, menuOutline, heartOutline, newspaperOutline,
 } from 'ionicons/icons';
 import { AuthService } from './services/auth.service';
 import { PinService } from './services/pin.service';
@@ -48,6 +48,9 @@ export class AppComponent implements OnInit, OnDestroy {
   showWebShell = false;
   activeTab = '';
 
+  // Mobile sidebar drawer (web responsive)
+  sidebarOpen = false;
+
   // Profile menu
   showProfileMenu = false;
 
@@ -71,7 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
     addIcons({
       homeOutline, megaphoneOutline, handLeftOutline,
       musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
-      notificationsOutline, peopleOutline, menuOutline, heartOutline,
+      notificationsOutline, peopleOutline, menuOutline, heartOutline, newspaperOutline,
     });
   }
 
@@ -93,6 +96,7 @@ export class AppComponent implements OnInit, OnDestroy {
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
     ).subscribe((e) => {
       this.activeTab = e.urlAfterRedirects.split('?')[0];
+      this.sidebarOpen = false;
       this.updateBottomTabs();
     });
   }

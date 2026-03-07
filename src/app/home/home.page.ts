@@ -55,11 +55,6 @@ export class HomePage implements OnInit, ViewWillEnter {
     this.loadData();
   }
 
-  async onLogout() {
-    await this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
   getImageUrl(image: string): string {
     return `${this.apiUrl}/uploads/${image}`;
   }

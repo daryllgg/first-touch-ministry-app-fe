@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 export interface ModalInput {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'email' | 'password';
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'email' | 'password' | 'date';
   options?: { value: string; label: string }[];
   required?: boolean;
   placeholder?: string;

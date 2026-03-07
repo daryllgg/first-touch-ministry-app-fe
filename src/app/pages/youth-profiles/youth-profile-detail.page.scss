@@ -415,3 +415,71 @@ ion-card {
     transform: rotate(360deg);
   }
 }
+
+/* ═══ Responsive ═══ */
+
+@media (max-width: 768px) {
+  .detail-container-web {
+    max-width: 100%;
+    padding: 16px 8px;
+  }
+
+  .card {
+    padding: 18px 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px 6px;
+  }
+
+  .chart-container {
+    height: 120px;
+  }
+
+  .analytics-card-web {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-header-web .profile-name-web {
+    font-size: 1.25rem;
+  }
+
+  .profile-header-web .profile-nickname-web {
+    font-size: 0.9rem;
+  }
+
+  .section-title-web {
+    font-size: 0.8rem;
+  }
+
+  .detail-label-web {
+    font-size: 0.7rem;
+  }
+
+  .detail-value-web {
+    font-size: 0.88rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .chart-label {
+    font-size: 0.65rem;
+  }
+
+  .notes-text-web {
+    font-size: 0.85rem;
+  }
+}

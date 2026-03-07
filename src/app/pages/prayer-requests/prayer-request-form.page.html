@@ -80,13 +80,12 @@
         </div>
       }
 
-      <ion-button expand="block" type="submit" [disabled]="form.invalid || isLoading" class="ion-margin-top">
-        @if (isLoading) {
-          <ion-spinner name="crescent"></ion-spinner>
-        } @else {
-          Submit Prayer Request
-        }
-      </ion-button>
+      <div style="height:80px"></div>
+      <div class="sticky-submit-bar">
+        <button type="submit" class="sticky-btn sticky-btn-primary sticky-btn-block" [disabled]="form.invalid || isLoading">
+          @if (isLoading) { Submitting... } @else { Submit Prayer Request }
+        </button>
+      </div>
     </form>
   </ion-content>
 }

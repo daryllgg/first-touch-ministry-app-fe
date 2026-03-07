@@ -326,6 +326,17 @@
                   </div>
                 </div>
               }
+              @if (pledge.payments.length > 0) {
+                <div style="margin-top:10px">
+                  <p style="font-size:0.7rem;color:#94a3b8;text-transform:uppercase;font-weight:600;margin:0 0 4px;letter-spacing:0.04em">Recent Payments</p>
+                  @for (payment of pledge.payments.slice(0, 3); track payment.id) {
+                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:4px 0;border-bottom:1px solid #f1f5f9">
+                      <span style="color:#64748b">{{ formatDate(payment.date) }}</span>
+                      <span style="color:#059669;font-weight:600">{{ formatCurrency(payment.amount) }}</span>
+                    </div>
+                  }
+                </div>
+              }
             </div>
           }
         }

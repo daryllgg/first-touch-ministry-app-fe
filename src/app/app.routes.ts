@@ -42,6 +42,26 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/admin.page').then((m) => m.AdminPage),
   },
   {
+    path: 'admin/accounts',
+    canActivate: [authGuard, approvedGuard, roleGuard('ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/admin/admin-accounts.page').then((m) => m.AdminAccountsPage),
+  },
+  {
+    path: 'admin/prayer-requests',
+    canActivate: [authGuard, approvedGuard, roleGuard('ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/admin/admin-prayer-requests.page').then((m) => m.AdminPrayerRequestsPage),
+  },
+  {
+    path: 'admin/profile-changes',
+    canActivate: [authGuard, approvedGuard, roleGuard('ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/admin/admin-profile-changes.page').then((m) => m.AdminProfileChangesPage),
+  },
+  {
+    path: 'admin/settings',
+    canActivate: [authGuard, approvedGuard, roleGuard('ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/admin/admin-settings.page').then((m) => m.AdminSettingsPage),
+  },
+  {
     path: 'announcements',
     canActivate: [authGuard, approvedGuard],
     loadComponent: () => import('./pages/announcements/announcements-list.page').then((m) => m.AnnouncementsListPage),
@@ -102,6 +122,21 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/youth-profiles/youth-profiles-list.page').then((m) => m.YouthProfilesListPage),
   },
   {
+    path: 'youth-profiles/all',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-all-profiles.page').then((m) => m.YouthAllProfilesPage),
+  },
+  {
+    path: 'youth-profiles/stations',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-stations.page').then((m) => m.YouthStationsPage),
+  },
+  {
+    path: 'youth-profiles/analytics',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/youth-profiles/youth-analytics.page').then((m) => m.YouthAnalyticsPage),
+  },
+  {
     path: 'youth-profiles/new',
     canActivate: [authGuard, approvedGuard],
     loadComponent: () => import('./pages/youth-profiles/youth-profile-form.page').then((m) => m.YouthProfileFormPage),
@@ -125,6 +160,11 @@ export const routes: Routes = [
     path: 'pledges/programs/new',
     canActivate: [authGuard, approvedGuard, pinGuard, roleGuard('PASTOR', 'ADMIN', 'SUPER_ADMIN')],
     loadComponent: () => import('./pages/pledges/program-form.page').then((m) => m.ProgramFormPage),
+  },
+  {
+    path: 'pledges/programs/:id/add-pledgee',
+    canActivate: [authGuard, approvedGuard, pinGuard, roleGuard('PASTOR', 'ADMIN', 'SUPER_ADMIN')],
+    loadComponent: () => import('./pages/pledges/add-pledgee.page').then((m) => m.AddPledgeePage),
   },
   {
     path: 'pledges/programs/:id/edit',

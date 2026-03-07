@@ -6,12 +6,12 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonList, IonItem, IonLabel, IonBadge, IonMenuButton, IonButtons,
   IonSelect, IonSelectOption, IonChip, IonSegment, IonSegmentButton,
-  IonAvatar, IonIcon, IonSkeletonText,
+  IonAvatar, IonIcon, IonSkeletonText, IonSearchbar,
   ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { addIcons } from 'ionicons';
-import { logOutOutline, personAddOutline, trashOutline } from 'ionicons/icons';
+import { logOutOutline, personAddOutline, trashOutline, chevronUpOutline, chevronDownOutline } from 'ionicons/icons';
 import { environment } from '../../../environments/environment';
 import { User } from '../../interfaces/user.interface';
 import { AuthService } from '../../services/auth.service';
@@ -50,7 +50,7 @@ interface Station {
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonList, IonItem, IonLabel, IonBadge, IonMenuButton, IonButtons,
     IonSelect, IonSelectOption, IonChip, IonSegment, IonSegmentButton,
-    IonAvatar, IonIcon, IonSkeletonText,
+    IonAvatar, IonIcon, IonSkeletonText, IonSearchbar,
   ],
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss'],
@@ -101,7 +101,7 @@ export class AdminPage implements OnInit, ViewWillEnter {
     private toast: ToastService,
     private modal: ModalService,
   ) {
-    addIcons({ logOutOutline, personAddOutline, trashOutline });
+    addIcons({ logOutOutline, personAddOutline, trashOutline, chevronUpOutline, chevronDownOutline });
   }
 
   ngOnInit() {
@@ -478,6 +478,10 @@ export class AdminPage implements OnInit, ViewWillEnter {
         },
       });
     }
+  }
+
+  navigateTo(path: string) {
+    this.router.navigate([path]);
   }
 
   async onLogout() {

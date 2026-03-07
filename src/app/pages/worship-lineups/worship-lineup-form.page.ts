@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,12 +9,13 @@ import {
   IonDatetime, IonDatetimeButton, IonModal,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, trashOutline, calendarOutline } from 'ionicons/icons';
+import { addOutline, trashOutline, calendarOutline, musicalNotesOutline, musicalNoteOutline, peopleOutline } from 'ionicons/icons';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { InstrumentRole } from '../../interfaces/worship-lineup.interface';
 import { User } from '../../interfaces/user.interface';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../components/toast/toast.service';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -26,6 +27,7 @@ import { environment } from '../../../environments/environment';
     IonItem, IonInput, IonTextarea, IonBackButton, IonButtons,
     IonSpinner, IonSelect, IonSelectOption, IonLabel, IonIcon, IonList,
     IonDatetime, IonDatetimeButton, IonModal,
+    DatePickerComponent,
   ],
   templateUrl: './worship-lineup-form.page.html',
   styleUrls: ['./worship-lineup-form.page.scss'],
@@ -38,15 +40,12 @@ export class WorshipLineupFormPage implements OnInit {
   singerUsers: User[] = [];
   instrumentRoles: InstrumentRole[] = [];
   todayDate = new Date().toISOString().split('T')[0];
-  editingDateIndex: number | null = null;
   lineupId: string | null = null;
   isEditMode = false;
   showServiceDatePicker = false;
   showRehearsalDatePicker = false;
   private initialFormSnapshot: string = '';
 
-  @ViewChild('dateModal') dateModal!: IonModal;
-  @ViewChild('rehearsalDateModal') rehearsalDateModal!: IonModal;
 
   private instrumentRoleToUserRoles: Record<string, string[]> = {
     'Singer': ['SINGER'],
@@ -75,7 +74,7 @@ export class WorshipLineupFormPage implements OnInit {
     private router: Router,
     private toast: ToastService,
   ) {
-    addIcons({ addOutline, trashOutline, calendarOutline });
+    addIcons({ addOutline, trashOutline, calendarOutline, musicalNotesOutline, musicalNoteOutline, peopleOutline });
 
     this.form = this.fb.group({
       serviceType: ['', [Validators.required]],
@@ -193,16 +192,6 @@ export class WorshipLineupFormPage implements OnInit {
     return this.form.get('serviceType')?.value === 'SPECIAL_EVENT';
   }
 
-  addDate() {
-    this.editingDateIndex = null;
-    this.dateModal.present();
-  }
-
-  editDate(index: number) {
-    this.editingDateIndex = index;
-    this.dateModal.present();
-  }
-
   onWebDateSelect(event: any) {
     const value = event.detail.value;
     if (!value) return;
@@ -224,20 +213,22 @@ export class WorshipLineupFormPage implements OnInit {
     this.showRehearsalDatePicker = false;
   }
 
-  onRehearsalDateConfirm(event: any) {
-    const value = event.detail.value;
-    if (value) {
-      this.form.patchValue({ rehearsalDate: value.split('T')[0] });
-    }
-    this.rehearsalDateModal.dismiss();
-  }
-
-  onRehearsalDateCancel() {
-    this.rehearsalDateModal.dismiss();
-  }
-
   clearRehearsalDate() {
     this.form.patchValue({ rehearsalDate: '' });
+  }
+
+  onMobileDateAdd(dateStr: string) {
+    if (!dateStr) return;
+    const exists = this.dates.controls.some(c => c.value === dateStr);
+    if (!exists) {
+      this.dates.push(this.fb.control(dateStr, [Validators.required]));
+    }
+  }
+
+  onMobileRehearsalDateSelect(dateStr: string) {
+    if (dateStr) {
+      this.form.patchValue({ rehearsalDate: dateStr });
+    }
   }
 
   addMember() {
@@ -266,23 +257,6 @@ export class WorshipLineupFormPage implements OnInit {
 
   onRoleChange(memberGroup: AbstractControl) {
     memberGroup.get('userId')?.setValue('');
-  }
-
-  onDateConfirm(event: any) {
-    const value = event.detail.value;
-    if (value) {
-      const dateStr = value.split('T')[0];
-      if (this.editingDateIndex !== null) {
-        this.dates.at(this.editingDateIndex).setValue(dateStr);
-      } else {
-        this.dates.push(this.fb.control(dateStr, [Validators.required]));
-      }
-    }
-    this.dateModal.dismiss();
-  }
-
-  onDateCancel() {
-    this.dateModal.dismiss();
   }
 
   formatDate(dateStr: string): string {

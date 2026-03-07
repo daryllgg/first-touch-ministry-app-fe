@@ -5,7 +5,8 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
-  IonSearchbar, IonAvatar, IonLabel, IonList, IonItem, IonBadge, IonSkeletonText, ViewWillEnter,
+  IonSearchbar, IonAvatar, IonLabel, IonList, IonItem, IonBadge, IonSkeletonText,
+  IonSegment, IonSegmentButton, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, logOutOutline, personOutline } from 'ionicons/icons';
@@ -13,6 +14,7 @@ import { YouthProfilesService } from '../../services/youth-profiles.service';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../components/toast/toast.service';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 import { YouthProfile, Station } from '../../interfaces/youth-profile.interface';
 import { environment } from '../../../environments/environment';
 
@@ -24,6 +26,8 @@ import { environment } from '../../../environments/environment';
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonMenuButton, IonButtons, IonFab, IonFabButton, IonIcon,
     IonSearchbar, IonAvatar, IonLabel, IonList, IonItem, IonBadge, IonSkeletonText,
+    IonSegment, IonSegmentButton,
+    DatePickerComponent,
   ],
   templateUrl: './youth-profiles-list.page.html',
   styleUrls: ['./youth-profiles-list.page.scss'],
@@ -51,6 +55,7 @@ export class YouthProfilesListPage implements OnInit, ViewWillEnter {
   attendanceDate = '';
   attendanceEntries = new Map<string, { present: boolean; notes: string }>();
   isSubmittingAttendance = false;
+  todayDate = new Date().toISOString().split('T')[0];
 
   constructor(
     private youthProfilesService: YouthProfilesService,

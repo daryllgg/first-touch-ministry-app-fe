@@ -82,7 +82,7 @@
       <div class="attendance-toolbar">
         <div class="attendance-date-group">
           <label class="form-label">Date</label>
-          <input type="date" class="form-input attendance-date-input" [(ngModel)]="attendanceDate" />
+          <app-date-picker [value]="attendanceDate" (valueChange)="attendanceDate = $event" [max]="todayDate" placeholder="Select attendance date"></app-date-picker>
         </div>
         <label class="attendance-mark-all">
           <input type="checkbox" [checked]="allPresent" (change)="toggleAllPresent($any($event.target).checked)" />
@@ -196,75 +196,67 @@
         <ion-menu-button></ion-menu-button>
       </ion-buttons>
       <ion-title>Kids and Teens</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="onLogout()">
-          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
     </ion-toolbar>
   </ion-header>
 
   <ion-content class="ion-padding">
-    <ion-searchbar
-      [(ngModel)]="searchTerm"
-      (ionInput)="onSearchChange()"
-      placeholder="Search by name or station..."
-      debounce="300"
-    ></ion-searchbar>
-
-    @if (isLoading) {
-      <ion-list>
-        @for (i of [1,2,3,4]; track i) {
-          <ion-item>
-            <ion-avatar slot="start">
-              <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-            </ion-avatar>
-            <ion-label>
-              <ion-skeleton-text [animated]="true" style="width:60%;height:16px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:40%;height:12px;margin-top:6px"></ion-skeleton-text>
-            </ion-label>
-          </ion-item>
-        }
-      </ion-list>
-    } @else if (filteredProfiles.length === 0) {
-      <div class="empty-state">
-        <ion-icon name="person-outline"></ion-icon>
-        <p>No youth profiles found.</p>
+    <div class="hub-nav">
+      <div class="hub-card" routerLink="/youth-profiles/all">
+        <div class="hub-card__icon hub-card__icon--profiles">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="hub-card__content">
+          <span class="hub-card__title">All Profiles</span>
+          <span class="hub-card__desc">View and manage all kids and teens</span>
+        </div>
+        <div class="hub-card__chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
       </div>
-    } @else {
-      <ion-list>
-        @for (profile of filteredProfiles; track profile.id) {
-          <ion-item button [routerLink]="['/youth-profiles', profile.id]" detail>
-            <ion-avatar slot="start">
-              @if (getPhotoUrl(profile.photo)) {
-                <img [src]="getPhotoUrl(profile.photo)" [alt]="profile.firstName" />
-              } @else {
-                <div class="avatar-placeholder">
-                  <ion-icon name="person-outline"></ion-icon>
-                </div>
-              }
-            </ion-avatar>
-            <ion-label>
-              <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
-              @if (profile.nickname) {
-                <p class="nickname">"{{ profile.nickname }}"</p>
-              }
-              <p class="meta">{{ profile.station?.name || 'No Station' }} &middot; Age {{ getAge(profile.birthDate) }}</p>
-            </ion-label>
-            <ion-badge slot="end" [color]="profile.gender === 'MALE' ? 'primary' : 'tertiary'">
-              {{ profile.gender }}
-            </ion-badge>
-          </ion-item>
-        }
-      </ion-list>
-    }
 
-    @if (canCreate) {
-      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button routerLink="/youth-profiles/new">
-          <ion-icon name="add-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
-    }
+      <div class="hub-card" routerLink="/youth-profiles/stations">
+        <div class="hub-card__icon hub-card__icon--stations">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+        <div class="hub-card__content">
+          <span class="hub-card__title">Stations</span>
+          <span class="hub-card__desc">Browse kids by station group</span>
+        </div>
+        <div class="hub-card__chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      </div>
+
+      <div class="hub-card" routerLink="/youth-profiles/analytics">
+        <div class="hub-card__icon hub-card__icon--analytics">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="hub-card__content">
+          <span class="hub-card__title">Overall Analytics</span>
+          <span class="hub-card__desc">Attendance insights and trends</span>
+        </div>
+        <div class="hub-card__chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
   </ion-content>
 }

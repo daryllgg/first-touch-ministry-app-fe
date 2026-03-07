@@ -143,6 +143,13 @@
     <ion-toolbar>
       <ion-buttons slot="start"><ion-back-button defaultHref="/pledges"></ion-back-button></ion-buttons>
       <ion-title>Analytics</ion-title>
+      <ion-buttons slot="end">
+        <ion-select [(ngModel)]="selectedYear" (ionChange)="onYearChange()" interface="popover" style="max-width:100px">
+          @for (year of yearOptions; track year) {
+            <ion-select-option [value]="year">{{ year }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-buttons>
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
@@ -161,13 +168,47 @@
       }
     }
 
+    @if (programs.length > 0) {
+      <div style="margin-top:16px">
+        <ion-select [(ngModel)]="selectedProgramId" (ionChange)="onProgramChange()" interface="popover" placeholder="Select program for compliance" style="max-width:100%">
+          @for (prog of programs; track prog.id) {
+            <ion-select-option [value]="prog.id">{{ prog.name }}</ion-select-option>
+          }
+        </ion-select>
+      </div>
+    }
+
     @if (compliance) {
-      <div class="card" style="padding:16px;margin-top:16px">
-        <h3 style="margin:0 0 8px;font-size:1rem;color:var(--ion-color-secondary)">Compliance: {{ compliance.complianceRate }}%</h3>
+      <div style="margin-top:16px">
+        <h3 style="font-size:1rem;font-weight:700;color:#1e293b;margin:0 0 12px">
+          Compliance — {{ compliance.program.name }}
+          <span style="font-size:0.85rem;font-weight:400;color:#64748b"> ({{ (compliance.complianceRate * 100) | number:'1.0-0' }}%)</span>
+        </h3>
         @for (p of compliance.pledgees; track p.pledgeId) {
-          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.85rem;border-bottom:1px solid #f1f5f9">
-            <span>{{ p.firstName }} {{ p.lastName }}</span>
-            <span class="status-badge" [ngClass]="getStatusClass(p.status)" style="font-size:0.7rem">{{ getStatusLabel(p.status) }}</span>
+          <div style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:600;color:#1a3a4a;font-size:0.9rem">{{ p.firstName }} {{ p.lastName }}</span>
+              <span class="status-badge" [ngClass]="getStatusClass(p.status)" style="font-size:0.65rem">{{ getStatusLabel(p.status) }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#64748b;margin-top:4px">
+              <span>{{ p.monthsPaid }}/{{ p.monthsDue }} months</span>
+              <span>Paid: <span style="color:#059669;font-weight:600">{{ formatCurrency(p.totalPaid) }}</span></span>
+            </div>
+            @if (p.amountDue > 0) {
+              <div style="font-size:0.78rem;color:#dc2626;margin-top:2px">Due: {{ formatCurrency(p.amountDue) }}</div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (compliance && getOverduePledgees().length > 0) {
+      <div style="margin-top:16px;background:white;border-radius:12px;padding:16px;border-left:3px solid #dc2626;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
+        <h3 style="margin:0 0 10px;font-size:1rem;font-weight:700;color:#dc2626">Overdue ({{ getOverduePledgees().length }})</h3>
+        @for (p of getOverduePledgees(); track p.pledgeId) {
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #fef2f2;font-size:0.85rem">
+            <span style="color:#475569">{{ p.firstName }} {{ p.lastName }}</span>
+            <span style="color:#dc2626;font-weight:600">{{ p.monthsDue - p.monthsPaid }} months behind</span>
           </div>
         }
       </div>

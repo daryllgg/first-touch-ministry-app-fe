@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -27,7 +28,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './program-detail.page.html',
   styleUrls: ['./program-detail.page.scss'],
 })
-export class ProgramDetailPage implements OnInit {
+export class ProgramDetailPage implements OnInit, ViewWillEnter {
   isWeb = environment.platform === 'web';
   program: GivingProgram | null = null;
   pledges: Pledge[] = [];
@@ -60,6 +61,14 @@ export class ProgramDetailPage implements OnInit {
   }
 
   ngOnInit() {
+    this.loadData();
+  }
+
+  ionViewWillEnter() {
+    this.loadData();
+  }
+
+  private loadData() {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.loadProgram(id);
     this.loadPledges(id);
@@ -308,44 +317,10 @@ export class ProgramDetailPage implements OnInit {
     }
   }
 
-  // --- Mobile Add Pledgee (modal-based) ---
+  // --- Mobile Add Pledgee (separate page) ---
 
-  async addPledgeeMobile() {
-    if (this.isFaithPledge && this.hasProgramMonths) {
-      this.openAddForm();
-      return;
-    }
-    const userOptions = this.availableUsers.map(u => ({ value: u.id, label: `${u.firstName} ${u.lastName}` }));
-    if (userOptions.length === 0) {
-      this.toast.error('No available members to add');
-      return;
-    }
-    const inputs: any[] = [
-      { key: 'userId', label: 'Member', type: 'select', options: userOptions, required: true },
-      { key: 'pledgeAmount', label: this.isFaithPledge ? 'Monthly Amount' : 'Amount', type: 'text', required: true },
-    ];
-    if (this.isFaithPledge) {
-      inputs.push({ key: 'totalMonths', label: 'Total Months', type: 'text', value: '10' });
-      inputs.push({ key: 'startMonth', label: 'Start Month (YYYY-MM)', type: 'text', value: `${new Date().getFullYear()}-02` });
-    }
-    inputs.push({ key: 'notes', label: 'Notes', type: 'textarea' });
-
-    const result = await this.modal.prompt({ title: 'Add Pledgee', inputs });
-    if (!result) return;
-    this.pledgesService.createPledge({
-      userId: result['userId'],
-      programId: this.program!.id,
-      pledgeAmount: parseFloat(result['pledgeAmount']),
-      totalMonths: this.isFaithPledge ? (parseInt(result['totalMonths']) || 10) : undefined,
-      startMonth: this.isFaithPledge ? (result['startMonth'] || undefined) : undefined,
-      notes: result['notes'] || undefined,
-    }).subscribe({
-      next: () => {
-        this.toast.success('Pledgee added');
-        this.loadPledges(this.program!.id);
-      },
-      error: () => this.toast.error('Failed to add pledgee'),
-    });
+  addPledgeeMobile() {
+    this.router.navigate(['/pledges/programs', this.program!.id, 'add-pledgee']);
   }
 
   // --- Record Payment ---
@@ -398,7 +373,7 @@ export class ProgramDetailPage implements OnInit {
       title: 'Record Payment',
       inputs: [
         { key: 'amount', label: 'Amount', type: 'text', required: true, value: defaultAmount },
-        { key: 'date', label: 'Date (YYYY-MM-DD)', type: 'text', required: true, value: new Date().toISOString().split('T')[0] },
+        { key: 'date', label: 'Date', type: 'date' as const, required: true, value: new Date().toISOString().split('T')[0] },
         ...(isFP && monthOptions.length > 0 ? [
           { key: 'month', label: 'For Month', type: 'select' as const, options: monthOptions, required: true, value: defaultMonth },
         ] : []),

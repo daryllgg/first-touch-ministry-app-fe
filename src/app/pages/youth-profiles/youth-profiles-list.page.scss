@@ -80,6 +80,51 @@ ion-badge {
   }
 }
 
+/* ═══ Mobile Pill Segment ═══ */
+
+.pill-segment {
+  background: #f1f5f9;
+  border-radius: 24px;
+  padding: 4px;
+
+  &::part(indicator) {
+    display: none;
+  }
+
+  ion-segment-button {
+    --background: transparent;
+    --background-checked: #1a3a4a;
+    --color: #64748b;
+    --color-checked: #ffffff;
+    --border-radius: 20px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 6px;
+    --padding-bottom: 6px;
+    --indicator-height: 0;
+    --indicator-color: transparent;
+    --border-width: 0;
+    min-width: auto;
+    min-height: 32px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+
+    &::part(indicator) {
+      display: none;
+    }
+
+    &::part(indicator-background) {
+      display: none;
+    }
+
+    &::part(native) {
+      padding: 6px 16px;
+    }
+  }
+}
+
 /* ═══ Web Layout ═══ */
 
 .page-header-web {
@@ -482,4 +527,266 @@ ion-badge {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ═══ Mobile Attendance Mode ═══ */
+
+.mobile-attendance-header {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.mobile-attendance-date-section {
+  margin-bottom: 14px;
+
+  app-date-picker {
+    display: block;
+    margin-top: 6px;
+  }
+}
+
+.mobile-attendance-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin: 0 0 2px 0;
+}
+
+.mobile-attendance-mark-all {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #1a3a4a;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  span {
+    line-height: 1;
+  }
+}
+
+.mobile-attendance-card {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
+  transition: background 0.2s ease;
+
+  &--absent {
+    background: #fef2f2;
+    border-left: 3px solid #fca5a5;
+  }
+}
+
+.mobile-attendance-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobile-attendance-card__info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-attendance-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.mobile-attendance-card__avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.mobile-attendance-card__name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mobile-attendance-card__name {
+  font-weight: 600;
+  color: #1a3a4a;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-attendance-card__nickname {
+  font-style: italic;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.mobile-attendance-checkbox {
+  width: 24px;
+  height: 24px;
+  accent-color: #1a3a4a;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-attendance-card__reason {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #fde2e2;
+  padding-left: 52px;
+}
+
+.mobile-attendance-card__reason-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.mobile-attendance-card__reason-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+  background: white;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+
+  &:focus {
+    border-color: #1a3a4a;
+  }
+}
+
+.mobile-attendance-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  padding-bottom: 80px;
+
+  .mobile-attendance-actions__btn {
+    flex: 1;
+  }
+}
+
+/* ═══ Mobile Hub Navigation ═══ */
+
+.hub-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.hub-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: white;
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 2px 10px rgba(26, 58, 74, 0.06);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(26, 58, 74, 0.08);
+  }
+}
+
+.hub-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &--profiles {
+    background: #e8f4f8;
+    color: #1a3a4a;
+  }
+
+  &--stations {
+    background: #eef5e6;
+    color: #5a8a2a;
+  }
+
+  &--analytics {
+    background: #f0edf8;
+    color: #6b5b95;
+  }
+}
+
+.hub-card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hub-card__title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1a3a4a;
+}
+
+.hub-card__desc {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.hub-card__chevron {
+  color: #94a3b8;
+  flex-shrink: 0;
 }

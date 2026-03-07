@@ -2,12 +2,13 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { IonDatetime } from '@ionic/angular/standalone';
 import { ModalConfig, ModalInput, ModalService } from './modal.service';
 
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, IonDatetime],
   template: `
     @if (config) {
       <div class="modal-backdrop" (click)="onCancel()">
@@ -43,6 +44,25 @@ import { ModalConfig, ModalInput, ModalService } from './modal.service';
                         <option [value]="opt.value">{{ opt.label }}</option>
                       }
                     </select>
+                  </div>
+                } @else if (input.type === 'date') {
+                  <div class="modal-form-group">
+                    <label class="modal-form-label">{{ input.label }}</label>
+                    <button type="button" class="modal-form-input modal-date-trigger" (click)="toggleDatePicker(input.key)">
+                      <span [class.modal-date-placeholder]="!formValues[input.key]">
+                        {{ formValues[input.key] ? formatDateValue(formValues[input.key]) : (input.placeholder || 'Select date') }}
+                      </span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </button>
+                    @if (openDateKey === input.key) {
+                      <div class="modal-date-inline">
+                        <ion-datetime
+                          presentation="date"
+                          [value]="formValues[input.key]"
+                          (ionChange)="onModalDateSelect(input.key, $event)"
+                        ></ion-datetime>
+                      </div>
+                    }
                   </div>
                 } @else if (input.type === 'textarea') {
                   <div class="modal-form-group">
@@ -172,6 +192,28 @@ import { ModalConfig, ModalInput, ModalService } from './modal.service';
       min-height: 80px;
     }
 
+    .modal-date-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .modal-date-placeholder {
+      color: #94a3b8;
+    }
+
+    .modal-date-inline {
+      margin-top: 8px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .modal-date-inline ion-datetime {
+      --background: white;
+    }
+
     .modal-checkbox-label {
       display: flex;
       align-items: center;
@@ -274,6 +316,7 @@ import { ModalConfig, ModalInput, ModalService } from './modal.service';
 export class ModalComponent implements OnInit, OnDestroy {
   config: ModalConfig | null = null;
   formValues: Record<string, any> = {};
+  openDateKey: string | null = null;
   private sub?: Subscription;
 
   constructor(private modalService: ModalService) {}
@@ -314,6 +357,24 @@ export class ModalComponent implements OnInit, OnDestroy {
         if (input.type === 'checkbox') return true;
         return val !== undefined && val !== null && String(val).trim() !== '';
       });
+  }
+
+  toggleDatePicker(key: string) {
+    this.openDateKey = this.openDateKey === key ? null : key;
+  }
+
+  onModalDateSelect(key: string, event: any) {
+    const value = event.detail.value;
+    if (value) {
+      this.formValues[key] = value.split('T')[0];
+      this.openDateKey = null;
+    }
+  }
+
+  formatDateValue(dateStr: string): string {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
 
   onConfirm() {

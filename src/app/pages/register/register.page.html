@@ -237,15 +237,31 @@
   <ion-content>
     <div class="wizard-mobile">
       <!-- Progress indicator -->
-      <div class="wizard-progress-mobile">
+      <div class="wizard-steps-mobile">
         @for (step of [1,2,3]; track step) {
-          <div class="step-dot-mobile"
-            [class.active]="currentStep === step"
-            [class.completed]="currentStep > step">
-          </div>
-          @if (step < 3) {
-            <div class="step-line-mobile" [class.completed]="currentStep > step"></div>
+          @if (step > 1) {
+            <div class="step-connector-mobile" [class.completed]="currentStep > step - 1"></div>
           }
+          <div class="step-item-mobile">
+            <div class="step-circle-mobile"
+              [class.active]="currentStep === step"
+              [class.completed]="currentStep > step">
+              @if (currentStep > step) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                {{ step }}
+              }
+            </div>
+            <span class="step-label-mobile"
+              [class.active]="currentStep === step"
+              [class.completed]="currentStep > step">
+              @switch (step) {
+                @case (1) { Personal Info }
+                @case (2) { Account Setup }
+                @case (3) { Church Details }
+              }
+            </span>
+          </div>
         }
       </div>
 
@@ -266,22 +282,15 @@
             <ion-item>
               <ion-input type="text" formControlName="lastName" label="Last Name *" labelPlacement="floating"></ion-input>
             </ion-item>
-            <ion-item button="true" (click)="toggleDatePicker('birthday')">
-              <ion-label>
-                <p style="font-size:0.75rem;color:#94a3b8;margin:0 0 2px">Birthday <span style="color:#ef4444">*</span></p>
-                <h2 style="font-size:0.95rem;margin:0">{{ registerForm.get('birthday')?.value ? formatDisplayDate(registerForm.get('birthday')?.value) : 'Select date' }}</h2>
-              </ion-label>
-            </ion-item>
-            @if (showBirthdayPicker) {
-              <div class="date-picker-mobile">
-                <ion-datetime
-                  presentation="date"
-                  [value]="registerForm.get('birthday')?.value || ''"
-                  (ionChange)="onDateChange($event, 'birthday')"
-                  [max]="'2020-12-31'"
-                ></ion-datetime>
-              </div>
-            }
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">Birthday <span style="color:#ef4444">*</span></label>
+              <app-date-picker
+                [value]="registerForm.get('birthday')?.value || ''"
+                placeholder="Select birthday"
+                max="2020-12-31"
+                (valueChange)="onDatePickerChange('birthday', $event)"
+              ></app-date-picker>
+            </div>
             <ion-item>
               <ion-select formControlName="gender" label="Gender *" labelPlacement="floating" interface="popover">
                 <ion-select-option value="MALE">Male</ion-select-option>
@@ -303,14 +312,20 @@
             <ion-item>
               <ion-input type="email" formControlName="email" label="Email" labelPlacement="floating"></ion-input>
             </ion-item>
-            <ion-item>
+            <ion-item class="password-item">
               <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password" label="Password *" labelPlacement="floating"></ion-input>
+              <ion-button fill="clear" slot="end" (click)="showPassword = !showPassword" class="password-eye-btn" type="button">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+              </ion-button>
             </ion-item>
             @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
               <p class="error-text">Password must be at least 8 characters</p>
             }
-            <ion-item>
+            <ion-item class="password-item">
               <ion-input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" label="Confirm Password *" labelPlacement="floating"></ion-input>
+              <ion-button fill="clear" slot="end" (click)="showConfirmPassword = !showConfirmPassword" class="password-eye-btn" type="button">
+                <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+              </ion-button>
             </ion-item>
             @if (registerForm.get('confirmPassword')?.touched && registerForm.hasError('passwordMismatch')) {
               <p class="error-text">Passwords do not match</p>
@@ -324,36 +339,24 @@
             <ion-item>
               <ion-input type="url" formControlName="facebookLink" label="Facebook Link" labelPlacement="floating"></ion-input>
             </ion-item>
-            <ion-item button="true" (click)="toggleDatePicker('firstDate')">
-              <ion-label>
-                <p style="font-size:0.75rem;color:#94a3b8;margin:0 0 2px">First Date Attended Church</p>
-                <h2 style="font-size:0.95rem;margin:0">{{ registerForm.get('firstDateAttendedChurch')?.value ? formatDisplayDate(registerForm.get('firstDateAttendedChurch')?.value) : 'Select date' }}</h2>
-              </ion-label>
-            </ion-item>
-            @if (showFirstDatePicker) {
-              <div class="date-picker-mobile">
-                <ion-datetime
-                  presentation="date"
-                  [value]="registerForm.get('firstDateAttendedChurch')?.value || ''"
-                  (ionChange)="onDateChange($event, 'firstDateAttendedChurch')"
-                ></ion-datetime>
-              </div>
-            }
-            <ion-item button="true" (click)="toggleDatePicker('baptized')">
-              <ion-label>
-                <p style="font-size:0.75rem;color:#94a3b8;margin:0 0 2px">Date Baptized</p>
-                <h2 style="font-size:0.95rem;margin:0">{{ registerForm.get('dateBaptized')?.value ? formatDisplayDate(registerForm.get('dateBaptized')?.value) : 'Select date' }}</h2>
-              </ion-label>
-            </ion-item>
-            @if (showBaptizedPicker) {
-              <div class="date-picker-mobile">
-                <ion-datetime
-                  presentation="date"
-                  [value]="registerForm.get('dateBaptized')?.value || ''"
-                  (ionChange)="onDateChange($event, 'dateBaptized')"
-                ></ion-datetime>
-              </div>
-            }
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">First Date Attended Church</label>
+              <app-date-picker
+                [value]="registerForm.get('firstDateAttendedChurch')?.value || ''"
+                placeholder="Select date"
+                [max]="todayDate"
+                (valueChange)="onDatePickerChange('firstDateAttendedChurch', $event)"
+              ></app-date-picker>
+            </div>
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">Date Baptized</label>
+              <app-date-picker
+                [value]="registerForm.get('dateBaptized')?.value || ''"
+                placeholder="Select date"
+                [max]="todayDate"
+                (valueChange)="onDatePickerChange('dateBaptized', $event)"
+              ></app-date-picker>
+            </div>
           }
         }
       </form>

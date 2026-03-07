@@ -183,54 +183,168 @@
   <ion-header>
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-back-button defaultHref="/home"></ion-back-button>
+        @if (showForm) {
+          <ion-button (click)="cancelForm()">Cancel</ion-button>
+        } @else {
+          <ion-back-button defaultHref="/home"></ion-back-button>
+        }
       </ion-buttons>
-      <ion-title>Articles</ion-title>
+      <ion-title>{{ showForm ? (editingId ? 'Edit Article' : 'New Article') : 'Articles' }}</ion-title>
+      @if (showForm) {
+        <ion-buttons slot="end">
+          <ion-button (click)="showPreview = !showPreview" fill="clear">
+            {{ showPreview ? 'Edit' : 'Preview' }}
+          </ion-button>
+        </ion-buttons>
+      }
     </ion-toolbar>
   </ion-header>
 
   <ion-content class="ion-padding">
-    @if (isLoading) {
-      @for (i of [1,2,3]; track i) {
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:12px;background:white;border-radius:10px;box-shadow:0 1px 6px rgba(26,58,74,0.06)">
-          <ion-skeleton-text [animated]="true" style="width:50px;height:50px;border-radius:8px"></ion-skeleton-text>
-          <div style="flex:1">
-            <ion-skeleton-text [animated]="true" style="width:60%;height:16px"></ion-skeleton-text>
-            <ion-skeleton-text [animated]="true" style="width:80%;height:12px;margin-top:6px"></ion-skeleton-text>
-          </div>
-        </div>
-      }
-    } @else if (articles.length === 0) {
-      <div style="text-align:center;padding:48px 16px;color:var(--ion-color-medium)">
-        <ion-icon name="newspaper-outline" style="font-size:64px;opacity:0.4"></ion-icon>
-        <p>No articles yet.</p>
-      </div>
-    } @else {
-      @for (article of articles; track article.id) {
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;padding:14px;background:white;border-radius:10px;box-shadow:0 1px 6px rgba(26,58,74,0.06)">
-          @if (article.images && article.images.length > 0) {
-            <img [src]="getImageUrl(article.images[0])" style="width:50px;height:50px;border-radius:8px;object-fit:cover" />
-          }
-          <div style="flex:1;min-width:0" [routerLink]="['/articles', article.id]">
-            <div style="display:flex;align-items:center;gap:8px">
-              <h3 style="font-size:0.95rem;font-weight:600;color:var(--ion-color-secondary);margin:0 0 4px">{{ article.title }}</h3>
-              @if (article.status === 'DRAFT') {
-                <span style="font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:4px;background:#fef3c7;color:#92400e;letter-spacing:0.5px">DRAFT</span>
+    @if (showForm) {
+      <!-- ═══ Mobile Form ═══ -->
+      @if (showPreview) {
+        <!-- Preview Pane -->
+        <div class="mobile-preview-pane">
+          <h1 class="mobile-preview-title">{{ title || 'Untitled' }}</h1>
+          <div class="mobile-preview-caption">{{ caption || 'No content yet...' }}</div>
+          @if (existingImages.length > 0 || imagePreviewUrls.length > 0) {
+            <div class="mobile-preview-images">
+              @for (img of existingImages; track img) {
+                <img [src]="getExistingImageUrl(img)" alt="Image" class="mobile-preview-image" />
+              }
+              @for (url of imagePreviewUrls; track url) {
+                <img [src]="url" alt="Preview" class="mobile-preview-image" />
               }
             </div>
-            <p style="font-size:0.82rem;color:#94a3b8;margin:0">{{ article.createdAt | date:'MMM d, y' }}</p>
+          }
+        </div>
+      } @else {
+        <!-- Edit Form -->
+        <div class="mobile-form-group">
+          <label class="mobile-form-label">Title *</label>
+          <input class="mobile-form-input" [(ngModel)]="title" placeholder="Article title" />
+        </div>
+
+        <div class="mobile-form-group">
+          <label class="mobile-form-label">Caption *</label>
+          <div class="mobile-mention-wrapper">
+            <textarea class="mobile-form-textarea" [(ngModel)]="caption" (input)="onCaptionInput($event)" placeholder="Write the article content... Use @ to mention users" rows="6"></textarea>
+            @if (showMentionDropdown && filteredMentionUsers.length > 0) {
+              <div class="mobile-mention-dropdown">
+                @for (user of filteredMentionUsers; track user.id) {
+                  <div class="mobile-mention-item" (click)="selectInlineMention(user)">{{ user.firstName }} {{ user.lastName }}</div>
+                }
+              </div>
+            }
           </div>
-          <ion-button fill="clear" color="danger" (click)="deleteArticle(article)">
-            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-          </ion-button>
+        </div>
+
+        @if (mentionedUserIds.length > 0) {
+          <div class="mobile-form-group">
+            <label class="mobile-form-label">Mentioned Users</label>
+            <div class="mobile-mention-tags">
+              @for (uid of mentionedUserIds; track uid) {
+                @if (getMentionedUser(uid); as user) {
+                  <span class="mobile-mention-tag">
+                    {{ user.firstName }} {{ user.lastName }}
+                    <button (click)="removeMention(uid)">&times;</button>
+                  </span>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Existing images (edit mode) -->
+        @if (editingId && existingImages.length > 0) {
+          <div class="mobile-form-group">
+            <label class="mobile-form-label">Current Images</label>
+            <div class="mobile-existing-images">
+              @for (img of existingImages; track img; let i = $index) {
+                <div class="mobile-existing-image-item">
+                  <img [src]="getExistingImageUrl(img)" alt="Existing image" />
+                  <button type="button" class="mobile-image-remove-btn" (click)="removeExistingImage(i)">&times;</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="mobile-form-group">
+          <label class="mobile-form-label">{{ editingId ? 'Add More Images' : 'Images' }}</label>
+          <input type="file" accept="image/*" multiple (change)="onFileSelect($event)" class="mobile-form-input" />
+          @if (imagePreviewUrls.length > 0) {
+            <div class="mobile-image-previews">
+              @for (url of imagePreviewUrls; track url; let i = $index) {
+                <div class="mobile-image-preview-item">
+                  <img [src]="url" alt="Preview" />
+                  <button type="button" class="mobile-image-remove-btn" (click)="removeImage(i)">&times;</button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div style="height:80px"></div>
+        <div class="sticky-submit-bar">
+          <div style="display:flex;gap:8px">
+            <button type="button" class="sticky-btn sticky-btn-secondary" [disabled]="isSubmitting" (click)="saveDraft()">
+              @if (isSubmitting) { Saving... } @else { Save as Draft }
+            </button>
+            <button type="button" class="sticky-btn sticky-btn-primary" [disabled]="isSubmitting || !title" (click)="publishArticle()">
+              @if (isSubmitting) { Publishing... } @else { {{ editingId ? 'Update & Publish' : 'Publish' }} }
+            </button>
+          </div>
         </div>
       }
-    }
+    } @else {
+      <!-- ═══ Mobile Article List ═══ -->
+      @if (isLoading) {
+        @for (i of [1,2,3]; track i) {
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;padding:12px;background:white;border-radius:10px;box-shadow:0 1px 6px rgba(26,58,74,0.06)">
+            <ion-skeleton-text [animated]="true" style="width:50px;height:50px;border-radius:8px"></ion-skeleton-text>
+            <div style="flex:1">
+              <ion-skeleton-text [animated]="true" style="width:60%;height:16px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:80%;height:12px;margin-top:6px"></ion-skeleton-text>
+            </div>
+          </div>
+        }
+      } @else if (articles.length === 0) {
+        <div style="text-align:center;padding:48px 16px;color:var(--ion-color-medium)">
+          <ion-icon name="newspaper-outline" style="font-size:64px;opacity:0.4"></ion-icon>
+          <p>No articles yet.</p>
+        </div>
+      } @else {
+        @for (article of articles; track article.id) {
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;padding:14px;background:white;border-radius:10px;box-shadow:0 1px 6px rgba(26,58,74,0.06)">
+            @if (article.images && article.images.length > 0) {
+              <img [src]="getImageUrl(article.images[0])" style="width:50px;height:50px;border-radius:8px;object-fit:cover" />
+            }
+            <div style="flex:1;min-width:0" [routerLink]="['/articles', article.id]">
+              <div style="display:flex;align-items:center;gap:8px">
+                <h3 style="font-size:0.95rem;font-weight:600;color:var(--ion-color-secondary);margin:0 0 4px">{{ article.title }}</h3>
+                @if (article.status === 'DRAFT') {
+                  <span style="font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:4px;background:#fef3c7;color:#92400e;letter-spacing:0.5px">DRAFT</span>
+                }
+              </div>
+              <p style="font-size:0.82rem;color:#94a3b8;margin:0">{{ article.createdAt | date:'MMM d, y' }}</p>
+            </div>
+            <ion-button fill="clear" size="small" (click)="openEditForm(article)">
+              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" color="danger" size="small" (click)="deleteArticle(article)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        }
+      }
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-      <ion-fab-button (click)="openNewForm()">
-        <ion-icon name="add-outline"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="bottom:80px">
+        <ion-fab-button (click)="openNewForm()">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
   </ion-content>
 }

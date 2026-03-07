@@ -10,7 +10,7 @@ import {
   IonSkeletonText, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline } from 'ionicons/icons';
+import { checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline, linkOutline, timeOutline } from 'ionicons/icons';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { AuthService } from '../../services/auth.service';
 import { WorshipLineup, SubstitutionRequest } from '../../interfaces/worship-lineup.interface';
@@ -53,7 +53,7 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     private toast: ToastService,
     private modal: ModalService,
   ) {
-    addIcons({ checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline });
+    addIcons({ checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline, linkOutline, timeOutline });
   }
 
   ngOnInit() {

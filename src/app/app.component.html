@@ -1,13 +1,18 @@
+<!-- Modal available on all platforms -->
+<app-modal></app-modal>
+
 @if (isWeb) {
-  <!-- Toast + Modal always available on web -->
+  <!-- Toast always available on web -->
   <app-toast-container></app-toast-container>
-  <app-modal></app-modal>
   <!-- ═══ WEB LAYOUT: Sidebar + Top Bar ═══ -->
   @if (showWebShell && currentUser) {
     <div class="web-layout">
       <!-- Top Bar -->
       <header class="topbar">
         <div class="topbar-left">
+          <button class="hamburger-btn" (click)="sidebarOpen = !sidebarOpen">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <img src="assets/logos/FTM Logomark.png" alt="FTM" class="topbar-logo" />
           <span class="topbar-title">First Touch Ministry</span>
         </div>
@@ -72,7 +77,10 @@
 
       <!-- Sidebar + Content -->
       <div class="web-body">
-        <nav class="sidebar">
+        @if (sidebarOpen) {
+          <div class="sidebar-backdrop" (click)="sidebarOpen = false"></div>
+        }
+        <nav class="sidebar" [class.sidebar-open]="sidebarOpen">
           <div class="sidebar-nav">
             <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-link">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -216,6 +224,12 @@
             </ion-menu-toggle>
             @if (isAdmin) {
               <ion-menu-toggle auto-hide="false">
+                <ion-item button routerLink="/articles/manage" routerLinkActive="active-menu-item">
+                  <ion-icon name="newspaper-outline" slot="start"></ion-icon>
+                  <ion-label>Articles</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+              <ion-menu-toggle auto-hide="false">
                 <ion-item button routerLink="/admin" routerLinkActive="active-menu-item">
                   <ion-icon name="settings-outline" slot="start"></ion-icon>
                   <ion-label>Admin Panel</ion-label>
@@ -223,7 +237,7 @@
               </ion-menu-toggle>
             }
             <ion-menu-toggle auto-hide="false">
-              <ion-item button (click)="logout()" class="logout-item">
+              <ion-item button (click)="confirmLogout()" class="logout-item">
                 <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
                 <ion-label color="danger">Logout</ion-label>
               </ion-item>
@@ -247,14 +261,6 @@
             <span class="tab-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
           }
           <span>Notifications</span>
-        </a>
-        <a routerLink="/profile" class="tab-item" [class.active]="activeTab === '/profile'">
-          <ion-icon name="person-circle-outline"></ion-icon>
-          <span>My Profile</span>
-        </a>
-        <a (click)="openMenu()" class="tab-item">
-          <ion-icon name="menu-outline"></ion-icon>
-          <span>More</span>
         </a>
       </div>
     }

@@ -57,85 +57,38 @@
 
         <div class="form-group">
           <label class="form-label">Date Conducted</label>
-          <div class="date-picker-wrapper">
-            <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('conducted', $event)">
-              <span [class.placeholder]="!form.get('conductedDate')?.value">
-                {{ form.get('conductedDate')?.value ? formatDisplayDate(form.get('conductedDate')!.value) : 'Select date' }}
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </button>
-            @if (showConductedDatePicker) {
-              <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
-                <ion-datetime
-                  presentation="date"
-                  [value]="form.get('conductedDate')?.value || ''"
-                  (ionChange)="onDateChange($event, 'conductedDate')"
-                ></ion-datetime>
-              </div>
-            }
-          </div>
+          <app-date-picker
+            [value]="form.get('conductedDate')?.value || ''"
+            placeholder="Select date conducted"
+            (valueChange)="onDatePickerChange($event, 'conductedDate')"
+          ></app-date-picker>
         </div>
       } @else {
         <div class="form-row form-row-3">
           <div class="form-group">
             <label class="form-label">Start Date</label>
-            <div class="date-picker-wrapper">
-              <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('start', $event)">
-                <span [class.placeholder]="!form.get('startDate')?.value">
-                  {{ form.get('startDate')?.value ? formatDisplayDate(form.get('startDate')!.value) : 'Select date' }}
-                </span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </button>
-              @if (showStartDatePicker) {
-                <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
-                  <ion-datetime
-                    presentation="date"
-                    [value]="form.get('startDate')?.value || ''"
-                    (ionChange)="onDateChange($event, 'startDate')"
-                  ></ion-datetime>
-                </div>
-              }
-            </div>
+            <app-date-picker
+              [value]="form.get('startDate')?.value || ''"
+              placeholder="Select start date"
+              (valueChange)="onDatePickerChange($event, 'startDate')"
+            ></app-date-picker>
           </div>
           <div class="form-group">
             <label class="form-label">End Date</label>
-            <div class="date-picker-wrapper">
-              <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('end', $event)">
-                <span [class.placeholder]="!form.get('endDate')?.value">
-                  {{ form.get('endDate')?.value ? formatDisplayDate(form.get('endDate')!.value) : 'Select date' }}
-                </span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </button>
-              @if (showEndDatePicker) {
-                <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
-                  <ion-datetime
-                    presentation="date"
-                    [value]="form.get('endDate')?.value || ''"
-                    (ionChange)="onDateChange($event, 'endDate')"
-                  ></ion-datetime>
-                </div>
-              }
-            </div>
+            <app-date-picker
+              [value]="form.get('endDate')?.value || ''"
+              placeholder="Select end date"
+              [min]="form.get('startDate')?.value || ''"
+              (valueChange)="onDatePickerChange($event, 'endDate')"
+            ></app-date-picker>
           </div>
           <div class="form-group">
             <label class="form-label">Date Conducted</label>
-            <div class="date-picker-wrapper">
-              <button type="button" class="date-picker-trigger" (click)="toggleDatePicker('conducted', $event)">
-                <span [class.placeholder]="!form.get('conductedDate')?.value">
-                  {{ form.get('conductedDate')?.value ? formatDisplayDate(form.get('conductedDate')!.value) : 'Select date' }}
-                </span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </button>
-              @if (showConductedDatePicker) {
-                <div class="date-picker-dropdown" (click)="$event.stopPropagation()">
-                  <ion-datetime
-                    presentation="date"
-                    [value]="form.get('conductedDate')?.value || ''"
-                    (ionChange)="onDateChange($event, 'conductedDate')"
-                  ></ion-datetime>
-                </div>
-              }
-            </div>
+            <app-date-picker
+              [value]="form.get('conductedDate')?.value || ''"
+              placeholder="Select date conducted"
+              (valueChange)="onDatePickerChange($event, 'conductedDate')"
+            ></app-date-picker>
           </div>
         </div>
 
@@ -164,62 +117,123 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-content class="ion-padding">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label class="form-label">Program Name</label>
-        <input type="text" class="form-input" formControlName="name" placeholder="e.g., Faith Pledge 2026" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Type</label>
-        <select class="form-select" formControlName="type">
-          <option value="" disabled>Select type</option>
-          @for (opt of typeOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
-          }
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" formControlName="description" rows="3"></textarea>
-      </div>
-      @if (isFaithPledge) {
-        <div class="form-group">
-          <label class="form-label">Year</label>
-          <select class="form-select" [(ngModel)]="selectedYear" [ngModelOptions]="{standalone: true}">
-            @for (y of yearOptions; track y) {
-              <option [ngValue]="y">{{ y }}</option>
-            }
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Program Months</label>
-          <div class="month-checkboxes-mobile">
-            @for (label of monthLabels; track label; let i = $index) {
-              <label class="month-check-mobile" [class.checked]="monthChecks[i]">
-                <input type="checkbox" [(ngModel)]="monthChecks[i]" [ngModelOptions]="{standalone: true}" />
-                <span>{{ label.substring(0, 3) }}</span>
-              </label>
-            }
+  <ion-content>
+    <div class="mobile-form-container">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Program Details Card -->
+        <div class="mobile-card">
+          <div class="mobile-card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Program Details</span>
           </div>
+
+          <ion-item>
+            <ion-input type="text" formControlName="name" label="Program Name *" labelPlacement="floating" placeholder="e.g., Faith Pledge 2026"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-select formControlName="type" label="Type *" labelPlacement="floating" interface="popover">
+              @for (opt of typeOptions; track opt.value) {
+                <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-textarea formControlName="description" label="Description" labelPlacement="floating" rows="3" placeholder="Optional description"></ion-textarea>
+          </ion-item>
         </div>
-      } @else {
-        <div class="form-group">
-          <label class="form-label">Start Date</label>
-          <input type="date" class="form-input" formControlName="startDate" />
+
+        <!-- Schedule Card -->
+        <div class="mobile-card">
+          <div class="mobile-card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Schedule</span>
+          </div>
+
+          @if (isFaithPledge) {
+            <ion-item>
+              <ion-select [(ngModel)]="selectedYear" [ngModelOptions]="{standalone: true}" label="Year" labelPlacement="floating" interface="popover">
+                @for (y of yearOptions; track y) {
+                  <ion-select-option [value]="y">{{ y }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+
+            <div class="mobile-months-section">
+              <div class="mobile-months-label">
+                <span>Program Months <span class="required-star">*</span></span>
+                <label class="select-all-toggle">
+                  <input type="checkbox" [checked]="allMonthsChecked" (change)="toggleAllMonths($event)" />
+                  <span>All</span>
+                </label>
+              </div>
+              <div class="month-grid-mobile">
+                @for (label of monthLabels; track label; let i = $index) {
+                  <label class="month-chip" [class.checked]="monthChecks[i]">
+                    <input type="checkbox" [(ngModel)]="monthChecks[i]" [ngModelOptions]="{standalone: true}" hidden />
+                    <span>{{ label.substring(0, 3) }}</span>
+                  </label>
+                }
+              </div>
+              @if (selectedMonths.length > 0) {
+                <p class="months-info-mobile">{{ selectedMonths.length }} month{{ selectedMonths.length > 1 ? 's' : '' }} selected</p>
+              }
+            </div>
+
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">Date Conducted</label>
+              <app-date-picker
+                [value]="form.get('conductedDate')?.value || ''"
+                placeholder="Select date conducted"
+                (valueChange)="onDatePickerChange($event, 'conductedDate')"
+              ></app-date-picker>
+            </div>
+          } @else {
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">Start Date</label>
+              <app-date-picker
+                [value]="form.get('startDate')?.value || ''"
+                placeholder="Select start date"
+                (valueChange)="onDatePickerChange($event, 'startDate')"
+              ></app-date-picker>
+            </div>
+
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">End Date</label>
+              <app-date-picker
+                [value]="form.get('endDate')?.value || ''"
+                placeholder="Select end date"
+                [min]="form.get('startDate')?.value || ''"
+                (valueChange)="onDatePickerChange($event, 'endDate')"
+              ></app-date-picker>
+            </div>
+
+            @if (dateError) {
+              <p class="date-error-mobile">{{ dateError }}</p>
+            }
+
+            <div class="mobile-date-field">
+              <label class="mobile-date-label">Date Conducted</label>
+              <app-date-picker
+                [value]="form.get('conductedDate')?.value || ''"
+                placeholder="Select date conducted"
+                (valueChange)="onDatePickerChange($event, 'conductedDate')"
+              ></app-date-picker>
+            </div>
+          }
         </div>
-        <div class="form-group">
-          <label class="form-label">End Date</label>
-          <input type="date" class="form-input" formControlName="endDate" />
-        </div>
-      }
-      <div class="form-group">
-        <label class="form-label">Date Conducted</label>
-        <input type="date" class="form-input" formControlName="conductedDate" />
+
+        <div style="height:80px"></div>
+      </form>
+    </div>
+
+    <div class="sticky-submit-bar">
+      <div style="display:flex;gap:8px">
+        <button type="button" class="sticky-btn sticky-btn-primary" [disabled]="form.invalid || isLoading" (click)="onSubmit()" style="flex:1">
+          @if (isLoading) { Submitting... } @else { {{ isEditMode ? 'Update Program' : 'Create Program' }} }
+        </button>
       </div>
-      <ion-button expand="block" type="submit" [disabled]="form.invalid || isLoading">
-        @if (isLoading) { Saving... } @else { {{ isEditMode ? 'Update' : 'Create Program' }} }
-      </ion-button>
-    </form>
+    </div>
   </ion-content>
 }

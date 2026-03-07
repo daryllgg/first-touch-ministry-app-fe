@@ -97,6 +97,43 @@ ion-datetime {
   margin-bottom: 32px;
 }
 
+.sticky-submit-bar {
+  position: fixed;
+  bottom: 64px;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.sticky-btn {
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.sticky-btn:active { opacity: 0.8; }
+.sticky-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.sticky-btn-primary {
+  background: #1a3a4a;
+  color: white;
+}
+
+.sticky-btn-outline {
+  background: white;
+  color: #1a3a4a;
+  border: 1.5px solid #e2e8f0;
+}
+
 /* ═══ Web Layout ═══ */
 
 .form-container-web {
@@ -324,5 +361,60 @@ ion-datetime {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ═══ Responsive ═══ */
+
+@media (max-width: 768px) {
+  .form-container-web {
+    max-width: 100%;
+    padding: 16px 8px;
+  }
+
+  .card {
+    padding: 18px 16px;
+  }
+
+  .form-row-web {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .photo-section-web .photo-buttons-web {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  .form-title {
+    font-size: 1.1rem;
+  }
+
+  .section-label-web {
+    font-size: 0.8rem;
+  }
+
+  .form-label {
+    font-size: 0.8rem;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select {
+    font-size: 0.88rem;
+    padding: 9px 12px;
+  }
+
+  .contact-input-web .contact-prefix-web {
+    font-size: 0.88rem;
+    padding: 9px 6px 9px 12px;
+  }
+
+  .btn {
+    font-size: 0.82rem;
+    padding: 9px 16px;
   }
 }

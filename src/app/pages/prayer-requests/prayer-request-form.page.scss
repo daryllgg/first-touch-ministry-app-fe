@@ -143,3 +143,41 @@
     transform: rotate(360deg);
   }
 }
+
+// ─── Mobile Sticky Submit Bar ───
+
+.sticky-submit-bar {
+  position: fixed;
+  bottom: 64px;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.sticky-btn {
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:active { opacity: 0.8; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.sticky-btn-primary {
+  background: #1a3a4a;
+  color: white;
+}
+
+.sticky-btn-block {
+  display: block;
+  width: 100%;
+}

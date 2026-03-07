@@ -389,223 +389,89 @@
     }
   }
 } @else {
-  <!-- Mobile Layout (Ionic) -->
+  <!-- Mobile Layout — Navigation Hub -->
   <ion-header>
     <ion-toolbar>
       <ion-buttons slot="start">
         <ion-menu-button></ion-menu-button>
       </ion-buttons>
       <ion-title>Admin Panel</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="onLogout()">
-          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-    <ion-toolbar>
-      <ion-segment [(ngModel)]="activeTab">
-        <ion-segment-button value="accounts">Accounts</ion-segment-button>
-        <ion-segment-button value="prayer">Prayer Requests</ion-segment-button>
-        <ion-segment-button value="profile">Profile Changes</ion-segment-button>
-        <ion-segment-button value="settings">Settings</ion-segment-button>
-      </ion-segment>
     </ion-toolbar>
   </ion-header>
 
-  <ion-content class="ion-padding">
-    @if (isLoading) {
-      <ion-list>
+  <ion-content>
+    <div class="admin-hub">
+
+      @if (isLoading) {
         @for (i of [1,2,3,4]; track i) {
-          <ion-item>
-            <ion-avatar slot="start">
-              <ion-skeleton-text [animated]="true" style="width:100%;height:100%"></ion-skeleton-text>
-            </ion-avatar>
-            <ion-label>
-              <ion-skeleton-text [animated]="true" style="width:50%;height:16px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:70%;height:12px;margin-top:6px"></ion-skeleton-text>
-            </ion-label>
-          </ion-item>
+          <div class="hub-card-skeleton">
+            <div class="skeleton skeleton-icon-circle"></div>
+            <div style="flex:1">
+              <div class="skeleton skeleton-text" style="width:50%"></div>
+              <div class="skeleton skeleton-text-sm" style="width:70%;margin-top:6px"></div>
+            </div>
+          </div>
         }
-      </ion-list>
-    } @else {
-    <!-- ACCOUNTS TAB -->
-    @if (activeTab === 'accounts') {
-      <ion-segment [(ngModel)]="accountsSubTab" style="margin-bottom: 16px;">
-        <ion-segment-button value="all">All Users</ion-segment-button>
-        <ion-segment-button value="pending">Pending ({{ pendingUsers.length }})</ion-segment-button>
-        <ion-segment-button value="declined">Declined ({{ declinedUsers.length }})</ion-segment-button>
-      </ion-segment>
+      } @else {
 
-      @if (accountsSubTab === 'all') {
-        <div class="section-header">
-          <h2>All Users</h2>
-          <ion-button size="small" (click)="addUser()">
-            <ion-icon name="person-add-outline" slot="start"></ion-icon>
-            Add User
-          </ion-button>
+      <!-- Accounts -->
+      <div class="hub-card" (click)="navigateTo('/admin/accounts')">
+        <div class="hub-icon-wrapper hub-icon-accounts">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <ion-list>
-          @for (user of allUsers; track user.id) {
-            <ion-item>
-              <ion-avatar slot="start">
-                @if (user.profilePicture) {
-                  <img [src]="apiUrl + '/uploads/' + user.profilePicture" alt="" />
-                } @else {
-                  <div class="avatar-placeholder">{{ getInitials(user) }}</div>
-                }
-              </ion-avatar>
-              <ion-label>
-                <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-                <p>{{ user.email }}</p>
-                <p>
-                  @for (role of user.roles; track role.id) {
-                    <ion-badge color="medium" style="margin-right: 4px;">{{ role.name }}</ion-badge>
-                  }
-                </p>
-              </ion-label>
-              <ion-select slot="end" placeholder="Add Role" interface="popover"
-                (ionChange)="assignRole(user.id, $event.detail.value)">
-                @for (role of getRolesForUser(user); track role) {
-                  <ion-select-option [value]="role">{{ role }}</ion-select-option>
-                }
-              </ion-select>
-              <ion-button slot="end" fill="clear" color="danger" (click)="removeUser(user)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-            </ion-item>
-          }
-        </ion-list>
-      }
-
-      @if (accountsSubTab === 'pending') {
-        @if (pendingUsers.length === 0) {
-          <p class="tab-empty">No pending approvals.</p>
-        } @else {
-          <ion-list>
-            @for (user of pendingUsers; track user.id) {
-              <ion-item>
-                <ion-label>
-                  <h3>{{ user.firstName }} {{ user.middleName || '' }} {{ user.lastName }}</h3>
-                  <p>{{ user.email }}</p>
-                  <p class="meta">{{ user.contactNumber || '—' }}</p>
-                </ion-label>
-                <div slot="end" class="action-buttons">
-                  <ion-button color="success" size="small" (click)="openApproveModal(user)">Approve</ion-button>
-                  <ion-button color="danger" size="small" fill="outline" (click)="openDeclineModal(user)">Decline</ion-button>
-                </div>
-              </ion-item>
-            }
-          </ion-list>
+        <div class="hub-info">
+          <div class="hub-title">Accounts</div>
+          <div class="hub-description">Manage users, approvals, and roles</div>
+        </div>
+        @if (pendingUsers.length > 0) {
+          <div class="hub-badge">{{ pendingUsers.length }}</div>
         }
-      }
-
-      @if (accountsSubTab === 'declined') {
-        @if (declinedUsers.length === 0) {
-          <p class="tab-empty">No declined accounts.</p>
-        } @else {
-          <ion-list>
-            @for (user of declinedUsers; track user.id) {
-              <ion-item>
-                <ion-label>
-                  <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-                  <p>{{ user.email }}</p>
-                  @if (user.declineReason) {
-                    <p class="meta" style="color: #ef4444;">Reason: {{ user.declineReason }}</p>
-                  }
-                </ion-label>
-                <ion-button slot="end" color="success" size="small" (click)="reApproveUser(user)">Re-approve</ion-button>
-              </ion-item>
-            }
-          </ion-list>
-        }
-      }
-    }
-
-    <!-- PRAYER REQUESTS TAB -->
-    @if (activeTab === 'prayer') {
-      <h2>Pending Prayer Requests</h2>
-      @if (pendingPrayerRequests.length === 0) {
-        <p>No pending prayer requests.</p>
-      } @else {
-        <ion-list>
-          @for (pr of pendingPrayerRequests; track pr.id) {
-            <ion-item>
-              <ion-label>
-                <h3>{{ pr.title }}</h3>
-                <p>{{ pr.content.length > 100 ? pr.content.substring(0, 100) + '...' : pr.content }}</p>
-                <p class="meta">By {{ pr.author.firstName }} {{ pr.author.lastName }}</p>
-              </ion-label>
-              <div slot="end" class="action-buttons">
-                <ion-button color="success" size="small" (click)="approvePrayerRequest(pr.id)">
-                  Approve
-                </ion-button>
-                <ion-button color="danger" size="small" fill="outline" (click)="rejectPrayerRequest(pr.id)">
-                  Reject
-                </ion-button>
-              </div>
-            </ion-item>
-          }
-        </ion-list>
-      }
-    }
-
-    <!-- PROFILE CHANGES TAB -->
-    @if (activeTab === 'profile') {
-      <h2>Pending Profile Changes</h2>
-      @if (pendingProfileChanges.length === 0) {
-        <p>No pending profile changes.</p>
-      } @else {
-        <ion-list>
-          @for (request of pendingProfileChanges; track request.id) {
-            <ion-item>
-              <ion-label>
-                <h3>{{ request.user.firstName }} {{ request.user.lastName }}</h3>
-                <p>{{ request.user.email }}</p>
-                <div class="change-details">
-                  @for (change of getChangeFields(request.requestedChanges); track change.field) {
-                    <ion-chip color="tertiary" class="change-chip">
-                      <strong>{{ change.field }}:</strong>&nbsp;{{ change.value }}
-                    </ion-chip>
-                  }
-                </div>
-              </ion-label>
-              <div slot="end" class="action-buttons">
-                <ion-button color="success" size="small" (click)="approveProfileChange(request.id)">
-                  Approve
-                </ion-button>
-                <ion-button color="danger" size="small" fill="outline" (click)="rejectProfileChange(request.id)">
-                  Reject
-                </ion-button>
-              </div>
-            </ion-item>
-          }
-        </ion-list>
-      }
-    }
-
-    <!-- SETTINGS TAB -->
-    @if (activeTab === 'settings') {
-      <div class="section-header">
-        <h2>Stations</h2>
-        <ion-button size="small" (click)="addStation()">
-          Add Station
-        </ion-button>
+        <svg class="hub-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      @if (stations.length === 0) {
-        <p>No stations configured.</p>
-      } @else {
-        <ion-list>
-          @for (station of stations; track station.id) {
-            <ion-item>
-              <ion-label>{{ station.name }}</ion-label>
-              <ion-button slot="end" fill="clear" color="danger" (click)="removeStation(station)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-            </ion-item>
-          }
-        </ion-list>
+
+      <!-- Prayer Requests -->
+      <div class="hub-card" (click)="navigateTo('/admin/prayer-requests')">
+        <div class="hub-icon-wrapper hub-icon-prayer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="hub-info">
+          <div class="hub-title">Prayer Requests</div>
+          <div class="hub-description">Review and approve prayer requests</div>
+        </div>
+        @if (pendingPrayerRequests.length > 0) {
+          <div class="hub-badge">{{ pendingPrayerRequests.length }}</div>
+        }
+        <svg class="hub-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Profile Changes -->
+      <div class="hub-card" (click)="navigateTo('/admin/profile-changes')">
+        <div class="hub-icon-wrapper hub-icon-profile">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="hub-info">
+          <div class="hub-title">Profile Changes</div>
+          <div class="hub-description">Approve or reject profile updates</div>
+        </div>
+        @if (pendingProfileChanges.length > 0) {
+          <div class="hub-badge">{{ pendingProfileChanges.length }}</div>
+        }
+        <svg class="hub-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Settings -->
+      <div class="hub-card" (click)="navigateTo('/admin/settings')">
+        <div class="hub-icon-wrapper hub-icon-settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <div class="hub-info">
+          <div class="hub-title">Settings</div>
+          <div class="hub-description">Manage stations and app configuration</div>
+        </div>
+        <svg class="hub-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
       }
-    }
-    }
+    </div>
   </ion-content>
 }

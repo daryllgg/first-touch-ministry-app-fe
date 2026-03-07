@@ -1,77 +1,210 @@
-ion-card {
-  margin: 0 0 16px;
-  border-radius: 10px;
-  box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
+/* ═══ Mobile Layout ═══ */
 
-  ion-card-title {
-    color: var(--ion-color-secondary);
-    font-size: 18px;
+.mobile-detail-content {
+  padding: 16px;
+  padding-bottom: 100px; // space for bottom tab bar + review action bar
+}
+
+.mobile-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0 2px;
+}
+
+.mobile-detail-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a3a4a;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.mobile-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &[data-status="PENDING"] {
+    background: #fef3c7;
+    color: #92400e;
   }
 
-  p {
-    margin: 4px 0;
+  &[data-status="APPROVED"] {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &[data-status="REJECTED"] {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  &[data-status="CHANGES_REQUESTED"] {
+    background: #fef3c7;
+    color: #92400e;
   }
 }
 
-.dates-list {
-  margin: 4px 0 8px 16px;
-  padding: 0;
+.mobile-card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 12px rgba(26, 58, 74, 0.05);
+  margin-bottom: 14px;
+}
 
-  li {
-    margin-bottom: 2px;
+.mobile-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+// Service Info fields
+.mobile-field {
+  display: flex;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.88rem;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 }
 
-.review-actions {
+.mobile-field-label {
+  font-weight: 600;
+  color: #1e293b;
+  min-width: 95px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+
+.mobile-field-value {
+  color: #475569;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-date-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
 }
 
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ion-color-secondary);
-  margin: 16px 0 8px;
+.mobile-date-chip {
+  display: inline-block;
+  background: #f1f5f9;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #475569;
 }
 
-ion-list {
-  background: transparent;
-}
+// Songs
+.mobile-song-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
 
-ion-item {
-  --background: white;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
-
-  h2 {
-    color: var(--ion-color-secondary);
-    font-weight: 600;
-  }
-
-  a {
-    color: var(--ion-color-primary);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
+  &.mobile-song-item-last {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 }
 
-.sub-actions {
+.mobile-song-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
-.avatar-placeholder {
-  width: 40px;
-  height: 40px;
+.mobile-song-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-song-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a3a4a;
+  margin-bottom: 2px;
+}
+
+.mobile-song-meta {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.mobile-song-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: #4a8fa8;
+  text-decoration: none;
+  margin-top: 3px;
+
+  ion-icon {
+    font-size: 13px;
+  }
+}
+
+// Members
+.mobile-member-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  &.mobile-member-item-last {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.mobile-member-avatar {
+  flex-shrink: 0;
+
+  img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.mobile-avatar-initials {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: #e2e8f0;
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   color: #475569;
   display: flex;
   align-items: center;
@@ -81,7 +214,118 @@ ion-item {
   text-transform: uppercase;
 }
 
-.reviewer-avatar {
+.mobile-member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-member-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a3a4a;
+}
+
+.mobile-member-role {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.mobile-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 14px;
+  }
+}
+
+// Review Timeline
+.mobile-review-timeline {
+  position: relative;
+}
+
+.mobile-review-entry {
+  position: relative;
+  display: flex;
+  gap: 0;
+  padding-left: 24px;
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.mobile-review-dot {
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #e2e8f0;
+  z-index: 2;
+
+  &[data-status="approved"] {
+    background: #059669;
+    box-shadow: 0 0 0 2px #d1fae5;
+  }
+
+  &[data-status="rejected"] {
+    background: #dc2626;
+    box-shadow: 0 0 0 2px #fee2e2;
+  }
+
+  &[data-status="changes_requested"] {
+    background: #d97706;
+    box-shadow: 0 0 0 2px #fef3c7;
+  }
+
+  &[data-status="pending"] {
+    background: #94a3b8;
+    box-shadow: 0 0 0 2px #f1f5f9;
+  }
+}
+
+.mobile-review-line {
+  position: absolute;
+  left: 5px;
+  top: 30px;
+  bottom: -6px;
+  width: 2px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.mobile-review-content {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.mobile-review-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-reviewer-avatar {
   flex-shrink: 0;
 
   img {
@@ -89,55 +333,255 @@ ion-item {
     height: 28px;
     border-radius: 50%;
     object-fit: cover;
+    display: block;
   }
 }
 
-.avatar-placeholder-sm {
+.mobile-avatar-initials-sm {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #e2e8f0;
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   color: #475569;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.review-timeline {
-  margin-bottom: 16px;
+.mobile-reviewer-info {
+  flex: 1;
+  min-width: 0;
 }
 
-.review-entry {
-  background: white;
-  border-radius: 10px;
+.mobile-reviewer-name {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a3a4a;
+}
+
+.mobile-review-date {
+  display: block;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.mobile-review-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+
+  &[data-status="approved"] {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &[data-status="rejected"] {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  &[data-status="changes_requested"] {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &[data-status="pending"] {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+
+  &[data-status="accepted"] {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+}
+
+.mobile-review-comment {
+  font-style: italic;
+  color: #475569;
+  font-size: 0.82rem;
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+.mobile-empty-state {
+  text-align: center;
+  padding: 20px 0 8px;
+  color: #94a3b8;
+
+  ion-icon {
+    font-size: 32px;
+    opacity: 0.4;
+    margin-bottom: 8px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  p {
+    font-size: 0.85rem;
+    margin: 0;
+    color: #94a3b8;
+  }
+}
+
+// Substitution Requests
+.mobile-sub-request {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  &.mobile-sub-request-last {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.mobile-sub-request-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mobile-sub-request-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-sub-request-reason {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-style: italic;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.mobile-sub-request-substitute {
+  font-size: 0.82rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.mobile-sub-request-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mobile-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 14px;
+  }
+}
+
+.mobile-action-approve {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.mobile-action-decline {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.mobile-action-accept {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+// Sticky Review Action Bar
+.mobile-review-action-bar {
+  position: fixed;
+  bottom: 64px; // above tab bar
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
   padding: 12px 16px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 6px rgba(26, 58, 74, 0.06);
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
 
-  .review-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+.mobile-review-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  color: white;
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+.mobile-review-btn-approve {
+  background: #059669;
+}
+
+.mobile-review-btn-decline {
+  background: #dc2626;
+}
+
+.mobile-review-btn-changes {
+  background: #d97706;
+}
+
+// Error state
+.mobile-error-state {
+  text-align: center;
+  padding: 64px 24px;
+  color: #94a3b8;
+
+  ion-icon {
+    font-size: 56px;
+    opacity: 0.4;
+    margin-bottom: 12px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .review-badge {
-    font-size: 11px;
+  h2 {
+    color: #1e293b;
+    font-size: 1.1rem;
+    margin: 0 0 8px;
   }
 
-  .review-comment {
-    color: var(--ion-color-dark);
-    margin: 4px 0;
-    font-style: italic;
-  }
-
-  .review-date {
-    font-size: 12px;
-    color: var(--ion-color-medium);
-    margin: 4px 0 0;
+  p {
+    margin: 0 0 20px;
+    font-size: 0.9rem;
   }
 }
 
@@ -183,6 +627,8 @@ ion-item {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  .btn { white-space: nowrap; flex-shrink: 0; }
 }
 
 .detail-title-web {
@@ -207,6 +653,15 @@ ion-item {
   .detail-topbar-web {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .detail-topbar-actions {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+
+    &::-webkit-scrollbar { height: 0; }
   }
 }
 
@@ -487,13 +942,6 @@ ion-item {
   color: #94a3b8;
   text-align: center;
   padding: 20px 0;
-}
-
-.empty-review {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  text-align: center;
-  padding: 12px 0;
 }
 
 .sub-item-web {

@@ -14,7 +14,10 @@ import {
   IonInput,
   IonButton,
   IonSpinner,
+  IonIcon,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../components/toast/toast.service';
 import { environment } from '../../../environments/environment';
@@ -33,6 +36,7 @@ import { environment } from '../../../environments/environment';
     IonInput,
     IonButton,
     IonSpinner,
+    IonIcon,
   ],
 })
 export class LoginPage {
@@ -47,6 +51,7 @@ export class LoginPage {
     private router: Router,
     private toast: ToastService,
   ) {
+    addIcons({ eyeOutline, eyeOffOutline });
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],

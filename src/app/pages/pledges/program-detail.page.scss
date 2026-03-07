@@ -353,3 +353,151 @@
 .total-value {
   color: #1a3a4a;
 }
+
+/* ═══ Responsive Breakpoints ═══ */
+
+@media (max-width: 900px) {
+  .table-card-web {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .profiles-table-web {
+    min-width: 700px;
+  }
+
+  .payments-sub-table {
+    min-width: 600px;
+  }
+
+  .expanded-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .add-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .monthly-header,
+  .monthly-row,
+  .monthly-total {
+    grid-template-columns: 1fr 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header-web {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    h1 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .program-info-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .program-info-card {
+    padding: 16px 20px;
+  }
+
+  .add-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .add-pledgee-card {
+    padding: 18px;
+  }
+
+  .expanded-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header-web h1 {
+    font-size: 1.15rem;
+  }
+
+  .info-label {
+    font-size: 0.7rem;
+  }
+
+  .program-description {
+    font-size: 0.85rem;
+  }
+
+  .add-form-title {
+    font-size: 1rem;
+  }
+
+  .empty-state-web {
+    padding: 40px 12px;
+  }
+
+  .expanded-content {
+    padding: 12px 16px 16px;
+  }
+
+  .monthly-header,
+  .monthly-row,
+  .monthly-total {
+    grid-template-columns: 1fr 120px;
+  }
+
+  .monthly-amount-input {
+    max-width: 120px;
+  }
+}
+
+/* ═══ Mobile Sticky Action Bar ═══ */
+
+.mobile-action-bar {
+  position: fixed;
+  bottom: 64px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.mobile-action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.mobile-action-btn-primary {
+  background: #1a3a4a;
+  color: white;
+}
+
+.mobile-action-btn-danger {
+  background: white;
+  color: #dc2626;
+  border: 1.5px solid #fecaca;
+}

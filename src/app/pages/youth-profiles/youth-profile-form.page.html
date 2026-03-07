@@ -64,7 +64,12 @@
 
             <div class="form-group">
               <label class="form-label">Birth Date *</label>
-              <input class="form-input" type="date" [value]="form.get('birthDate')?.value || ''" (change)="form.patchValue({ birthDate: $any($event.target).value })" max="2020-12-31" />
+              <app-date-picker
+                [value]="form.get('birthDate')?.value || ''"
+                [max]="'2020-12-31'"
+                placeholder="Select birth date"
+                (valueChange)="form.patchValue({ birthDate: $event })"
+              ></app-date-picker>
             </div>
           </div>
 
@@ -202,12 +207,12 @@
           </ion-item>
 
           <p class="field-label">Birth Date *</p>
-          <ion-datetime
-            presentation="date"
+          <app-date-picker
             [value]="form.get('birthDate')?.value || ''"
-            (ionChange)="onDateChange($event)"
             [max]="'2020-12-31'"
-          ></ion-datetime>
+            placeholder="Select birth date"
+            (valueChange)="form.patchValue({ birthDate: $event })"
+          ></app-date-picker>
         </div>
 
         <!-- Location & Contact -->
@@ -265,14 +270,16 @@
           </ion-item>
         </div>
 
-        <ion-button expand="block" type="submit" [disabled]="form.invalid || isLoading" class="ion-margin-top submit-button">
-          @if (isLoading) {
-            <ion-spinner name="crescent"></ion-spinner>
-          } @else {
-            {{ isEditMode ? 'Update Profile' : 'Create Profile' }}
-          }
-        </ion-button>
+        <div style="height:80px"></div>
       </form>
+
+      <div class="sticky-submit-bar">
+        <div style="display:flex;gap:8px">
+          <button type="button" class="sticky-btn sticky-btn-primary" [disabled]="form.invalid || isLoading" (click)="onSubmit()" style="flex:1">
+            @if (isLoading) { Submitting... } @else { {{ isEditMode ? 'Update Profile' : 'Create Profile' }} }
+          </button>
+        </div>
+      </div>
     }
   </ion-content>
 }

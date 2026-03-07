@@ -218,3 +218,95 @@
 .status-ontrack { background: #dbeafe; color: #1e40af; }
 .status-behind { background: #fef2f2; color: #dc2626; }
 .status-new { background: #f1f5f9; color: #64748b; }
+
+/* ═══ Responsive Breakpoints ═══ */
+
+@media (max-width: 900px) {
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .compliance-card,
+  .overdue-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .compliance-table {
+    min-width: 550px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header-web {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    h1 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .chart-container {
+    height: 180px;
+    gap: 4px;
+  }
+
+  .chart-label {
+    font-size: 0.6rem;
+  }
+
+  .chart-card {
+    padding: 18px;
+
+    h3 {
+      font-size: 0.95rem;
+    }
+  }
+
+  .compliance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .compliance-rate-value {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-value {
+    font-size: 1.2rem;
+  }
+
+  .summary-card {
+    padding: 16px;
+  }
+
+  .page-header-web h1 {
+    font-size: 1.15rem;
+  }
+
+  .chart-container {
+    height: 150px;
+  }
+
+  .chart-card {
+    padding: 14px;
+  }
+
+  .compliance-card,
+  .overdue-card {
+    padding: 16px;
+  }
+
+  .compliance-rate-value {
+    font-size: 1.4rem;
+  }
+}

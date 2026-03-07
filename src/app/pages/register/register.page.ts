@@ -21,9 +21,13 @@ import {
   IonTextarea,
   IonDatetime,
   IonLabel,
+  IonIcon,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../components/toast/toast.service';
+import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -45,10 +49,13 @@ import { environment } from '../../../environments/environment';
     IonTextarea,
     IonDatetime,
     IonLabel,
+    IonIcon,
+    DatePickerComponent,
   ],
 })
 export class RegisterPage implements OnInit {
   isWeb = environment.platform === 'web';
+  todayDate = new Date().toISOString().split('T')[0];
   registerForm: FormGroup;
   isLoading = false;
   verifiedEmail = '';
@@ -74,6 +81,7 @@ export class RegisterPage implements OnInit {
     private toast: ToastService,
     private http: HttpClient,
   ) {
+    addIcons({ eyeOutline, eyeOffOutline });
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -199,6 +207,10 @@ export class RegisterPage implements OnInit {
     this.showBirthdayPicker = picker === 'birthday' ? !this.showBirthdayPicker : false;
     this.showFirstDatePicker = picker === 'firstDate' ? !this.showFirstDatePicker : false;
     this.showBaptizedPicker = picker === 'baptized' ? !this.showBaptizedPicker : false;
+  }
+
+  onDatePickerChange(controlName: string, value: string) {
+    this.registerForm.patchValue({ [controlName]: value });
   }
 
   onInvitedByInput() {

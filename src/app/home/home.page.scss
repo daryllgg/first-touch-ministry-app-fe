@@ -313,3 +313,71 @@
     font-weight: 500;
   }
 }
+
+/* ═══ Responsive ═══ */
+
+@media (max-width: 768px) {
+  .greeting-card {
+    padding: 20px 16px;
+    margin-bottom: 20px;
+  }
+
+  .greeting-name {
+    font-size: 1.25rem;
+  }
+
+  .greeting-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .gallery-slide img {
+    height: 240px;
+  }
+
+  .featured-body-web {
+    padding: 18px;
+  }
+
+  .featured-title-web {
+    font-size: 1.15rem;
+  }
+
+  .featured-caption-web {
+    font-size: 0.88rem;
+  }
+
+  .empty-state-web {
+    padding: 32px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .greeting-label {
+    font-size: 0.8rem;
+  }
+
+  .greeting-name {
+    font-size: 1.1rem;
+  }
+
+  .greeting-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .section-label {
+    font-size: 0.9rem;
+  }
+
+  .featured-title-web {
+    font-size: 1.05rem;
+  }
+
+  .featured-caption-web {
+    font-size: 0.85rem;
+  }
+
+  .article-meta-web {
+    font-size: 0.78rem;
+  }
+}

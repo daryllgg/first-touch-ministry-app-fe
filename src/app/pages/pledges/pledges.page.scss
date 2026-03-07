@@ -358,3 +358,88 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ═══ Responsive Breakpoints ═══ */
+
+@media (max-width: 900px) {
+  .table-card-web {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .profiles-table-web {
+    min-width: 600px;
+  }
+
+  .pledge-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header-web {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    h1 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .pledge-amounts {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .pledge-card {
+    padding: 18px;
+  }
+
+  .pin-card {
+    padding: 28px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header-web h1 {
+    font-size: 1.15rem;
+  }
+
+  .pledge-card-header h3 {
+    font-size: 1rem;
+  }
+
+  .pledge-amount-value {
+    font-size: 1rem;
+  }
+
+  .pledge-amount-label {
+    font-size: 0.7rem;
+  }
+
+  .payment-row {
+    font-size: 0.8rem;
+  }
+
+  .payment-date {
+    min-width: 80px;
+  }
+
+  .empty-state-web {
+    padding: 40px 12px;
+  }
+
+  .pin-card {
+    padding: 24px 16px;
+
+    h2 {
+      font-size: 1.15rem;
+    }
+  }
+
+  .pin-input {
+    font-size: 1.2rem !important;
+    letter-spacing: 6px;
+  }
+}

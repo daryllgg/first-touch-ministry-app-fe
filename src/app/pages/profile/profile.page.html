@@ -101,7 +101,7 @@
           </div>
           <div class="form-group-web">
             <label for="birthday">Birthday</label>
-            <input id="birthday" type="date" formControlName="birthday" class="input-web" />
+            <app-date-picker [value]="profileForm.get('birthday')!.value" (valueChange)="profileForm.get('birthday')!.setValue($event)" placeholder="Select birthday" [max]="todayDate"></app-date-picker>
           </div>
           <div class="form-group-web">
             <label for="gender">Gender</label>
@@ -121,11 +121,11 @@
           </div>
           <div class="form-group-web">
             <label for="firstDateAttendedChurch">First Date Attended Church</label>
-            <input id="firstDateAttendedChurch" type="date" formControlName="firstDateAttendedChurch" class="input-web" />
+            <app-date-picker [value]="profileForm.get('firstDateAttendedChurch')!.value" (valueChange)="profileForm.get('firstDateAttendedChurch')!.setValue($event)" placeholder="Select first date attended" [max]="todayDate"></app-date-picker>
           </div>
           <div class="form-group-web">
             <label for="dateBaptized">Date Baptized</label>
-            <input id="dateBaptized" type="date" formControlName="dateBaptized" class="input-web" />
+            <app-date-picker [value]="profileForm.get('dateBaptized')!.value" (valueChange)="profileForm.get('dateBaptized')!.setValue($event)" placeholder="Select date baptized" [max]="todayDate"></app-date-picker>
           </div>
           <div class="form-group-web form-group-full">
             <label for="address">Address</label>
@@ -163,9 +163,6 @@
             <ion-icon name="create-outline" slot="icon-only"></ion-icon>
           </ion-button>
         }
-        <ion-button (click)="onLogout()">
-          <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
-        </ion-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
@@ -256,108 +253,117 @@
         </ion-list>
       } @else {
         <!-- Edit Mode -->
-        <form [formGroup]="profileForm" (ngSubmit)="onSave()">
-          <ion-list class="profile-details" lines="full">
-            <ion-item>
-              <ion-input
-                formControlName="firstName"
-                label="First Name"
-                labelPlacement="floating"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="middleName"
-                label="Middle Name"
-                labelPlacement="floating"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="lastName"
-                label="Last Name"
-                labelPlacement="floating"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="contactNumber"
-                label="Contact Number (+639XXXXXXXXX)"
-                labelPlacement="floating"
-                inputmode="tel"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="birthday"
-                label="Birthday"
-                labelPlacement="floating"
-                type="date"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-select
-                formControlName="gender"
-                label="Gender"
-                labelPlacement="floating"
-                interface="popover"
-              >
-                <ion-select-option value="MALE">Male</ion-select-option>
-                <ion-select-option value="FEMALE">Female</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="facebookLink"
-                label="Facebook Link"
-                labelPlacement="floating"
-                type="url"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="invitedBy"
-                label="Invited By"
-                labelPlacement="floating"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="firstDateAttendedChurch"
-                label="First Date Attended Church"
-                labelPlacement="floating"
-                type="date"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input
-                formControlName="dateBaptized"
-                label="Date Baptized"
-                labelPlacement="floating"
-                type="date"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-textarea
-                formControlName="address"
-                label="Address"
-                labelPlacement="floating"
-                rows="3"
-              ></ion-textarea>
-            </ion-item>
-          </ion-list>
+        <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="edit-form-mobile">
+          <!-- Personal Information -->
+          <div class="edit-section-mobile">
+            <h3 class="edit-section-title-mobile">Personal Information</h3>
+            <ion-list class="edit-list-mobile" lines="none">
+              <ion-item class="edit-item-mobile">
+                <ion-input
+                  formControlName="firstName"
+                  label="First Name"
+                  labelPlacement="stacked"
+                ></ion-input>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-input
+                  formControlName="middleName"
+                  label="Middle Name"
+                  labelPlacement="stacked"
+                ></ion-input>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-input
+                  formControlName="lastName"
+                  label="Last Name"
+                  labelPlacement="stacked"
+                ></ion-input>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-label position="stacked">Birthday</ion-label>
+                <app-date-picker [value]="profileForm.get('birthday')!.value" (valueChange)="profileForm.get('birthday')!.setValue($event)" placeholder="Select birthday" [max]="todayDate"></app-date-picker>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-select
+                  formControlName="gender"
+                  label="Gender"
+                  labelPlacement="stacked"
+                  interface="popover"
+                >
+                  <ion-select-option value="MALE">Male</ion-select-option>
+                  <ion-select-option value="FEMALE">Female</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-list>
+          </div>
 
-          <div class="form-actions">
-            <ion-button expand="block" type="submit" [disabled]="isLoading || profileForm.invalid">
-              @if (isLoading) {
-                <ion-spinner name="crescent"></ion-spinner>
-              } @else {
-                Save Changes
-              }
-            </ion-button>
-            <ion-button expand="block" fill="outline" (click)="toggleEdit()">
-              Cancel
-            </ion-button>
+          <!-- Contact Information -->
+          <div class="edit-section-mobile">
+            <h3 class="edit-section-title-mobile">Contact Information</h3>
+            <ion-list class="edit-list-mobile" lines="none">
+              <ion-item class="edit-item-mobile">
+                <ion-input
+                  formControlName="contactNumber"
+                  label="Contact Number"
+                  labelPlacement="stacked"
+                  placeholder="+639XXXXXXXXX"
+                  inputmode="tel"
+                ></ion-input>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-input
+                  formControlName="facebookLink"
+                  label="Facebook Link"
+                  labelPlacement="stacked"
+                  placeholder="https://facebook.com/yourprofile"
+                  type="url"
+                ></ion-input>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-textarea
+                  formControlName="address"
+                  label="Address"
+                  labelPlacement="stacked"
+                  rows="3"
+                  placeholder="Enter your full address"
+                ></ion-textarea>
+              </ion-item>
+            </ion-list>
+          </div>
+
+          <!-- Church Details -->
+          <div class="edit-section-mobile">
+            <h3 class="edit-section-title-mobile">Church Details</h3>
+            <ion-list class="edit-list-mobile" lines="none">
+              <ion-item class="edit-item-mobile">
+                <ion-input
+                  formControlName="invitedBy"
+                  label="Invited By"
+                  labelPlacement="stacked"
+                  placeholder="Name of the person who invited you"
+                ></ion-input>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-label position="stacked">First Date Attended Church</ion-label>
+                <app-date-picker [value]="profileForm.get('firstDateAttendedChurch')!.value" (valueChange)="profileForm.get('firstDateAttendedChurch')!.setValue($event)" placeholder="Select date attended" [max]="todayDate"></app-date-picker>
+              </ion-item>
+              <ion-item class="edit-item-mobile">
+                <ion-label position="stacked">Date Baptized</ion-label>
+                <app-date-picker [value]="profileForm.get('dateBaptized')!.value" (valueChange)="profileForm.get('dateBaptized')!.setValue($event)" placeholder="Select baptism date" [max]="todayDate"></app-date-picker>
+              </ion-item>
+            </ion-list>
+          </div>
+
+          <div style="height:80px"></div>
+          <div class="sticky-submit-bar">
+            <div style="display:flex;gap:8px">
+              <button type="button" class="sticky-btn sticky-btn-outline" (click)="toggleEdit()">
+                Cancel
+              </button>
+              <button type="submit" class="sticky-btn sticky-btn-primary" [disabled]="isLoading || profileForm.invalid">
+                @if (isLoading) { Saving... } @else { Save Changes }
+              </button>
+            </div>
           </div>
         </form>
       }
