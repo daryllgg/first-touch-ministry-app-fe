@@ -182,8 +182,23 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/pledges/giving-analytics.page').then((m) => m.GivingAnalyticsPage),
   },
   {
+    path: 'feedback',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/feedback/feedback-list.page').then((m) => m.FeedbackListPage),
+  },
+  {
+    path: 'feedback/new',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/feedback/feedback-form.page').then((m) => m.FeedbackFormPage),
+  },
+  {
+    path: 'feedback/:id',
+    canActivate: [authGuard, approvedGuard],
+    loadComponent: () => import('./pages/feedback/feedback-detail.page').then((m) => m.FeedbackDetailPage),
+  },
+  {
     path: '',
-    redirectTo: 'login',
+    loadComponent: () => import('./pages/landing/landing.page').then((m) => m.LandingPage),
     pathMatch: 'full',
   },
 ];

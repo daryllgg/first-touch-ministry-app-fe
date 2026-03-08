@@ -43,6 +43,19 @@ export interface LineupReview {
   createdAt: string;
 }
 
+export interface LineupComment {
+  id: string;
+  author: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
+  content: string;
+  mentionedUsers: { id: string; firstName: string; lastName: string }[];
+  createdAt: string;
+}
+
 export interface WorshipLineup {
   id: string;
   dates: string[];
@@ -53,11 +66,13 @@ export interface WorshipLineup {
   notes: string;
   rehearsalDate?: string;
   overallTheme?: string;
+  rehearsalTime?: string;
   reviewedBy: User | null;
   reviewedAt: string | null;
   members: LineupMember[];
   songs: LineupSong[];
   reviews: LineupReview[];
+  comments: LineupComment[];
   createdAt: string;
   updatedAt: string;
 }

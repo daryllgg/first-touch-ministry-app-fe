@@ -12,6 +12,7 @@ import {
   homeOutline, megaphoneOutline, handLeftOutline,
   musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
   notificationsOutline, peopleOutline, menuOutline, heartOutline, newspaperOutline,
+  chatboxEllipsesOutline,
 } from 'ionicons/icons';
 import { AuthService } from './services/auth.service';
 import { PinService } from './services/pin.service';
@@ -44,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isWeb = environment.platform === 'web';
   currentUser: User | null = null;
   isAdmin = false;
+  isDev = false;
   unreadCount = 0;
   showBottomTabs = false;
   showWebShell = false;
@@ -77,6 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
       homeOutline, megaphoneOutline, handLeftOutline,
       musicalNotesOutline, listOutline, settingsOutline, logOutOutline, personCircleOutline,
       notificationsOutline, peopleOutline, menuOutline, heartOutline, newspaperOutline,
+      chatboxEllipsesOutline,
     });
   }
 
@@ -86,6 +89,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.isAdmin = user?.roles?.some(
         (r) => r.name === 'ADMIN' || r.name === 'SUPER_ADMIN'
       ) ?? false;
+      this.isDev = user?.roles?.some((r) => r.name === 'DEV') ?? false;
       this.updateBottomTabs();
       if (user) {
         this.pushNotificationService.initialize();
@@ -116,7 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private updateBottomTabs() {
-    const hiddenRoutes = ['/login', '/register', '/verify-email', '/pending'];
+    const hiddenRoutes = ['/login', '/register', '/verify-email', '/pending', '/'];
     const onAuthRoute = hiddenRoutes.includes(this.activeTab);
     this.showBottomTabs = this.currentUser?.accountStatus === 'APPROVED' && !onAuthRoute;
     this.showWebShell = !!this.currentUser && !onAuthRoute;
@@ -176,6 +180,12 @@ export class AppComponent implements OnInit, OnDestroy {
           break;
         case 'prayer-request':
           this.router.navigate(['/prayer-requests']);
+          break;
+        case 'feedback':
+          this.router.navigate(['/feedback', notif.relatedEntityId]);
+          break;
+        case 'lineup-comment':
+          this.router.navigate(['/worship-lineups', notif.relatedEntityId]);
           break;
         case 'user':
           this.router.navigate(['/profile']);

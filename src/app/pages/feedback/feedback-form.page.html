@@ -1,0 +1,125 @@
+@if (isWeb) {
+  <div class="form-container-web">
+    <div class="card">
+      <h2 class="form-title">Submit Feedback</h2>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select class="form-select" formControlName="category">
+            <option value="" disabled>Select a category</option>
+            <option value="BUG_REPORT">Bug Report</option>
+            <option value="FEATURE_REQUEST">Feature Request</option>
+            <option value="GENERAL">General</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Subject *</label>
+          <input class="form-input" type="text" formControlName="subject" placeholder="Brief title for your feedback" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea class="form-textarea" formControlName="description" rows="6" placeholder="Please describe in detail..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <button type="button" class="btn btn-outline" (click)="screenshotInput.click()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            Attach Screenshot (Optional)
+          </button>
+          <input
+            #screenshotInput
+            type="file"
+            accept="image/*"
+            hidden
+            (change)="onScreenshotSelected($event)"
+          />
+        </div>
+
+        @if (screenshotPreview) {
+          <div class="image-preview-web">
+            <img [src]="screenshotPreview" alt="Screenshot preview" />
+            <button type="button" class="btn-remove" (click)="removeScreenshot()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        }
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || isSubmitting">
+          @if (isSubmitting) {
+            <span class="spinner"></span>
+          } @else {
+            Submit Feedback
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+} @else {
+  <!-- MOBILE -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/feedback"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Submit Feedback</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="mobile-form-group">
+        <label class="mobile-label">Category *</label>
+        <select class="mobile-select" formControlName="category">
+          <option value="" disabled>Select a category</option>
+          <option value="BUG_REPORT">Bug Report</option>
+          <option value="FEATURE_REQUEST">Feature Request</option>
+          <option value="GENERAL">General</option>
+        </select>
+      </div>
+
+      <div class="mobile-form-group">
+        <label class="mobile-label">Subject *</label>
+        <input class="mobile-input" type="text" formControlName="subject" placeholder="Brief title for your feedback" />
+      </div>
+
+      <div class="mobile-form-group">
+        <label class="mobile-label">Description *</label>
+        <textarea class="mobile-textarea" formControlName="description" rows="6" placeholder="Please describe in detail..."></textarea>
+      </div>
+
+      <div class="mobile-form-group">
+        <button type="button" class="mobile-attach-btn" (click)="mobileScreenshotInput.click()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          Attach Screenshot (Optional)
+        </button>
+        <input
+          #mobileScreenshotInput
+          type="file"
+          accept="image/*"
+          hidden
+          (change)="onScreenshotSelected($event)"
+        />
+      </div>
+
+      @if (screenshotPreview) {
+        <div class="mobile-image-preview">
+          <img [src]="screenshotPreview" alt="Screenshot preview" />
+          <button type="button" class="mobile-remove-btn" (click)="removeScreenshot()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      }
+
+      <ion-button expand="block" type="submit" [disabled]="form.invalid || isSubmitting" class="submit-btn">
+        @if (isSubmitting) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          Submit Feedback
+        }
+      </ion-button>
+    </form>
+  </ion-content>
+}

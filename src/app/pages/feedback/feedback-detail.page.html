@@ -1,0 +1,181 @@
+@if (isWeb) {
+  @if (isLoading) {
+    <div class="detail-container">
+      <div class="card">
+        <div class="skeleton skeleton-text-lg" style="width:40%"></div>
+        <div class="skeleton skeleton-text" style="width:80%;margin-top:12px"></div>
+        <div class="skeleton skeleton-text" style="width:100%;margin-top:8px"></div>
+        <div class="skeleton skeleton-text" style="width:60%;margin-top:8px"></div>
+      </div>
+    </div>
+  } @else if (feedback) {
+    <div class="detail-container">
+      <!-- Header -->
+      <div class="detail-header">
+        <div>
+          <a routerLink="/feedback" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Feedback
+          </a>
+        </div>
+        @if (isDev) {
+          <button class="btn" [ngClass]="feedback.status === 'OPEN' ? 'btn-success' : 'btn-outline'" (click)="toggleStatus()" [disabled]="isTogglingStatus">
+            {{ feedback.status === 'OPEN' ? 'Mark Resolved' : 'Reopen' }}
+          </button>
+        }
+      </div>
+
+      <!-- Main card -->
+      <div class="card">
+        <div class="feedback-meta">
+          <span class="badge" [ngClass]="getCategoryClass(feedback.category)">{{ getCategoryLabel(feedback.category) }}</span>
+          <span class="badge" [ngClass]="feedback.status === 'OPEN' ? 'badge-warning' : 'badge-success'">{{ feedback.status }}</span>
+        </div>
+        <h2 class="feedback-title">{{ feedback.subject }}</h2>
+        <p class="feedback-author">
+          {{ feedback.user.firstName }} {{ feedback.user.lastName }} &middot; {{ feedback.createdAt | date:'medium' }}
+        </p>
+        <p class="feedback-body">{{ feedback.description }}</p>
+
+        @if (feedback.screenshot) {
+          <div class="screenshot-container">
+            <img [src]="getScreenshotUrl(feedback.screenshot)" alt="Screenshot" class="screenshot-img" />
+          </div>
+        }
+      </div>
+
+      <!-- Replies Thread -->
+      <div class="replies-section">
+        <h3 class="replies-heading">Replies ({{ feedback.replies?.length || 0 }})</h3>
+
+        @if (feedback.replies && feedback.replies.length > 0) {
+          @for (reply of feedback.replies; track reply.id) {
+            <div class="reply-card" [class.reply-dev]="isReplyByDev(reply)">
+              <div class="reply-header">
+                @if (reply.user.profilePicture) {
+                  <img [src]="getProfilePicUrl(reply.user.profilePicture)" alt="" class="reply-avatar" />
+                } @else {
+                  <div class="reply-avatar-placeholder">
+                    {{ reply.user.firstName?.charAt(0) }}{{ reply.user.lastName?.charAt(0) }}
+                  </div>
+                }
+                <div>
+                  <span class="reply-name">{{ reply.user.firstName }} {{ reply.user.lastName }}</span>
+                  @if (isReplyByDev(reply)) {
+                    <span class="dev-badge">DEV</span>
+                  }
+                  <span class="reply-time">{{ reply.createdAt | date:'medium' }}</span>
+                </div>
+              </div>
+              <p class="reply-message">{{ reply.message }}</p>
+            </div>
+          }
+        } @else {
+          <p class="no-replies">No replies yet.</p>
+        }
+
+        <!-- Reply input -->
+        <div class="reply-input-area">
+          <textarea class="form-textarea" [(ngModel)]="replyMessage" rows="3" placeholder="Write a reply..."></textarea>
+          <button class="btn btn-primary" (click)="submitReply()" [disabled]="!replyMessage.trim() || isReplying">
+            @if (isReplying) {
+              <span class="spinner"></span>
+            } @else {
+              Send Reply
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+  <!-- MOBILE -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/feedback"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Feedback</ion-title>
+      @if (isDev && feedback) {
+        <ion-buttons slot="end">
+          <ion-button (click)="toggleStatus()" [disabled]="isTogglingStatus">
+            {{ feedback.status === 'OPEN' ? 'Resolve' : 'Reopen' }}
+          </ion-button>
+        </ion-buttons>
+      }
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    @if (isLoading) {
+      <div style="padding: 16px">
+        <ion-skeleton-text [animated]="true" style="width: 40%; height: 18px; margin-bottom: 12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width: 80%; height: 22px; margin-bottom: 8px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width: 100%; height: 14px; margin-bottom: 6px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="width: 90%; height: 14px"></ion-skeleton-text>
+      </div>
+    } @else if (feedback) {
+      <div class="mobile-detail">
+        <div class="mobile-badges">
+          <span class="badge" [ngClass]="getCategoryClass(feedback.category)">{{ getCategoryLabel(feedback.category) }}</span>
+          <span class="badge" [ngClass]="feedback.status === 'OPEN' ? 'badge-warning' : 'badge-success'">{{ feedback.status }}</span>
+        </div>
+        <h2 class="mobile-title">{{ feedback.subject }}</h2>
+        <p class="mobile-author">
+          {{ feedback.user.firstName }} {{ feedback.user.lastName }} &middot; {{ feedback.createdAt | date:'mediumDate' }}
+        </p>
+        <p class="mobile-body">{{ feedback.description }}</p>
+
+        @if (feedback.screenshot) {
+          <div class="mobile-screenshot">
+            <img [src]="getScreenshotUrl(feedback.screenshot)" alt="Screenshot" />
+          </div>
+        }
+
+        <!-- Replies -->
+        <div class="mobile-replies-section">
+          <h3 class="mobile-replies-heading">Replies ({{ feedback.replies?.length || 0 }})</h3>
+
+          @for (reply of feedback.replies; track reply.id) {
+            <div class="mobile-reply" [class.mobile-reply-dev]="isReplyByDev(reply)">
+              <div class="mobile-reply-header">
+                @if (reply.user.profilePicture) {
+                  <img [src]="getProfilePicUrl(reply.user.profilePicture)" alt="" class="mobile-reply-avatar" />
+                } @else {
+                  <div class="mobile-reply-avatar-placeholder">
+                    {{ reply.user.firstName?.charAt(0) }}{{ reply.user.lastName?.charAt(0) }}
+                  </div>
+                }
+                <div>
+                  <span class="mobile-reply-name">{{ reply.user.firstName }} {{ reply.user.lastName }}</span>
+                  @if (isReplyByDev(reply)) {
+                    <span class="dev-badge">DEV</span>
+                  }
+                  <br />
+                  <span class="mobile-reply-time">{{ reply.createdAt | date:'short' }}</span>
+                </div>
+              </div>
+              <p class="mobile-reply-message">{{ reply.message }}</p>
+            </div>
+          }
+
+          @if (!feedback.replies || feedback.replies.length === 0) {
+            <p class="mobile-no-replies">No replies yet.</p>
+          }
+        </div>
+
+        <!-- Reply input -->
+        <div class="mobile-reply-input">
+          <textarea class="mobile-textarea" [(ngModel)]="replyMessage" rows="3" placeholder="Write a reply..."></textarea>
+          <ion-button expand="block" (click)="submitReply()" [disabled]="!replyMessage.trim() || isReplying" class="mobile-send-btn">
+            @if (isReplying) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Send Reply
+            }
+          </ion-button>
+        </div>
+      </div>
+    }
+  </ion-content>
+}

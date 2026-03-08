@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { WorshipLineup, SubstitutionRequest, InstrumentRole } from '../interfaces/worship-lineup.interface';
+import { WorshipLineup, SubstitutionRequest, InstrumentRole, LineupComment } from '../interfaces/worship-lineup.interface';
 
 @Injectable({ providedIn: 'root' })
 export class WorshipLineupsService {
@@ -90,5 +90,13 @@ export class WorshipLineupsService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  addComment(lineupId: string, content: string, mentionedUserIds?: string[]): Observable<LineupComment> {
+    return this.http.post<LineupComment>(`${this.apiUrl}/${lineupId}/comments`, { content, mentionedUserIds });
+  }
+
+  deleteComment(lineupId: string, commentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${lineupId}/comments/${commentId}`);
   }
 }

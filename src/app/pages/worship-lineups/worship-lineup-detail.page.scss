@@ -1031,3 +1031,136 @@
     color: #64748b;
   }
 }
+
+/* ═══ Activity Timeline (Web) ═══ */
+.activity-entry-web {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  &:last-of-type { border-bottom: none; }
+}
+.activity-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.dot-approved { background: #27ae60; }
+.dot-rejected { background: #e74c3c; }
+.dot-changes { background: #f39c12; }
+.dot-pending { background: #95a5a6; }
+.dot-comment { background: #4a8fa8; }
+.activity-body { flex: 1; }
+.activity-header-web {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.activity-type-label {
+  font-size: 12px;
+  color: #4a8fa8;
+  font-style: italic;
+}
+.comment-content-web {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  margin: 4px 0;
+  white-space: pre-wrap;
+}
+.comment-footer-web {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.comment-delete-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  &:hover { text-decoration: underline; }
+}
+.comment-input-area {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+}
+.mention-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 10;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.mention-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  &:hover { background: #f0f4ff; }
+}
+
+/* ═══ Activity Timeline (Mobile) ═══ */
+.mobile-dot-comment {
+  background: #4a8fa8 !important;
+}
+.mobile-comment-delete {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 12px;
+  padding: 4px 0 0;
+  cursor: pointer;
+}
+.mobile-comment-input {
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+}
+.mobile-comment-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  resize: vertical;
+  background: #fff;
+  color: #333;
+  box-sizing: border-box;
+}
+.mobile-mention-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 10;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.mobile-mention-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  &:hover { background: #f0f4ff; }
+}
+.mobile-comment-send {
+  margin-top: 8px;
+  --background: #1a3a4a;
+  align-self: flex-end;
+}

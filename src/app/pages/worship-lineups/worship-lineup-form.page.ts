@@ -16,6 +16,7 @@ import { User } from '../../interfaces/user.interface';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../components/toast/toast.service';
 import { DatePickerComponent } from '../../components/date-picker/date-picker.component';
+import { TimePickerComponent } from '../../components/time-picker/time-picker.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -28,6 +29,7 @@ import { environment } from '../../../environments/environment';
     IonSpinner, IonSelect, IonSelectOption, IonLabel, IonIcon, IonList,
     IonDatetime, IonDatetimeButton, IonModal,
     DatePickerComponent,
+    TimePickerComponent,
   ],
   templateUrl: './worship-lineup-form.page.html',
   styleUrls: ['./worship-lineup-form.page.scss'],
@@ -82,6 +84,7 @@ export class WorshipLineupFormPage implements OnInit {
       notes: [''],
       rehearsalDate: [''],
       overallTheme: [''],
+      rehearsalTime: [''],
       dates: this.fb.array([]),
       members: this.fb.array([]),
       songs: this.fb.array([]),
@@ -117,6 +120,7 @@ export class WorshipLineupFormPage implements OnInit {
           notes: lineup.notes || '',
           rehearsalDate: lineup.rehearsalDate || '',
           overallTheme: lineup.overallTheme || '',
+          rehearsalTime: lineup.rehearsalTime || '',
         });
 
         // Populate dates
@@ -188,6 +192,35 @@ export class WorshipLineupFormPage implements OnInit {
     this.showServiceDatePicker = false;
   }
 
+  private autoPopulateRehearsal() {
+    if (this.form.get('serviceType')?.value !== 'SUNDAY_SERVICE') return;
+    if (this.dates.length === 0) return;
+
+    const earliest = this.dates.controls
+      .map(c => c.value as string)
+      .sort()[0];
+
+    const dayBefore = this.getDayBefore(earliest);
+    this.form.patchValue({ rehearsalDate: dayBefore, rehearsalTime: '10:00' });
+  }
+
+  private getDayBefore(dateStr: string): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d - 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  formatTime(time: string): string {
+    if (!time) return '';
+    const [h, m] = time.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+  }
+
   get isSpecialEvent(): boolean {
     return this.form.get('serviceType')?.value === 'SPECIAL_EVENT';
   }
@@ -199,11 +232,13 @@ export class WorshipLineupFormPage implements OnInit {
     const exists = this.dates.controls.some(c => c.value === dateStr);
     if (!exists) {
       this.dates.push(this.fb.control(dateStr, [Validators.required]));
+      this.autoPopulateRehearsal();
     }
   }
 
   removeDate(index: number) {
     this.dates.removeAt(index);
+    this.autoPopulateRehearsal();
   }
 
   onWebRehearsalDateSelect(event: any) {
@@ -222,6 +257,7 @@ export class WorshipLineupFormPage implements OnInit {
     const exists = this.dates.controls.some(c => c.value === dateStr);
     if (!exists) {
       this.dates.push(this.fb.control(dateStr, [Validators.required]));
+      this.autoPopulateRehearsal();
     }
   }
 
@@ -229,6 +265,10 @@ export class WorshipLineupFormPage implements OnInit {
     if (dateStr) {
       this.form.patchValue({ rehearsalDate: dateStr });
     }
+  }
+
+  onRehearsalTimeChange(time: string) {
+    this.form.patchValue({ rehearsalTime: time });
   }
 
   addMember() {
@@ -299,6 +339,7 @@ export class WorshipLineupFormPage implements OnInit {
       notes: formValue.notes || undefined,
       rehearsalDate: formValue.rehearsalDate || undefined,
       overallTheme: formValue.overallTheme || undefined,
+      rehearsalTime: formValue.rehearsalTime || undefined,
       members: formValue.members.map((m: any) => ({
         userId: m.userId,
         instrumentRoleId: m.instrumentRoleId,

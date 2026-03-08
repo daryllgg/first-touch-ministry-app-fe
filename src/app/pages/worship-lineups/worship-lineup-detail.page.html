@@ -128,6 +128,12 @@
                 <span class="date-chip-web">{{ lineup.rehearsalDate | date:'MMM d, y' }}</span>
               </div>
             }
+            @if (lineup.rehearsalTime) {
+              <div class="detail-field-web">
+                <span class="field-label-web">Rehearsal Time</span>
+                <span>{{ formatTime(lineup.rehearsalTime) }}</span>
+              </div>
+            }
             @if (lineup.overallTheme) {
               <div class="detail-field-web">
                 <span class="field-label-web">Overall Theme</span>
@@ -197,32 +203,84 @@
           </div>
         </div>
 
-        <!-- Right column: Review History + Substitutions -->
+        <!-- Right column: Activity + Substitutions -->
         <div class="detail-col-web">
           <div class="card">
-            <h3 class="section-title-web">Review History</h3>
-            @if (lineup.reviews && lineup.reviews.length > 0) {
-              @for (review of sortedReviews; track review.id) {
-                <div class="review-entry-web">
-                  <div class="review-header-web">
-                    <div class="reviewer-avatar-web">
-                      @if (review.reviewer.profilePicture) {
-                        <img [src]="apiUrl + '/uploads/' + review.reviewer.profilePicture" alt="" />
-                      } @else {
-                        <div class="avatar-placeholder-sm-web">{{ review.reviewer.firstName[0] }}{{ review.reviewer.lastName[0] }}</div>
+            <h3 class="section-title-web">Activity</h3>
+            @if (activityItems.length > 0) {
+              @for (item of activityItems; track item.id) {
+                @if (item.type === 'review') {
+                  <div class="activity-entry-web activity-review">
+                    <div class="activity-dot" [ngClass]="getStatusDotClass(item.status)"></div>
+                    <div class="activity-body">
+                      <div class="activity-header-web">
+                        <div class="reviewer-avatar-web">
+                          @if (item.user.profilePicture) {
+                            <img [src]="apiUrl + '/uploads/' + item.user.profilePicture" alt="" />
+                          } @else {
+                            <div class="avatar-placeholder-sm-web">{{ item.user.firstName[0] }}{{ item.user.lastName[0] }}</div>
+                          }
+                        </div>
+                        <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong>
+                        <span class="status-badge-web status-badge-sm" [class]="'status-' + item.status.toLowerCase()">{{ formatStatus(item.status) }}</span>
+                      </div>
+                      @if (item.comment) {
+                        <p class="review-comment-web">{{ item.comment }}</p>
                       }
+                      <p class="review-date-web">{{ item.createdAt | date:'medium' }}</p>
                     </div>
-                    <strong>{{ review.reviewer.firstName }} {{ review.reviewer.lastName }}</strong>
-                    <span class="status-badge-web status-badge-sm" [class]="'status-' + review.status.toLowerCase()">{{ review.status }}</span>
                   </div>
-                  @if (review.comment) {
-                    <p class="review-comment-web">{{ review.comment }}</p>
-                  }
-                  <p class="review-date-web">{{ review.createdAt | date:'medium' }}</p>
-                </div>
+                } @else {
+                  <div class="activity-entry-web activity-comment">
+                    <div class="activity-dot dot-comment"></div>
+                    <div class="activity-body">
+                      <div class="activity-header-web">
+                        <div class="reviewer-avatar-web">
+                          @if (item.user.profilePicture) {
+                            <img [src]="apiUrl + '/uploads/' + item.user.profilePicture" alt="" />
+                          } @else {
+                            <div class="avatar-placeholder-sm-web">{{ item.user.firstName[0] }}{{ item.user.lastName[0] }}</div>
+                          }
+                        </div>
+                        <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong>
+                        <span class="activity-type-label">commented</span>
+                      </div>
+                      <p class="comment-content-web">{{ item.content }}</p>
+                      <div class="comment-footer-web">
+                        <span class="review-date-web">{{ item.createdAt | date:'medium' }}</span>
+                        @if (item.user.id === currentUserId) {
+                          <button class="comment-delete-btn" (click)="deleteComment(item.id)">Delete</button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
               }
             } @else {
-              <p class="empty-review-web">No review history as of {{ lineup.updatedAt | date:'MMM d, y, h:mm a' }}</p>
+              <p class="empty-review-web">No activity yet</p>
+            }
+
+            <!-- Comment input -->
+            @if (canComment) {
+              <div class="comment-input-area" style="position: relative">
+                <textarea #commentTextarea class="form-textarea" [(ngModel)]="commentText" (input)="onCommentInput($event)" rows="2" placeholder="Write a comment... Use @ to mention someone"></textarea>
+                @if (showMentionDropdown) {
+                  <div class="mention-dropdown">
+                    @for (u of mentionUsers; track u.id) {
+                      <div class="mention-item" (click)="selectMention(u, commentTextarea)">
+                        {{ u.firstName }} {{ u.lastName }}
+                      </div>
+                    }
+                  </div>
+                }
+                <button class="btn btn-primary btn-sm" (click)="submitComment(commentTextarea)" [disabled]="!commentText.trim() || isSubmittingComment" style="margin-top: 8px; align-self: flex-end">
+                  @if (isSubmittingComment) {
+                    <span class="spinner"></span>
+                  } @else {
+                    Comment
+                  }
+                </button>
+              </div>
             }
           </div>
 
@@ -377,6 +435,12 @@
               </span>
             </div>
           }
+          @if (lineup.rehearsalTime) {
+            <div class="mobile-field">
+              <span class="mobile-field-label">Rehearsal Time</span>
+              <span class="mobile-field-value">{{ formatTime(lineup.rehearsalTime) }}</span>
+            </div>
+          }
           @if (lineup.overallTheme) {
             <div class="mobile-field">
               <span class="mobile-field-label">Theme</span>
@@ -451,49 +515,100 @@
           }
         </div>
 
-        <!-- Review History Card -->
+        <!-- Activity Card -->
         <div class="mobile-card">
-          <div class="mobile-section-label">Review History</div>
-          @if (lineup.reviews && lineup.reviews.length > 0) {
+          <div class="mobile-section-label">Activity</div>
+          @if (activityItems.length > 0) {
             <div class="mobile-review-timeline">
-              @for (review of sortedReviews; track review.id; let idx = $index) {
-                <div class="mobile-review-entry" [attr.data-status]="review.status.toLowerCase()">
-                  <div class="mobile-review-dot" [attr.data-status]="review.status.toLowerCase()"></div>
-                  @if (idx < sortedReviews.length - 1) {
-                    <div class="mobile-review-line"></div>
-                  }
-                  <div class="mobile-review-content">
-                    <div class="mobile-review-header">
-                      <div class="mobile-reviewer-avatar">
-                        @if (review.reviewer.profilePicture) {
-                          <img [src]="apiUrl + '/uploads/' + review.reviewer.profilePicture" alt="" />
-                        } @else {
-                          <div class="mobile-avatar-initials-sm">{{ review.reviewer.firstName[0] }}{{ review.reviewer.lastName[0] }}</div>
-                        }
-                      </div>
-                      <div class="mobile-reviewer-info">
-                        <span class="mobile-reviewer-name">{{ review.reviewer.firstName }} {{ review.reviewer.lastName }}</span>
-                        <span class="mobile-review-date">{{ review.createdAt | date:'medium' }}</span>
-                      </div>
-                      <span class="mobile-review-badge" [attr.data-status]="review.status.toLowerCase()">
-                        @if (review.status === 'CHANGES_REQUESTED') {
-                          Changes
-                        } @else {
-                          {{ review.status }}
-                        }
-                      </span>
-                    </div>
-                    @if (review.comment) {
-                      <p class="mobile-review-comment">{{ review.comment }}</p>
+              @for (item of activityItems; track item.id; let idx = $index) {
+                @if (item.type === 'review') {
+                  <div class="mobile-review-entry" [attr.data-status]="item.status.toLowerCase()">
+                    <div class="mobile-review-dot" [attr.data-status]="item.status.toLowerCase()"></div>
+                    @if (idx < activityItems.length - 1) {
+                      <div class="mobile-review-line"></div>
                     }
+                    <div class="mobile-review-content">
+                      <div class="mobile-review-header">
+                        <div class="mobile-reviewer-avatar">
+                          @if (item.user.profilePicture) {
+                            <img [src]="apiUrl + '/uploads/' + item.user.profilePicture" alt="" />
+                          } @else {
+                            <div class="mobile-avatar-initials-sm">{{ item.user.firstName[0] }}{{ item.user.lastName[0] }}</div>
+                          }
+                        </div>
+                        <div class="mobile-reviewer-info">
+                          <span class="mobile-reviewer-name">{{ item.user.firstName }} {{ item.user.lastName }}</span>
+                          <span class="mobile-review-date">{{ item.createdAt | date:'medium' }}</span>
+                        </div>
+                        <span class="mobile-review-badge" [attr.data-status]="item.status.toLowerCase()">
+                          @if (item.status === 'CHANGES_REQUESTED') {
+                            Changes
+                          } @else {
+                            {{ formatStatus(item.status) }}
+                          }
+                        </span>
+                      </div>
+                      @if (item.comment) {
+                        <p class="mobile-review-comment">{{ item.comment }}</p>
+                      }
+                    </div>
                   </div>
-                </div>
+                } @else {
+                  <div class="mobile-review-entry">
+                    <div class="mobile-review-dot mobile-dot-comment"></div>
+                    @if (idx < activityItems.length - 1) {
+                      <div class="mobile-review-line"></div>
+                    }
+                    <div class="mobile-review-content">
+                      <div class="mobile-review-header">
+                        <div class="mobile-reviewer-avatar">
+                          @if (item.user.profilePicture) {
+                            <img [src]="apiUrl + '/uploads/' + item.user.profilePicture" alt="" />
+                          } @else {
+                            <div class="mobile-avatar-initials-sm">{{ item.user.firstName[0] }}{{ item.user.lastName[0] }}</div>
+                          }
+                        </div>
+                        <div class="mobile-reviewer-info">
+                          <span class="mobile-reviewer-name">{{ item.user.firstName }} {{ item.user.lastName }}</span>
+                          <span class="mobile-review-date">{{ item.createdAt | date:'medium' }}</span>
+                        </div>
+                      </div>
+                      <p class="mobile-review-comment">{{ item.content }}</p>
+                      @if (item.user.id === currentUserId) {
+                        <button class="mobile-comment-delete" (click)="deleteComment(item.id)">Delete</button>
+                      }
+                    </div>
+                  </div>
+                }
               }
             </div>
           } @else {
             <div class="mobile-empty-state">
               <ion-icon name="time-outline"></ion-icon>
-              <p>No review history yet</p>
+              <p>No activity yet</p>
+            </div>
+          }
+
+          <!-- Comment input (mobile) -->
+          @if (canComment) {
+            <div class="mobile-comment-input" style="position: relative; margin-top: 12px">
+              <textarea #mobileCommentTextarea class="mobile-comment-textarea" [(ngModel)]="commentText" (input)="onCommentInput($event)" rows="2" placeholder="Write a comment... Use @ to mention"></textarea>
+              @if (showMentionDropdown) {
+                <div class="mobile-mention-dropdown">
+                  @for (u of mentionUsers; track u.id) {
+                    <div class="mobile-mention-item" (click)="selectMention(u, mobileCommentTextarea)">
+                      {{ u.firstName }} {{ u.lastName }}
+                    </div>
+                  }
+                </div>
+              }
+              <ion-button size="small" (click)="submitComment(mobileCommentTextarea)" [disabled]="!commentText.trim() || isSubmittingComment" class="mobile-comment-send">
+                @if (isSubmittingComment) {
+                  <ion-spinner name="crescent" style="width:16px;height:16px"></ion-spinner>
+                } @else {
+                  Comment
+                }
+              </ion-button>
             </div>
           }
         </div>

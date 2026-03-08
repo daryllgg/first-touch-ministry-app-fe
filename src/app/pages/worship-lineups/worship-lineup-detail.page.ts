@@ -7,13 +7,15 @@ import {
   IonList, IonItem, IonLabel, IonBackButton, IonButtons,
   IonBadge, IonIcon, IonCard, IonCardHeader, IonCardTitle,
   IonCardContent, IonNote, IonAvatar, IonRefresher, IonRefresherContent,
-  IonSkeletonText, ViewWillEnter,
+  IonSkeletonText, IonSpinner, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline, linkOutline, timeOutline } from 'ionicons/icons';
+import { HttpClient } from '@angular/common/http';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { AuthService } from '../../services/auth.service';
 import { WorshipLineup, SubstitutionRequest } from '../../interfaces/worship-lineup.interface';
+import { User } from '../../interfaces/user.interface';
 import { ToastService } from '../../components/toast/toast.service';
 import { ModalService } from '../../components/modal/modal.service';
 import { environment } from '../../../environments/environment';
@@ -27,7 +29,7 @@ import { environment } from '../../../environments/environment';
     IonList, IonItem, IonLabel, IonBackButton, IonButtons,
     IonBadge, IonIcon, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonNote, IonAvatar, IonRefresher, IonRefresherContent,
-    IonSkeletonText,
+    IonSkeletonText, IonSpinner,
   ],
   templateUrl: './worship-lineup-detail.page.html',
   styleUrls: ['./worship-lineup-detail.page.scss'],
@@ -42,6 +44,18 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
   apiUrl = environment.apiUrl;
   isLoading = true;
   loadError = false;
+
+  // Activity / Comments
+  activityItems: any[] = [];
+  commentText = '';
+  isSubmittingComment = false;
+  canComment = false;
+  allUsers: User[] = [];
+  mentionUsers: User[] = [];
+  showMentionDropdown = false;
+  mentionedUserIds: string[] = [];
+  mentionSearchText = '';
+
   private lineupId: string | null = null;
   private loadCount = 0;
 
@@ -50,6 +64,7 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     private router: Router,
     private lineupsService: WorshipLineupsService,
     private authService: AuthService,
+    private http: HttpClient,
     private toast: ToastService,
     private modal: ModalService,
   ) {
@@ -103,6 +118,9 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
 
         this.lineup = data;
         this.canRequestSubstitution = isMember;
+        this.buildActivityTimeline();
+        this.updateCanComment();
+        this.buildMentionUsers();
         this.checkLoaded();
       },
       error: () => { this.loadError = true; this.checkLoaded(); },
@@ -126,6 +144,14 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     }
   }
 
+  formatTime(time: string): string {
+    if (!time) return '';
+    const [h, m] = time.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+  }
+
   get isSubmitter(): boolean {
     return this.lineup?.submittedBy?.id === this.currentUserId;
   }
@@ -133,6 +159,168 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
   get sortedReviews() {
     if (!this.lineup?.reviews) return [];
     return [...this.lineup.reviews].reverse();
+  }
+
+  buildActivityTimeline() {
+    if (!this.lineup) { this.activityItems = []; return; }
+    const items: any[] = [];
+
+    // Add reviews
+    for (const r of (this.lineup.reviews || [])) {
+      items.push({
+        type: 'review',
+        id: r.id,
+        user: r.reviewer,
+        status: r.status,
+        comment: r.comment,
+        createdAt: r.createdAt,
+      });
+    }
+
+    // Add comments
+    for (const c of (this.lineup.comments || [])) {
+      items.push({
+        type: 'comment',
+        id: c.id,
+        user: c.author,
+        content: c.content,
+        mentionedUsers: c.mentionedUsers,
+        createdAt: c.createdAt,
+      });
+    }
+
+    // Sort chronologically (latest first)
+    items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    this.activityItems = items;
+  }
+
+  updateCanComment() {
+    if (!this.lineup) { this.canComment = false; return; }
+    const isInvolved = this.lineup.submittedBy?.id === this.currentUserId ||
+      this.lineup.members?.some((m) => m.user.id === this.currentUserId);
+    const isPrivileged = this.authService.hasRole('PASTOR') ||
+      this.authService.hasRole('ADMIN') ||
+      this.authService.hasRole('SUPER_ADMIN');
+    this.canComment = isInvolved || isPrivileged;
+  }
+
+  buildMentionUsers() {
+    if (!this.lineup) return;
+    // Start with involved users: submitter + members
+    const userMap = new Map<string, User>();
+    const sub = this.lineup.submittedBy;
+    if (sub) userMap.set(sub.id, sub);
+    for (const m of this.lineup.members || []) {
+      userMap.set(m.user.id, m.user);
+    }
+
+    // Also fetch worship leaders + worship team heads
+    this.http.get<User[]>(`${this.apiUrl}/users/by-roles`, {
+      params: { roles: 'WORSHIP_LEADER,WORSHIP_TEAM_HEAD' },
+    }).subscribe({
+      next: (users) => {
+        for (const u of users) {
+          userMap.set(u.id, u);
+        }
+        this.allUsers = Array.from(userMap.values());
+      },
+      error: () => {
+        // Fall back to just involved users
+        this.allUsers = Array.from(userMap.values());
+      },
+    });
+  }
+
+  onCommentInput(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    const value = textarea.value;
+    const cursorPos = textarea.selectionStart;
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (atIndex >= 0) {
+      const afterAt = textBeforeCursor.substring(atIndex + 1);
+      if (!afterAt.includes(' ') || afterAt.split(' ').length <= 2) {
+        this.mentionSearchText = afterAt.toLowerCase();
+        this.mentionUsers = this.allUsers.filter((u) =>
+          `${u.firstName} ${u.lastName}`.toLowerCase().includes(this.mentionSearchText) &&
+          !this.mentionedUserIds.includes(u.id)
+        ).slice(0, 5);
+        this.showMentionDropdown = this.mentionUsers.length > 0;
+        return;
+      }
+    }
+    this.showMentionDropdown = false;
+  }
+
+  selectMention(user: User, textarea: HTMLTextAreaElement) {
+    const value = textarea.value;
+    const cursorPos = textarea.selectionStart;
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+    const fullName = `${user.firstName} ${user.lastName}`;
+
+    const before = value.substring(0, atIndex);
+    const after = value.substring(cursorPos);
+    this.commentText = `${before}@${fullName} ${after}`;
+    this.mentionedUserIds.push(user.id);
+    this.showMentionDropdown = false;
+
+    setTimeout(() => {
+      const newPos = before.length + fullName.length + 2;
+      textarea.setSelectionRange(newPos, newPos);
+      textarea.focus();
+    });
+  }
+
+  submitComment(textarea?: HTMLTextAreaElement) {
+    if (!this.commentText.trim() || !this.lineup) return;
+    this.isSubmittingComment = true;
+    this.lineupsService.addComment(
+      this.lineup.id,
+      this.commentText.trim(),
+      this.mentionedUserIds.length > 0 ? this.mentionedUserIds : undefined,
+    ).subscribe({
+      next: () => {
+        this.commentText = '';
+        this.mentionedUserIds = [];
+        this.isSubmittingComment = false;
+        if (this.lineupId) this.loadLineup(this.lineupId);
+      },
+      error: () => {
+        this.isSubmittingComment = false;
+        this.toast.error('Failed to post comment');
+      },
+    });
+  }
+
+  deleteComment(commentId: string) {
+    if (!this.lineup) return;
+    this.lineupsService.deleteComment(this.lineup.id, commentId).subscribe({
+      next: () => {
+        if (this.lineupId) this.loadLineup(this.lineupId);
+      },
+      error: () => this.toast.error('Failed to delete comment'),
+    });
+  }
+
+  getStatusDotClass(status: string): string {
+    switch (status) {
+      case 'APPROVED': return 'dot-approved';
+      case 'REJECTED': return 'dot-rejected';
+      case 'CHANGES_REQUESTED': return 'dot-changes';
+      default: return 'dot-pending';
+    }
+  }
+
+  formatStatus(status: string): string {
+    switch (status) {
+      case 'PENDING': return 'Pending';
+      case 'APPROVED': return 'Approved';
+      case 'REJECTED': return 'Declined';
+      case 'CHANGES_REQUESTED': return 'Changes Requested';
+      default: return status;
+    }
   }
 
   async approve() {
