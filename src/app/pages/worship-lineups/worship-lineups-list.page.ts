@@ -1,26 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
   IonList, IonItem, IonLabel, IonMenuButton, IonButtons,
-  IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, IonSkeletonText, ViewWillEnter,
+  IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, IonSkeletonText,
+  IonSegment, IonSegmentButton, ViewWillEnter,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, logOutOutline, musicalNotesOutline, peopleOutline } from 'ionicons/icons';
+import { addOutline, logOutOutline, musicalNotesOutline, peopleOutline, swapHorizontalOutline } from 'ionicons/icons';
 import { environment } from '../../../environments/environment';
 import { WorshipLineupsService } from '../../services/worship-lineups.service';
 import { AuthService } from '../../services/auth.service';
-import { WorshipLineup } from '../../interfaces/worship-lineup.interface';
+import { WorshipLineup, SubstitutionRequest } from '../../interfaces/worship-lineup.interface';
 
 @Component({
   selector: 'app-worship-lineups-list',
   standalone: true,
   imports: [
-    CommonModule, RouterModule,
+    CommonModule, RouterModule, FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
     IonList, IonItem, IonLabel, IonMenuButton, IonButtons,
     IonFab, IonFabButton, IonIcon, IonBadge, IonNote, IonRefresher, IonRefresherContent, IonSkeletonText,
+    IonSegment, IonSegmentButton,
   ],
   templateUrl: './worship-lineups-list.page.html',
   styleUrls: ['./worship-lineups-list.page.scss'],
@@ -30,19 +33,29 @@ export class WorshipLineupsListPage implements OnInit, ViewWillEnter {
   lineups: WorshipLineup[] = [];
   canCreate = false;
   isLoading = true;
+  activeTab = 'lineups';
+
+  substitutions: SubstitutionRequest[] = [];
+  isLoadingSubstitutions = false;
+  isPrivileged = false;
+  expandedSubId: string | null = null;
 
   constructor(
     private lineupsService: WorshipLineupsService,
     private authService: AuthService,
     private router: Router,
   ) {
-    addIcons({ addOutline, logOutOutline, musicalNotesOutline, peopleOutline });
+    addIcons({ addOutline, logOutOutline, musicalNotesOutline, peopleOutline, swapHorizontalOutline });
   }
 
   ngOnInit() {
     this.canCreate = this.authService.hasRole('WORSHIP_LEADER') ||
       this.authService.hasRole('ADMIN') ||
       this.authService.hasRole('SUPER_ADMIN');
+    this.isPrivileged = this.authService.hasRole('WORSHIP_TEAM_HEAD') ||
+      this.authService.hasRole('ADMIN') ||
+      this.authService.hasRole('SUPER_ADMIN') ||
+      this.authService.hasRole('DEV');
     this.loadLineups();
   }
 
@@ -56,6 +69,56 @@ export class WorshipLineupsListPage implements OnInit, ViewWillEnter {
       next: (data) => { this.lineups = data; this.isLoading = false; },
       error: () => this.isLoading = false,
     });
+  }
+
+  setTab(tab: string) {
+    this.activeTab = tab;
+    this.maybeLoadSubs();
+  }
+
+  onSegmentChange() {
+    this.maybeLoadSubs();
+  }
+
+  maybeLoadSubs() {
+    if (this.activeTab === 'history' && this.substitutions.length === 0 && !this.isLoadingSubstitutions) {
+      this.loadSubstitutions();
+    }
+  }
+
+  loadSubstitutions() {
+    this.isLoadingSubstitutions = true;
+    this.lineupsService.findAllSubstitutions().subscribe({
+      next: (data) => { this.substitutions = data; this.isLoadingSubstitutions = false; },
+      error: () => this.isLoadingSubstitutions = false,
+    });
+  }
+
+  toggleSub(id: string) {
+    this.expandedSubId = this.expandedSubId === id ? null : id;
+  }
+
+  getSubStatusLabel(status: string): string {
+    switch (status) {
+      case 'PENDING': return 'Pending';
+      case 'HEAD_APPROVED': return 'Head Approved';
+      case 'HEAD_REJECTED': return 'Head Rejected';
+      case 'ACCEPTED': return 'Accepted';
+      case 'DECLINED': return 'Declined';
+      case 'CANCELLED': return 'Cancelled';
+      default: return status;
+    }
+  }
+
+  getLineupLabel(sub: SubstitutionRequest): string {
+    const lineup = sub.lineupMember.lineup;
+    if (!lineup) return 'View Lineup';
+    if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) return lineup.customServiceName;
+    return this.formatServiceType(lineup.serviceType);
+  }
+
+  formatDateTime(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
 
   formatServiceType(type: string): string {
@@ -73,6 +136,10 @@ export class WorshipLineupsListPage implements OnInit, ViewWillEnter {
     return dates
       .map((d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))
       .join(', ');
+  }
+
+  formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   getStatusColor(status: string): string {

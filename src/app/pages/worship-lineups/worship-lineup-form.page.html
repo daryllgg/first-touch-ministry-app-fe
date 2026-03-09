@@ -10,7 +10,7 @@
           @if (isEditMode) {
             <button type="button" class="btn btn-outline" (click)="cancelEdit()">Cancel</button>
           }
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading || !hasChanges">
+          <button type="button" class="btn btn-primary" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading || !hasChanges" (click)="onSubmitClick()">
             @if (isLoading) {
               <span class="spinner"></span>
             } @else {
@@ -132,11 +132,30 @@
                   <div class="song-fields-web">
                     <div class="form-group">
                       <label class="form-label">Song Title <span class="required-star">*</span></label>
-                      <input class="form-input" formControlName="title" placeholder="Enter song title" />
+                      <div class="song-title-row">
+                        @if (songYoutubeMeta[i]) {
+                          <img [src]="songYoutubeMeta[i]!.thumbnailUrl" class="yt-thumb" alt="thumbnail" />
+                        }
+                        <input class="form-input" formControlName="title" placeholder="Enter song title" [readonly]="!!songYoutubeMeta[i]" />
+                      </div>
                     </div>
                     <div class="form-group">
                       <label class="form-label">Link (optional)</label>
-                      <input class="form-input" formControlName="link" placeholder="Song link" />
+                      <div class="yt-link-row">
+                        <input
+                          class="form-input"
+                          formControlName="link"
+                          placeholder="Paste YouTube URL to auto-fill title"
+                          [readonly]="!!songYoutubeMeta[i]"
+                          (input)="onYoutubeLinkInput($event, i)"
+                        />
+                        @if (isLoadingYoutube[i]) {
+                          <span class="spinner-sm"></span>
+                        }
+                        @if (songYoutubeMeta[i]) {
+                          <button type="button" class="yt-clear-btn" (click)="clearYoutubeLink(i)" title="Clear YouTube link">✕</button>
+                        }
+                      </div>
                     </div>
                     <div class="form-group">
                       <label class="form-label">Singer (optional)</label>
@@ -348,9 +367,20 @@
                 <ion-item>
                   <ion-input formControlName="title" label="Song Title *" labelPlacement="floating"></ion-input>
                 </ion-item>
-                <ion-item>
-                  <ion-input formControlName="link" label="Link (optional)" labelPlacement="floating"></ion-input>
-                </ion-item>
+                @if (songYoutubeMeta[i]) {
+                  <div class="mobile-yt-preview">
+                    <img [src]="songYoutubeMeta[i]!.thumbnailUrl" class="yt-thumb-sm" alt="thumbnail" />
+                    <span class="mobile-yt-title">{{ songYoutubeMeta[i]!.title }}</span>
+                    <button type="button" class="yt-clear-btn" (click)="clearYoutubeLink(i)">✕</button>
+                  </div>
+                } @else {
+                  <ion-item>
+                    <ion-input formControlName="link" label="Link (optional)" labelPlacement="floating" (ionInput)="onYoutubeLinkInput($event, i)"></ion-input>
+                  </ion-item>
+                  @if (isLoadingYoutube[i]) {
+                    <div class="mobile-yt-loading"><span class="spinner-sm"></span> Fetching song info...</div>
+                  }
+                }
                 <ion-item>
                   <ion-select formControlName="singerId" label="Singer (optional)" labelPlacement="floating" interface="action-sheet">
                     @for (u of singerUsers; track u.id) {
@@ -432,10 +462,79 @@
         @if (isEditMode) {
           <button type="button" class="sticky-btn sticky-btn-outline" (click)="cancelEdit()">Cancel</button>
         }
-        <button type="button" class="sticky-btn sticky-btn-primary" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading || !hasChanges" (click)="onSubmit()" style="flex:1">
+        <button type="button" class="sticky-btn sticky-btn-primary" [disabled]="form.invalid || dates.length === 0 || songs.length === 0 || members.length === 0 || isLoading || !hasChanges" (click)="onSubmitClick()" style="flex:1">
           @if (isLoading) { Submitting... } @else { {{ isEditMode ? 'Update Lineup' : 'Create Lineup' }} }
         </button>
       </div>
     </div>
   </ion-content>
+}
+
+@if (showConfirmDialog) {
+  <div class="confirm-overlay" (click)="onCancelConfirm()">
+    <div class="confirm-modal card" (click)="$event.stopPropagation()">
+      <h3>Confirm Submission</h3>
+
+      <div class="confirm-section">
+        <strong>Service</strong>
+        <span>{{ getServiceTypeLabel() }}@if (form.get('customServiceName')?.value) { — {{ form.get('customServiceName')?.value }}}</span>
+      </div>
+
+      <div class="confirm-section">
+        <strong>Date(s)</strong>
+        <span>@for (d of dates.controls; track $index) { {{ formatDate(d.value) }}@if (!$last) {, } }</span>
+      </div>
+
+      @if (form.get('rehearsalDate')?.value) {
+        <div class="confirm-section">
+          <strong>Rehearsal</strong>
+          <span>{{ formatDate(form.get('rehearsalDate')?.value) }}@if (form.get('rehearsalTime')?.value) { at {{ formatTime(form.get('rehearsalTime')?.value) }}}</span>
+        </div>
+      }
+
+      @if (form.get('overallTheme')?.value) {
+        <div class="confirm-section">
+          <strong>Theme</strong>
+          <span>{{ form.get('overallTheme')?.value }}</span>
+        </div>
+      }
+
+      <div class="confirm-section">
+        <strong>Members ({{ members.length }})</strong>
+        <div class="confirm-list">
+          @for (m of members.controls; track $index; let i = $index) {
+            <div class="confirm-row">{{ getMemberName(i) }} — {{ getMemberRole(i) }}</div>
+          }
+        </div>
+      </div>
+
+      <div class="confirm-section">
+        <strong>Songs ({{ songs.length }})</strong>
+        <div class="confirm-list">
+          @for (s of songs.controls; track $index; let i = $index) {
+            <div class="confirm-row song-confirm-row">
+              @if (songYoutubeMeta[i]) {
+                <img [src]="songYoutubeMeta[i]!.thumbnailUrl" class="yt-thumb-sm" alt="" />
+              }
+              <span>{{ songs.at(i).get('title')?.value || '(untitled)' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (generatePlaylistUrl()) {
+        <div class="confirm-section">
+          <strong>YouTube Playlist</strong>
+          <a [href]="generatePlaylistUrl()" target="_blank" class="playlist-link">Open Playlist ↗</a>
+        </div>
+      }
+
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" (click)="onCancelConfirm()">Go Back</button>
+        <button type="button" class="btn btn-primary" (click)="onConfirmSubmit()" [disabled]="isLoading">
+          @if (isLoading) { <span class="spinner"></span> } @else { Confirm & Submit }
+        </button>
+      </div>
+    </div>
+  </div>
 }

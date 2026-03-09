@@ -14,40 +14,43 @@
           <!-- Details card -->
           <div class="skeleton-card">
             <div class="skeleton skeleton-text-lg" style="width:40%;margin-bottom:16px"></div>
-            <div class="skeleton skeleton-text" style="width:60%"></div>
-            <div class="skeleton skeleton-text" style="width:50%"></div>
-            <div class="skeleton skeleton-text" style="width:45%"></div>
-            <div class="skeleton skeleton-text" style="width:55%"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+              <div><div class="skeleton skeleton-text" style="width:80%"></div><div class="skeleton skeleton-text" style="width:60%"></div></div>
+              <div><div class="skeleton skeleton-text" style="width:70%"></div><div class="skeleton skeleton-text" style="width:50%"></div></div>
+            </div>
           </div>
-          <!-- Songs card -->
+          <!-- Songs + Members skeleton -->
           <div class="skeleton-card">
-            <div class="skeleton skeleton-text-lg" style="width:30%;margin-bottom:16px"></div>
-            @for (i of [1,2,3]; track i) {
-              <div style="margin-bottom:12px">
-                <div class="skeleton skeleton-text" style="width:65%"></div>
-                <div class="skeleton skeleton-text-sm" style="width:40%"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+              <div style="padding-right:20px;border-right:1px solid #f1f5f9">
+                <div class="skeleton skeleton-text-lg" style="width:40%;margin-bottom:16px"></div>
+                @for (i of [1,2,3]; track i) {
+                  <div style="margin-bottom:12px">
+                    <div class="skeleton skeleton-text" style="width:65%"></div>
+                    <div class="skeleton skeleton-text-sm" style="width:40%"></div>
+                  </div>
+                }
               </div>
-            }
-          </div>
-          <!-- Members card -->
-          <div class="skeleton-card">
-            <div class="skeleton skeleton-text-lg" style="width:50%;margin-bottom:16px"></div>
-            @for (i of [1,2,3,4]; track i) {
-              <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
-                <div class="skeleton skeleton-avatar skeleton-avatar-md"></div>
-                <div style="flex:1">
-                  <div class="skeleton skeleton-text" style="width:60%"></div>
-                  <div class="skeleton skeleton-text-sm" style="width:35%"></div>
-                </div>
+              <div style="padding-left:20px">
+                <div class="skeleton skeleton-text-lg" style="width:60%;margin-bottom:16px"></div>
+                @for (i of [1,2,3]; track i) {
+                  <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+                    <div class="skeleton skeleton-avatar skeleton-avatar-md"></div>
+                    <div style="flex:1">
+                      <div class="skeleton skeleton-text" style="width:60%"></div>
+                      <div class="skeleton skeleton-text-sm" style="width:35%"></div>
+                    </div>
+                  </div>
+                }
               </div>
-            }
+            </div>
           </div>
         </div>
         <div class="detail-col-web">
-          <!-- Review history card -->
+          <!-- Activity card -->
           <div class="skeleton-card">
             <div class="skeleton skeleton-text-lg" style="width:50%;margin-bottom:16px"></div>
-            @for (i of [1,2]; track i) {
+            @for (i of [1,2,3]; track i) {
               <div style="margin-bottom:16px">
                 <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
                   <div class="skeleton skeleton-avatar skeleton-avatar-sm"></div>
@@ -84,7 +87,7 @@
           </span>
         </div>
         <div class="detail-topbar-actions">
-          @if (isSubmitter && lineup.status !== 'APPROVED' && lineup.status !== 'REJECTED') {
+          @if (canEdit(lineup)) {
             <a class="btn btn-outline btn-sm" [routerLink]="['/worship-lineups', lineup.id, 'edit']">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Edit
@@ -97,121 +100,254 @@
             </button>
           }
           @if (canReview && (lineup.status === 'PENDING' || lineup.status === 'CHANGES_REQUESTED')) {
-            <button class="btn btn-success btn-sm" (click)="approve()">Approve</button>
-            <button class="btn btn-danger btn-sm" (click)="reject()">Decline</button>
-            <button class="btn btn-warning btn-sm" (click)="requestChanges()">Request Changes</button>
+            <button class="btn btn-success btn-sm" (click)="approve()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="reject()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Decline
+            </button>
+            <button class="btn btn-warning btn-sm" (click)="requestChanges()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Request Changes
+            </button>
           }
         </div>
       </div>
 
       <!-- Two-column layout -->
       <div class="detail-grid-web">
-        <!-- Left column: Details + Songs + Members -->
+        <!-- Left column: Details + Songs + Members + Substitution Requests -->
         <div class="detail-col-web">
+          <!-- Details card — compact 2-col grid -->
           <div class="card">
             <h3 class="section-title-web">Details</h3>
-            <div class="detail-field-web">
-              <span class="field-label-web">Service Type</span>
-              <span>{{ formatServiceType(lineup.serviceType) }}</span>
-            </div>
-            <div class="detail-field-web">
-              <span class="field-label-web">Dates</span>
-              <div>
-                @for (date of lineup.dates; track date) {
-                  <span class="date-chip-web">{{ date | date:'MMM d, y' }}</span>
-                }
-              </div>
-            </div>
-            @if (lineup.rehearsalDate) {
+            <div class="detail-fields-grid">
               <div class="detail-field-web">
-                <span class="field-label-web">Rehearsal Date</span>
-                <span class="date-chip-web">{{ lineup.rehearsalDate | date:'MMM d, y' }}</span>
+                <span class="field-label-web">Service Type</span>
+                <span>{{ formatServiceType(lineup.serviceType) }}</span>
               </div>
-            }
-            @if (lineup.rehearsalTime) {
               <div class="detail-field-web">
-                <span class="field-label-web">Rehearsal Time</span>
-                <span>{{ formatTime(lineup.rehearsalTime) }}</span>
+                <span class="field-label-web">Dates</span>
+                <div>
+                  @for (date of lineup.dates; track date) {
+                    <span class="date-chip-web">{{ date | date:'MMM d, y' }}</span>
+                  }
+                </div>
               </div>
-            }
-            @if (lineup.overallTheme) {
+              @if (lineup.rehearsalDate) {
+                <div class="detail-field-web">
+                  <span class="field-label-web">Rehearsal Date</span>
+                  <span class="date-chip-web">{{ lineup.rehearsalDate | date:'MMM d, y' }}</span>
+                </div>
+              }
+              @if (lineup.rehearsalTime) {
+                <div class="detail-field-web">
+                  <span class="field-label-web">Rehearsal Time</span>
+                  <span>{{ formatTime(lineup.rehearsalTime) }}</span>
+                </div>
+              }
+              @if (lineup.overallTheme) {
+                <div class="detail-field-web">
+                  <span class="field-label-web">Overall Theme</span>
+                  <span>{{ lineup.overallTheme }}</span>
+                </div>
+              }
               <div class="detail-field-web">
-                <span class="field-label-web">Overall Theme</span>
-                <span>{{ lineup.overallTheme }}</span>
+                <span class="field-label-web">Submitted by</span>
+                <span>{{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</span>
               </div>
-            }
-            <div class="detail-field-web">
-              <span class="field-label-web">Submitted by</span>
-              <span>{{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</span>
-            </div>
-            @if (lineup.notes) {
-              <div class="detail-field-web">
-                <span class="field-label-web">Notes</span>
-                <span>{{ lineup.notes }}</span>
-              </div>
-            }
-            @if (lineup.reviewedBy) {
-              <div class="detail-field-web">
-                <span class="field-label-web">Reviewed by</span>
-                <span>{{ lineup.reviewedBy.firstName }} {{ lineup.reviewedBy.lastName }} &middot; {{ lineup.reviewedAt | date:'medium' }}</span>
-              </div>
-            }
-          </div>
-
-          @if (lineup.songs && lineup.songs.length > 0) {
-            <div class="card">
-              <h3 class="section-title-web">Songs</h3>
-              @for (song of lineup.songs; track song.id) {
-                <div class="list-item-web">
-                  <div>
-                    <h4 class="item-title-web">{{ song.title }}</h4>
-                    @if (song.link) {
-                      <p class="item-sub-web"><a [href]="song.link" target="_blank" rel="noopener noreferrer">{{ song.link }}</a></p>
-                    }
-                    @if (song.singer) {
-                      <p class="item-sub-web">Singer: {{ song.singer.firstName }} {{ song.singer.lastName }}</p>
-                    }
-                  </div>
+              @if (lineup.reviewedBy) {
+                <div class="detail-field-web">
+                  <span class="field-label-web">Reviewed by</span>
+                  <span>{{ lineup.reviewedBy.firstName }} {{ lineup.reviewedBy.lastName }} &middot; {{ lineup.reviewedAt | date:'medium' }}</span>
+                </div>
+              }
+              @if (lineup.notes) {
+                <div class="detail-field-web detail-field-full">
+                  <span class="field-label-web">Notes</span>
+                  <span>{{ lineup.notes }}</span>
                 </div>
               }
             </div>
-          }
+            <div class="lineup-id-row">
+              <span class="field-label-web">ID</span>
+              <span class="lineup-id-value">{{ lineup.id }}</span>
+            </div>
+          </div>
 
-          <div class="card">
-            <h3 class="section-title-web">Singers & Musicians ({{ lineup.members.length }})</h3>
-            @for (member of lineup.members; track member.id) {
-              <div class="list-item-web member-item-web">
-                <div class="member-avatar-web">
-                  @if (member.user.profilePicture) {
-                    <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
-                  } @else {
-                    <div class="avatar-placeholder-web">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
+          <!-- Songs + Members in one card, side-by-side -->
+          <div class="card songs-members-card">
+            <div class="songs-members-inner">
+              @if (lineup.songs && lineup.songs.length > 0) {
+                <div class="songs-section-web">
+                  <div class="section-header-row">
+                    <h3 class="section-title-web">Songs ({{ lineup.songs.length }})</h3>
+                    @if (lineup.playlistUrl) {
+                      <a [href]="lineup.playlistUrl" target="_blank" class="playlist-link-btn">▶ Playlist</a>
+                    }
+                  </div>
+                  @if (justSubmittedPlaylist) {
+                    <div class="playlist-success-banner">
+                      Lineup submitted! <a [href]="justSubmittedPlaylist" target="_blank">Open your song playlist ↗</a>
+                    </div>
+                  }
+                  @for (song of lineup.songs; track song.id) {
+                    <div class="list-item-web">
+                      <div>
+                        <h4 class="item-title-web">{{ song.title }}</h4>
+                        @if (song.link) {
+                          <a class="song-link-badge" [href]="song.link" target="_blank" rel="noopener noreferrer">
+                            @if (song.link.includes('youtube') || song.link.includes('youtu.be')) {
+                              ▶ YouTube
+                            } @else {
+                              🔗 Link
+                            }
+                          </a>
+                        }
+                        @if (song.singer) {
+                          <p class="item-sub-web">Singer: {{ song.singer.firstName }} {{ song.singer.lastName }}</p>
+                        }
+                      </div>
+                    </div>
                   }
                 </div>
-                <div class="member-info-web">
-                  <h4 class="item-title-web">{{ member.user.firstName }} {{ member.user.lastName }}</h4>
-                  <p class="item-sub-web">{{ member.instrumentRole.name }}</p>
-                </div>
-                @if (isMyMember(member.id)) {
-                  <button class="btn btn-outline btn-sm" (click)="requestSubstitution(member.id)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>
-                    Sub
-                  </button>
+              }
+
+              <div class="members-section-web">
+                <h3 class="section-title-web">Singers & Musicians ({{ lineup.members.length }})</h3>
+                @for (member of lineup.members; track member.id) {
+                  <div class="list-item-web member-item-web">
+                    @if (getAcceptedSubForMember(member.id); as sub) {
+                      <div class="member-avatar-web">
+                        @if (sub.substituteUser?.profilePicture) {
+                          <img [src]="apiUrl + '/uploads/' + sub.substituteUser!.profilePicture" alt="" />
+                        } @else {
+                          <div class="avatar-placeholder-web">{{ sub.substituteUser?.firstName?.[0] }}{{ sub.substituteUser?.lastName?.[0] }}</div>
+                        }
+                      </div>
+                      <div class="member-info-web">
+                        <h4 class="item-title-web">
+                          {{ sub.substituteUser?.firstName }} {{ sub.substituteUser?.lastName }}
+                          <span class="sub-indicator">(sub for: {{ member.user.firstName }} {{ member.user.lastName }})</span>
+                        </h4>
+                        <p class="item-sub-web">{{ member.instrumentRole.name }}</p>
+                      </div>
+                    } @else {
+                      <div class="member-avatar-web">
+                        @if (member.user.profilePicture) {
+                          <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
+                        } @else {
+                          <div class="avatar-placeholder-web">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
+                        }
+                      </div>
+                      <div class="member-info-web">
+                        <h4 class="item-title-web">{{ member.user.firstName }} {{ member.user.lastName }}</h4>
+                        <p class="item-sub-web">{{ member.instrumentRole.name }}</p>
+                        @if (getPendingSubForMember(member.id); as pendingSub) {
+                          <p class="pending-sub-note">Pending request for sub to {{ pendingSub.substituteUser?.firstName }} {{ pendingSub.substituteUser?.lastName }}</p>
+                        }
+                      </div>
+                    }
+                    @if (isMyMember(member.id)) {
+                      <button class="btn btn-outline btn-sm" (click)="requestSubstitution(member.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>
+                        Sub
+                      </button>
+                    }
+                  </div>
                 }
+              </div>
+            </div>
+
+            <!-- Substitution Requests (inside same card, below songs+members) -->
+            @if (substitutionRequests.length > 0) {
+              <div class="sub-requests-section-web">
+                <h3 class="section-title-web">Substitution Requests</h3>
+              @for (req of substitutionRequests; track req.id) {
+                <div class="sub-card-web">
+                  <div class="sub-card-header-web">
+                    <div class="sub-names-web">
+                      <strong>{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }}</strong>
+                      <span class="sub-arrow">→</span>
+                      <span>{{ req.substituteUser ? req.substituteUser.firstName + ' ' + req.substituteUser.lastName : 'No substitute yet' }}</span>
+                      <span class="item-sub-web">({{ req.lineupMember.instrumentRole.name }})</span>
+                    </div>
+                    <span class="badge sub-status-badge" [attr.data-sub-status]="req.status">{{ getSubstitutionStatusLabel(req.status) }}</span>
+                  </div>
+                  <p class="sub-reason-web">{{ req.reason }}</p>
+
+                  <!-- Head actions -->
+                  @if (isHead() && req.status === 'PENDING') {
+                    <div class="sub-action-row">
+                      <button class="btn btn-success btn-sm" (click)="headApproveSubstitution(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Approve
+                      </button>
+                      <button class="btn btn-outline btn-sm btn-danger" (click)="headRejectSubstitution(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Reject
+                      </button>
+                    </div>
+                  }
+
+                  <!-- Substitutee: waiting state -->
+                  @if (isSubstitutee(req) && req.status === 'PENDING') {
+                    <div class="sub-waiting-web">Waiting for approval from the Worship Team Head</div>
+                  }
+
+                  <!-- Substitutee: can respond -->
+                  @if (isSubstitutee(req) && req.status === 'HEAD_APPROVED') {
+                    <div class="sub-action-row">
+                      <button class="btn btn-success btn-sm" (click)="acceptSubstitution(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Accept
+                      </button>
+                      <button class="btn btn-outline btn-sm btn-danger" (click)="declineSubstitution(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Decline
+                      </button>
+                    </div>
+                  }
+
+                  <!-- Requester: edit + cancel -->
+                  @if (isRequester(req) && req.status === 'PENDING') {
+                    <div class="sub-action-row">
+                      <button class="btn btn-outline btn-sm" (click)="editSubstitution(req)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit
+                      </button>
+                      <button class="btn btn-outline btn-sm btn-danger" (click)="cancelSubstitutionRequest(req.id)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Cancel Request
+                      </button>
+                    </div>
+                  }
+
+                  @if (req.declineReason) {
+                    <p class="sub-decline-reason-web">Decline reason: {{ req.declineReason }}</p>
+                  }
+                </div>
+              }
               </div>
             }
           </div>
         </div>
 
-        <!-- Right column: Activity + Substitutions -->
+        <!-- Right column: Activity (timeline + comments) -->
         <div class="detail-col-web">
-          <div class="card">
+          <div class="card activity-card-web">
             <h3 class="section-title-web">Activity</h3>
             @if (activityItems.length > 0) {
-              @for (item of activityItems; track item.id) {
+              <div class="activity-timeline-web">
+              @for (item of activityItems; track item.id; let idx = $index) {
                 @if (item.type === 'review') {
                   <div class="activity-entry-web activity-review">
                     <div class="activity-dot" [ngClass]="getStatusDotClass(item.status)"></div>
+                    @if (idx < activityItems.length - 1) {
+                      <div class="activity-line-web"></div>
+                    }
                     <div class="activity-body">
                       <div class="activity-header-web">
                         <div class="reviewer-avatar-web">
@@ -230,9 +366,34 @@
                       <p class="review-date-web">{{ item.createdAt | date:'medium' }}</p>
                     </div>
                   </div>
+                } @else if (item.type === 'substitution') {
+                  <div class="activity-entry-web activity-substitution">
+                    <div class="activity-dot dot-substitution"></div>
+                    @if (idx < activityItems.length - 1) {
+                      <div class="activity-line-web"></div>
+                    }
+                    <div class="activity-body">
+                      <div class="activity-header-web">
+                        <div class="reviewer-avatar-web">
+                          @if (item.user.profilePicture) {
+                            <img [src]="apiUrl + '/uploads/' + item.user.profilePicture" alt="" />
+                          } @else {
+                            <div class="avatar-placeholder-sm-web">{{ item.user.firstName[0] }}{{ item.user.lastName[0] }}</div>
+                          }
+                        </div>
+                        <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong>
+                        <span class="activity-type-label activity-type-sub">substituted</span>
+                      </div>
+                      <p class="sub-activity-detail">Subbed for {{ item.originalUser.firstName }} {{ item.originalUser.lastName }} as {{ item.instrumentRole }}</p>
+                      <p class="review-date-web">{{ item.createdAt | date:'medium' }}</p>
+                    </div>
+                  </div>
                 } @else {
                   <div class="activity-entry-web activity-comment">
                     <div class="activity-dot dot-comment"></div>
+                    @if (idx < activityItems.length - 1) {
+                      <div class="activity-line-web"></div>
+                    }
                     <div class="activity-body">
                       <div class="activity-header-web">
                         <div class="reviewer-avatar-web">
@@ -245,7 +406,7 @@
                         <strong>{{ item.user.firstName }} {{ item.user.lastName }}</strong>
                         <span class="activity-type-label">commented</span>
                       </div>
-                      <p class="comment-content-web">{{ item.content }}</p>
+                      <p class="comment-content-web" [innerHTML]="renderCommentContent(item.content, item.mentionedUsers)"></p>
                       <div class="comment-footer-web">
                         <span class="review-date-web">{{ item.createdAt | date:'medium' }}</span>
                         @if (item.user.id === currentUserId) {
@@ -256,6 +417,7 @@
                   </div>
                 }
               }
+              </div>
             } @else {
               <p class="empty-review-web">No activity yet</p>
             }
@@ -263,7 +425,10 @@
             <!-- Comment input -->
             @if (canComment) {
               <div class="comment-input-area" style="position: relative">
-                <textarea #commentTextarea class="form-textarea" [(ngModel)]="commentText" (input)="onCommentInput($event)" rows="2" placeholder="Write a comment... Use @ to mention someone"></textarea>
+                <div class="comment-input-wrapper">
+                  <div class="comment-textarea-overlay" #webCommentOverlay [innerHTML]="highlightedCommentHtml"></div>
+                  <textarea #commentTextarea class="form-textarea comment-textarea-with-overlay" [(ngModel)]="commentText" (input)="onCommentInput($event)" (scroll)="onCommentScroll($event, webCommentOverlay)" rows="2" placeholder="Write a comment... Use @ to mention someone"></textarea>
+                </div>
                 @if (showMentionDropdown) {
                   <div class="mention-dropdown">
                     @for (u of mentionUsers; track u.id) {
@@ -283,37 +448,6 @@
               </div>
             }
           </div>
-
-          @if (substitutionRequests.length > 0) {
-            <div class="card">
-              <h3 class="section-title-web">Substitution Requests</h3>
-              @for (req of substitutionRequests; track req.id) {
-                <div class="list-item-web sub-item-web">
-                  <div class="sub-info-web">
-                    <h4 class="item-title-web">{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }} ({{ req.lineupMember.instrumentRole.name }})</h4>
-                    <p class="item-sub-web">{{ req.reason }}</p>
-                    @if (req.substituteUser) {
-                      <p class="item-sub-web">Substitute: {{ req.substituteUser.firstName }} {{ req.substituteUser.lastName }}</p>
-                    }
-                  </div>
-                  <div class="sub-actions-web">
-                    <span class="status-badge-web status-badge-sm" [class]="'status-' + req.status.toLowerCase()">{{ req.status }}</span>
-                    @if (canReview && req.status === 'PENDING') {
-                      <button class="btn-icon-success" (click)="approveSubstitution(req.id)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </button>
-                      <button class="btn-icon-danger" (click)="rejectSubstitution(req.id)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                      </button>
-                    }
-                    @if (req.status === 'APPROVED' && req.substituteUser === null && currentUserId !== req.requestedBy.id) {
-                      <button class="btn btn-outline btn-sm" (click)="acceptSubstitution(req.id)">Accept</button>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
         </div>
       </div>
     } @else if (loadError) {
@@ -334,7 +468,7 @@
       <ion-title>Lineup Details</ion-title>
       @if (lineup) {
         <ion-buttons slot="end">
-          @if (isSubmitter && lineup.status !== 'APPROVED' && lineup.status !== 'REJECTED') {
+          @if (canEdit(lineup)) {
             <ion-button [routerLink]="['/worship-lineups', lineup.id, 'edit']">
               <ion-icon name="create-outline" slot="icon-only"></ion-icon>
             </ion-button>
@@ -451,6 +585,10 @@
             <span class="mobile-field-label">Submitted by</span>
             <span class="mobile-field-value">{{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}</span>
           </div>
+          <div class="mobile-field">
+            <span class="mobile-field-label">Lineup ID</span>
+            <span class="mobile-field-value lineup-id-value">{{ lineup.id }}</span>
+          </div>
           @if (lineup.notes) {
             <div class="mobile-field">
               <span class="mobile-field-label">Notes</span>
@@ -468,7 +606,12 @@
         <!-- Songs Card -->
         @if (lineup.songs && lineup.songs.length > 0) {
           <div class="mobile-card">
-            <div class="mobile-section-label">Songs</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div class="mobile-section-label" style="margin-bottom:0">Songs</div>
+              @if (lineup.playlistUrl) {
+                <a [href]="lineup.playlistUrl" target="_blank" class="mobile-playlist-link">▶ Playlist</a>
+              }
+            </div>
             @for (song of lineup.songs; track song.id; let idx = $index) {
               <div class="mobile-song-item" [class.mobile-song-item-last]="idx === lineup.songs.length - 1">
                 <div class="mobile-song-number">{{ idx + 1 }}</div>
@@ -494,17 +637,35 @@
           <div class="mobile-section-label">Singers & Musicians ({{ lineup.members.length }})</div>
           @for (member of lineup.members; track member.id; let idx = $index) {
             <div class="mobile-member-item" [class.mobile-member-item-last]="idx === lineup.members.length - 1">
-              <div class="mobile-member-avatar">
-                @if (member.user.profilePicture) {
-                  <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
-                } @else {
-                  <div class="mobile-avatar-initials">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
-                }
-              </div>
-              <div class="mobile-member-info">
-                <div class="mobile-member-name">{{ member.user.firstName }} {{ member.user.lastName }}</div>
-                <div class="mobile-member-role">{{ member.instrumentRole.name }}</div>
-              </div>
+              @if (getAcceptedSubForMember(member.id); as sub) {
+                <div class="mobile-member-avatar">
+                  @if (sub.substituteUser?.profilePicture) {
+                    <img [src]="apiUrl + '/uploads/' + sub.substituteUser!.profilePicture" alt="" />
+                  } @else {
+                    <div class="mobile-avatar-initials">{{ sub.substituteUser?.firstName?.[0] }}{{ sub.substituteUser?.lastName?.[0] }}</div>
+                  }
+                </div>
+                <div class="mobile-member-info">
+                  <div class="mobile-member-name">{{ sub.substituteUser?.firstName }} {{ sub.substituteUser?.lastName }}</div>
+                  <div class="mobile-member-sub-for">(sub for: {{ member.user.firstName }} {{ member.user.lastName }})</div>
+                  <div class="mobile-member-role">{{ member.instrumentRole.name }}</div>
+                </div>
+              } @else {
+                <div class="mobile-member-avatar">
+                  @if (member.user.profilePicture) {
+                    <img [src]="apiUrl + '/uploads/' + member.user.profilePicture" alt="" />
+                  } @else {
+                    <div class="mobile-avatar-initials">{{ member.user.firstName[0] }}{{ member.user.lastName[0] }}</div>
+                  }
+                </div>
+                <div class="mobile-member-info">
+                  <div class="mobile-member-name">{{ member.user.firstName }} {{ member.user.lastName }}</div>
+                  <div class="mobile-member-role">{{ member.instrumentRole.name }}</div>
+                  @if (getPendingSubForMember(member.id); as pendingSub) {
+                    <div class="mobile-pending-sub-note">Pending request for sub to {{ pendingSub.substituteUser?.firstName }} {{ pendingSub.substituteUser?.lastName }}</div>
+                  }
+                </div>
+              }
               @if (isMyMember(member.id)) {
                 <button class="mobile-sub-btn" (click)="requestSubstitution(member.id)">
                   <ion-icon name="swap-horizontal-outline"></ion-icon>
@@ -553,6 +714,30 @@
                       }
                     </div>
                   </div>
+                } @else if (item.type === 'substitution') {
+                  <div class="mobile-review-entry">
+                    <div class="mobile-review-dot mobile-dot-substitution"></div>
+                    @if (idx < activityItems.length - 1) {
+                      <div class="mobile-review-line"></div>
+                    }
+                    <div class="mobile-review-content">
+                      <div class="mobile-review-header">
+                        <div class="mobile-reviewer-avatar">
+                          @if (item.user.profilePicture) {
+                            <img [src]="apiUrl + '/uploads/' + item.user.profilePicture" alt="" />
+                          } @else {
+                            <div class="mobile-avatar-initials-sm">{{ item.user.firstName[0] }}{{ item.user.lastName[0] }}</div>
+                          }
+                        </div>
+                        <div class="mobile-reviewer-info">
+                          <span class="mobile-reviewer-name">{{ item.user.firstName }} {{ item.user.lastName }}</span>
+                          <span class="mobile-review-date">{{ item.createdAt | date:'medium' }}</span>
+                        </div>
+                        <span class="mobile-review-badge mobile-badge-sub">Substituted</span>
+                      </div>
+                      <p class="mobile-review-comment">Subbed for {{ item.originalUser.firstName }} {{ item.originalUser.lastName }} as {{ item.instrumentRole }}</p>
+                    </div>
+                  </div>
                 } @else {
                   <div class="mobile-review-entry">
                     <div class="mobile-review-dot mobile-dot-comment"></div>
@@ -573,7 +758,7 @@
                           <span class="mobile-review-date">{{ item.createdAt | date:'medium' }}</span>
                         </div>
                       </div>
-                      <p class="mobile-review-comment">{{ item.content }}</p>
+                      <p class="mobile-review-comment" [innerHTML]="renderCommentContent(item.content, item.mentionedUsers)"></p>
                       @if (item.user.id === currentUserId) {
                         <button class="mobile-comment-delete" (click)="deleteComment(item.id)">Delete</button>
                       }
@@ -592,7 +777,10 @@
           <!-- Comment input (mobile) -->
           @if (canComment) {
             <div class="mobile-comment-input" style="position: relative; margin-top: 12px">
-              <textarea #mobileCommentTextarea class="mobile-comment-textarea" [(ngModel)]="commentText" (input)="onCommentInput($event)" rows="2" placeholder="Write a comment... Use @ to mention"></textarea>
+              <div class="comment-input-wrapper">
+                <div class="mobile-comment-textarea-overlay" #mobileCommentOverlay [innerHTML]="highlightedCommentHtml"></div>
+                <textarea #mobileCommentTextarea class="mobile-comment-textarea comment-textarea-with-overlay" [(ngModel)]="commentText" (input)="onCommentInput($event)" (scroll)="onCommentScroll($event, mobileCommentOverlay)" rows="2" placeholder="Write a comment... Use @ to mention"></textarea>
+              </div>
               @if (showMentionDropdown) {
                 <div class="mobile-mention-dropdown">
                   @for (u of mentionUsers; track u.id) {
@@ -621,33 +809,59 @@
               <div class="mobile-sub-request" [class.mobile-sub-request-last]="idx === substitutionRequests.length - 1">
                 <div class="mobile-sub-request-header">
                   <div class="mobile-sub-request-info">
-                    <div class="mobile-member-name">{{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }}</div>
+                    <div class="mobile-member-name">
+                      {{ req.requestedBy.firstName }} {{ req.requestedBy.lastName }}
+                      → {{ req.substituteUser ? req.substituteUser.firstName + ' ' + req.substituteUser.lastName : 'TBD' }}
+                    </div>
                     <div class="mobile-member-role">{{ req.lineupMember.instrumentRole.name }}</div>
                   </div>
-                  <span class="mobile-review-badge" [attr.data-status]="req.status.toLowerCase()">{{ req.status }}</span>
+                  <span class="mobile-review-badge" [attr.data-sub-status]="req.status">{{ getSubstitutionStatusLabel(req.status) }}</span>
                 </div>
                 <div class="mobile-sub-request-reason">{{ req.reason }}</div>
-                @if (req.substituteUser) {
-                  <div class="mobile-sub-request-substitute">Substitute: {{ req.substituteUser.firstName }} {{ req.substituteUser.lastName }}</div>
-                }
-                @if (canReview && req.status === 'PENDING') {
+
+                <!-- Head actions -->
+                @if (isHead() && req.status === 'PENDING') {
                   <div class="mobile-sub-request-actions">
-                    <button class="mobile-action-btn mobile-action-approve" (click)="approveSubstitution(req.id)">
-                      <ion-icon name="checkmark-outline"></ion-icon>
-                      Approve
+                    <button class="mobile-action-btn mobile-action-approve" (click)="headApproveSubstitution(req.id)">
+                      <ion-icon name="checkmark-outline"></ion-icon> Approve
                     </button>
-                    <button class="mobile-action-btn mobile-action-decline" (click)="rejectSubstitution(req.id)">
-                      <ion-icon name="close-outline"></ion-icon>
-                      Decline
+                    <button class="mobile-action-btn mobile-action-decline" (click)="headRejectSubstitution(req.id)">
+                      <ion-icon name="close-outline"></ion-icon> Reject
                     </button>
                   </div>
                 }
-                @if (req.status === 'APPROVED' && req.substituteUser === null && currentUserId !== req.requestedBy.id) {
+
+                <!-- Substitutee waiting -->
+                @if (isSubstitutee(req) && req.status === 'PENDING') {
+                  <div class="mobile-sub-waiting">Waiting for approval from the Worship Team Head</div>
+                }
+
+                <!-- Substitutee respond -->
+                @if (isSubstitutee(req) && req.status === 'HEAD_APPROVED') {
                   <div class="mobile-sub-request-actions">
-                    <button class="mobile-action-btn mobile-action-accept" (click)="acceptSubstitution(req.id)">
-                      Accept Substitution
+                    <button class="mobile-action-btn mobile-action-approve" (click)="acceptSubstitution(req.id)">
+                      <ion-icon name="checkmark-outline"></ion-icon> Accept
+                    </button>
+                    <button class="mobile-action-btn mobile-action-decline" (click)="declineSubstitution(req.id)">
+                      <ion-icon name="close-outline"></ion-icon> Decline
                     </button>
                   </div>
+                }
+
+                <!-- Requester edit + cancel -->
+                @if (isRequester(req) && req.status === 'PENDING') {
+                  <div class="mobile-sub-request-actions">
+                    <button class="mobile-action-btn mobile-action-edit" (click)="editSubstitution(req)">
+                      <ion-icon name="create-outline"></ion-icon> Edit
+                    </button>
+                    <button class="mobile-action-btn mobile-action-decline" (click)="cancelSubstitutionRequest(req.id)">
+                      Cancel Request
+                    </button>
+                  </div>
+                }
+
+                @if (req.declineReason) {
+                  <div class="mobile-sub-request-reason" style="color:#c0392b">Declined: {{ req.declineReason }}</div>
                 }
               </div>
             }

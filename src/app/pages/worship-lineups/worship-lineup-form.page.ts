@@ -46,6 +46,9 @@ export class WorshipLineupFormPage implements OnInit {
   isEditMode = false;
   showServiceDatePicker = false;
   showRehearsalDatePicker = false;
+  showConfirmDialog = false;
+  songYoutubeMeta: Record<number, { title: string; thumbnailUrl: string } | null> = {};
+  isLoadingYoutube: Record<number, boolean> = {};
   private initialFormSnapshot: string = '';
 
 
@@ -114,43 +117,70 @@ export class WorshipLineupFormPage implements OnInit {
     if (!this.lineupId) return;
     this.lineupsService.findOne(this.lineupId).subscribe({
       next: (lineup) => {
-        this.form.patchValue({
-          serviceType: lineup.serviceType,
-          customServiceName: lineup.customServiceName || '',
-          notes: lineup.notes || '',
-          rehearsalDate: lineup.rehearsalDate || '',
-          overallTheme: lineup.overallTheme || '',
-          rehearsalTime: lineup.rehearsalTime || '',
+        // Also load substitution requests to swap accepted subs into member slots
+        this.lineupsService.findSubstitutionRequests(this.lineupId!).subscribe({
+          next: (subs) => this.populateForm(lineup, subs),
+          error: () => this.populateForm(lineup, []),
         });
-
-        // Populate dates
-        lineup.dates.forEach((d) => {
-          this.dates.push(this.fb.control(d, [Validators.required]));
-        });
-
-        // Populate members
-        lineup.members.forEach((m) => {
-          this.members.push(this.fb.group({
-            userId: [m.user.id, [Validators.required]],
-            instrumentRoleId: [m.instrumentRole.id, [Validators.required]],
-            customRoleName: [''],
-          }));
-        });
-
-        // Populate songs
-        if (lineup.songs) {
-          lineup.songs.forEach((s) => {
-            this.songs.push(this.fb.group({
-              title: [s.title, [Validators.required]],
-              link: [s.link || ''],
-              singerId: [s.singer?.id || ''],
-            }));
-          });
-        }
-
-        this.initialFormSnapshot = JSON.stringify(this.form.value);
       },
     });
+  }
+
+  private populateForm(lineup: any, subs: any[]) {
+    this.form.patchValue({
+      serviceType: lineup.serviceType,
+      customServiceName: lineup.customServiceName || '',
+      notes: lineup.notes || '',
+      rehearsalDate: lineup.rehearsalDate || '',
+      overallTheme: lineup.overallTheme || '',
+      rehearsalTime: lineup.rehearsalTime || '',
+    });
+
+    // Build a map of accepted subs: memberId -> substituteUser
+    const acceptedSubMap = new Map<string, any>();
+    for (const s of subs) {
+      if (s.status === 'ACCEPTED' && s.substituteUser && s.lineupMember?.id) {
+        acceptedSubMap.set(s.lineupMember.id, s.substituteUser);
+      }
+    }
+
+    // Populate dates
+    lineup.dates.forEach((d: string) => {
+      this.dates.push(this.fb.control(d, [Validators.required]));
+    });
+
+    // Populate members — use substitute user if accepted sub exists
+    lineup.members.forEach((m: any) => {
+      const subUser = acceptedSubMap.get(m.id);
+      this.members.push(this.fb.group({
+        userId: [subUser ? subUser.id : m.user.id, [Validators.required]],
+        instrumentRoleId: [m.instrumentRole.id, [Validators.required]],
+        customRoleName: [''],
+      }));
+    });
+
+    // Populate songs (restore YouTube meta for songs with links)
+    if (lineup.songs) {
+      lineup.songs.forEach((s: any, i: number) => {
+        this.songs.push(this.fb.group({
+          title: [s.title, [Validators.required]],
+          link: [s.link || ''],
+          singerId: [s.singer?.id || ''],
+        }));
+        if (s.link && this.extractYoutubeId(s.link)) {
+          this.http.get<{ title: string; thumbnail_url: string }>(
+            `https://www.youtube.com/oembed?url=${encodeURIComponent(s.link)}&format=json`,
+          ).subscribe({
+            next: (data) => {
+              this.songYoutubeMeta[i] = { title: data.title, thumbnailUrl: data.thumbnail_url };
+            },
+            error: () => {},
+          });
+        }
+      });
+    }
+
+    this.initialFormSnapshot = JSON.stringify(this.form.value);
   }
 
   get dates(): FormArray {
@@ -328,6 +358,86 @@ export class WorshipLineupFormPage implements OnInit {
     return filtered.length > 0 ? filtered : this.users;
   }
 
+  // --- YouTube oEmbed ---
+
+  extractYoutubeId(url: string): string | null {
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    );
+    return match ? match[1] : null;
+  }
+
+  generatePlaylistUrl(): string | null {
+    const ids = this.songs.controls
+      .map((_, i) => {
+        const link = this.songs.at(i).get('link')?.value;
+        return link ? this.extractYoutubeId(link) : null;
+      })
+      .filter(Boolean) as string[];
+    return ids.length ? `https://www.youtube.com/watch_videos?video_ids=${ids.join(',')}` : null;
+  }
+
+  onYoutubeLinkInput(event: Event, index: number): void {
+    const url = (event.target as HTMLInputElement).value?.trim();
+    if (!url || !this.extractYoutubeId(url)) {
+      this.songYoutubeMeta[index] = null;
+      return;
+    }
+    if (this.songYoutubeMeta[index]) return; // already fetched for this URL
+
+    this.isLoadingYoutube[index] = true;
+    this.http.get<{ title: string; thumbnail_url: string }>(
+      `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`,
+    ).subscribe({
+      next: (data) => {
+        this.songYoutubeMeta[index] = { title: data.title, thumbnailUrl: data.thumbnail_url };
+        this.songs.at(index).get('title')?.setValue(data.title);
+        this.songs.at(index).get('link')?.setValue(url);
+        this.isLoadingYoutube[index] = false;
+      },
+      error: () => { this.isLoadingYoutube[index] = false; },
+    });
+  }
+
+  clearYoutubeLink(index: number): void {
+    this.songYoutubeMeta[index] = null;
+    this.songs.at(index).get('link')?.setValue('');
+    this.songs.at(index).get('title')?.setValue('');
+  }
+
+  // --- Confirmation dialog ---
+
+  getServiceTypeLabel(): string {
+    const opt = this.serviceTypeOptions.find(o => o.value === this.form.get('serviceType')?.value);
+    return opt?.label || '';
+  }
+
+  getMemberName(index: number): string {
+    const userId = this.members.at(index)?.get('userId')?.value;
+    const user = this.users.find(u => u.id === userId);
+    return user ? `${user.firstName} ${user.lastName}` : '';
+  }
+
+  getMemberRole(index: number): string {
+    const roleId = this.members.at(index)?.get('instrumentRoleId')?.value;
+    const role = this.instrumentRoles.find(r => r.id === roleId);
+    return role?.name || '';
+  }
+
+  onSubmitClick(): void {
+    if (this.form.invalid || this.dates.length === 0 || this.members.length === 0) return;
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmSubmit(): void {
+    this.showConfirmDialog = false;
+    this.onSubmit();
+  }
+
+  onCancelConfirm(): void {
+    this.showConfirmDialog = false;
+  }
+
   onSubmit() {
     if (this.form.invalid || this.dates.length === 0 || this.songs.length === 0 || this.members.length === 0) return;
     this.isLoading = true;
@@ -364,11 +474,13 @@ export class WorshipLineupFormPage implements OnInit {
       : this.lineupsService.create(payload);
 
     request$.subscribe({
-      next: () => {
+      next: (savedLineup) => {
         this.isLoading = false;
-        const msg = this.isEditMode ? 'Lineup updated' : 'Lineup created';
+        const msg = this.isEditMode ? 'Lineup updated' : 'Lineup submitted';
         this.toast.success(msg);
-        this.router.navigate(['/worship-lineups']);
+        this.router.navigate(['/worship-lineups', savedLineup.id], {
+          state: { playlistUrl: savedLineup.playlistUrl || null, isNewSubmit: true },
+        });
       },
       error: () => {
         this.isLoading = false;

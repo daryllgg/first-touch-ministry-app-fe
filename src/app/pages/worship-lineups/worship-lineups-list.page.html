@@ -1,69 +1,245 @@
 @if (isWeb) {
   <div class="page-header-web">
     <h1>Worship Lineups</h1>
-    @if (canCreate) {
-      <a routerLink="/worship-lineups/new" class="btn btn-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        New Lineup
-      </a>
-    }
   </div>
 
-  @if (isLoading) {
-    <div class="card-grid">
-      @for (i of [1,2,3,4,5,6]; track i) {
-        <div class="skeleton-card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-            <div class="skeleton skeleton-title" style="width:55%"></div>
-            <div class="skeleton skeleton-badge"></div>
-          </div>
-          <div class="skeleton skeleton-text-sm" style="width:60%;margin-bottom:12px"></div>
-          <div style="display:flex;gap:12px">
-            <div class="skeleton skeleton-text-sm" style="width:80px"></div>
-            <div class="skeleton skeleton-text-sm" style="width:100px"></div>
-          </div>
-        </div>
-      }
-    </div>
-  } @else if (lineups.length === 0) {
-    <div class="empty-state-web">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 18V5l12-2v13"></path>
-        <circle cx="6" cy="18" r="3"></circle>
-        <circle cx="18" cy="16" r="3"></circle>
-      </svg>
-      <p>No worship lineups yet.</p>
-    </div>
-  } @else {
-    <div class="card-grid">
-      @for (lineup of lineups; track lineup.id) {
-        <a class="card card-clickable" [routerLink]="['/worship-lineups', lineup.id]">
-          <div class="card-body-web">
-            <div class="lineup-header-web">
-              <h3 class="lineup-title-web">
-                @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
-                  {{ lineup.customServiceName }}
-                } @else {
-                  {{ formatServiceType(lineup.serviceType) }}
-                }
-              </h3>
-              <span class="status-badge-web" [attr.data-status]="lineup.status">{{ getStatusLabel(lineup.status) }}</span>
-            </div>
-            <p class="lineup-dates-web">{{ formatDates(lineup.dates) }}</p>
-            <div class="lineup-meta-web">
-              <span class="meta-item-web">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                {{ lineup.members.length }} member(s)
-              </span>
-              <span class="meta-item-web">
-                Submitted by {{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}
-              </span>
-            </div>
-          </div>
+  <div class="tabs-web">
+    <button class="tab-btn" [class.active]="activeTab === 'lineups'" (click)="setTab('lineups')">Worship Lineups</button>
+    <button class="tab-btn" [class.active]="activeTab === 'schedules'" (click)="setTab('schedules')">Schedules</button>
+    <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="setTab('history')">Substitution History</button>
+  </div>
+
+  <!-- ── LINEUPS TAB ── -->
+  @if (activeTab === 'lineups') {
+    @if (canCreate) {
+      <div class="tab-action-row">
+        <a routerLink="/worship-lineups/new" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          New Lineup
         </a>
-      }
+      </div>
+    }
+    @if (isLoading) {
+      <div class="card-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="skeleton-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+              <div class="skeleton skeleton-title" style="width:55%"></div>
+              <div class="skeleton skeleton-badge"></div>
+            </div>
+            <div class="skeleton skeleton-text-sm" style="width:60%;margin-bottom:12px"></div>
+            <div style="display:flex;gap:12px">
+              <div class="skeleton skeleton-text-sm" style="width:80px"></div>
+              <div class="skeleton skeleton-text-sm" style="width:100px"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (lineups.length === 0) {
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3"></circle>
+          <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+        <p>No worship lineups yet.</p>
+      </div>
+    } @else {
+      <div class="card-grid">
+        @for (lineup of lineups; track lineup.id) {
+          <a class="card card-clickable" [routerLink]="['/worship-lineups', lineup.id]">
+            <div class="card-body-web">
+              <div class="lineup-header-web">
+                <h3 class="lineup-title-web">
+                  @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
+                    {{ lineup.customServiceName }}
+                  } @else {
+                    {{ formatServiceType(lineup.serviceType) }}
+                  }
+                </h3>
+                <span class="status-badge-web" [attr.data-status]="lineup.status">{{ getStatusLabel(lineup.status) }}</span>
+              </div>
+              <p class="lineup-dates-web">{{ formatDates(lineup.dates) }}</p>
+              <div class="lineup-meta-web">
+                <span class="meta-item-web">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  {{ lineup.members.length }} member(s)
+                </span>
+                <span class="meta-item-web">
+                  Submitted by {{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}
+                </span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  }
+
+  <!-- ── SCHEDULES TAB ── -->
+  @if (activeTab === 'schedules') {
+    <div class="coming-soon-web">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+      <h3>Schedules Coming Soon</h3>
+      <p>Team schedules and rotation will be available here.</p>
     </div>
   }
+
+  <!-- ── SUBSTITUTION HISTORY TAB ── -->
+  @if (activeTab === 'history') {
+    @if (isLoadingSubstitutions) {
+      <div class="card">
+        <table class="sub-history-table">
+          <thead>
+            <tr>
+              <th>Requester</th>
+              <th>Original Member</th>
+              <th>Role</th>
+              <th>Substitute</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of [1,2,3,4,5]; track i) {
+              <tr>
+                @for (j of [1,2,3,4,5,6]; track j) {
+                  <td><div class="skeleton skeleton-text-sm" style="width:80%"></div></td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (substitutions.length === 0) {
+      <div class="empty-state-web">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"></polyline>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+          <polyline points="7 23 3 19 7 15"></polyline>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+        </svg>
+        <p>No substitution requests found.</p>
+      </div>
+    } @else {
+      <div class="card">
+        <table class="sub-history-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Member</th>
+              <th>Role</th>
+              <th>Substitute</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (sub of substitutions; track sub.id) {
+              <tr class="sub-row-clickable" [class.sub-row-expanded]="expandedSubId === sub.id" (click)="toggleSub(sub.id)">
+                <td class="sub-expand-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.transform]="expandedSubId === sub.id ? 'rotate(90deg)' : 'none'" style="transition:transform 0.2s;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+                </td>
+                <td>{{ sub.lineupMember.user.firstName }} {{ sub.lineupMember.user.lastName }}</td>
+                <td>{{ sub.lineupMember.instrumentRole.name }}</td>
+                <td>
+                  @if (sub.substituteUser) {
+                    {{ sub.substituteUser.firstName }} {{ sub.substituteUser.lastName }}
+                  } @else {
+                    <span class="sub-none">—</span>
+                  }
+                </td>
+                <td>
+                  <span class="sub-status-badge" [attr.data-sub-status]="sub.status">
+                    {{ getSubStatusLabel(sub.status) }}
+                  </span>
+                </td>
+                <td class="sub-date-cell">{{ formatDate(sub.createdAt) }}</td>
+              </tr>
+              @if (expandedSubId === sub.id) {
+                <tr class="sub-detail-row">
+                  <td colspan="6">
+                    <div class="sub-detail-panel">
+                      <!-- Timeline -->
+                      <div class="sub-timeline">
+                        <!-- Step 3: Substitutee response (newest) -->
+                        @if (sub.status === 'ACCEPTED' || sub.status === 'DECLINED') {
+                          <div class="sub-timeline-step">
+                            <div class="sub-tl-dot" [class.sub-tl-dot-approved]="sub.status === 'ACCEPTED'" [class.sub-tl-dot-rejected]="sub.status === 'DECLINED'"></div>
+                            <div class="sub-tl-body">
+                              @if (sub.status === 'ACCEPTED') {
+                                <div class="sub-tl-title">Accepted</div>
+                                <div class="sub-tl-meta">
+                                  @if (sub.respondedBy) { {{ sub.respondedBy.firstName }} {{ sub.respondedBy.lastName }} accepted · }
+                                  @if (sub.respondedAt) { {{ formatDateTime(sub.respondedAt) }} }
+                                </div>
+                              } @else {
+                                <div class="sub-tl-title">Declined</div>
+                                <div class="sub-tl-meta">
+                                  @if (sub.respondedBy) { {{ sub.respondedBy.firstName }} {{ sub.respondedBy.lastName }} declined · }
+                                  @if (sub.respondedAt) { {{ formatDateTime(sub.respondedAt) }} }
+                                </div>
+                                @if (sub.declineReason) {
+                                  <div class="sub-tl-reason">{{ sub.declineReason }}</div>
+                                }
+                              }
+                            </div>
+                          </div>
+                        }
+                        <!-- Step 2: Head decision -->
+                        @if (sub.status !== 'PENDING') {
+                          <div class="sub-timeline-step">
+                            <div class="sub-tl-dot" [class.sub-tl-dot-approved]="sub.status === 'HEAD_APPROVED' || sub.status === 'ACCEPTED' || sub.status === 'DECLINED'" [class.sub-tl-dot-rejected]="sub.status === 'HEAD_REJECTED'" [class.sub-tl-dot-neutral]="sub.status === 'CANCELLED'"></div>
+                            <div class="sub-tl-body">
+                              @if (sub.status === 'HEAD_REJECTED') {
+                                <div class="sub-tl-title">Head Rejected</div>
+                                <div class="sub-tl-meta">Request was declined by worship team head</div>
+                                @if (sub.declineReason) {
+                                  <div class="sub-tl-reason">{{ sub.declineReason }}</div>
+                                }
+                              } @else if (sub.status === 'CANCELLED') {
+                                <div class="sub-tl-title">Cancelled</div>
+                                <div class="sub-tl-meta">Request was cancelled by the requester</div>
+                              } @else {
+                                <div class="sub-tl-title">Head Approved</div>
+                                <div class="sub-tl-meta">Request was approved by worship team head — waiting for substitutee response</div>
+                              }
+                            </div>
+                          </div>
+                        }
+                        <!-- Step 1: Request created (oldest) -->
+                        <div class="sub-timeline-step">
+                          <div class="sub-tl-dot sub-tl-dot-created"></div>
+                          <div class="sub-tl-body">
+                            <div class="sub-tl-title">Substitution Requested</div>
+                            <div class="sub-tl-meta">{{ formatDateTime(sub.createdAt) }} · by {{ sub.requestedBy.firstName }} {{ sub.requestedBy.lastName }}</div>
+                            <div class="sub-tl-reason">{{ sub.reason }}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- View Lineup link -->
+                      @if (sub.lineupMember.lineup?.id) {
+                        <a [routerLink]="['/worship-lineups', sub.lineupMember.lineup!.id]" class="sub-view-lineup-btn" (click)="$event.stopPropagation()">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                          View Lineup · {{ getLineupLabel(sub) }}
+                        </a>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
 } @else {
   <ion-header>
     <ion-toolbar>
@@ -79,60 +255,174 @@
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <div class="mobile-list-content">
-      @if (isLoading) {
-        @for (i of [1,2,3,4]; track i) {
-          <div class="mobile-lineup-card">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px">
-              <ion-skeleton-text [animated]="true" style="width:55%;height:18px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:70px;height:22px;border-radius:20px"></ion-skeleton-text>
-            </div>
-            <ion-skeleton-text [animated]="true" style="width:70%;height:13px;margin-bottom:10px"></ion-skeleton-text>
-            <div style="display:flex;gap:12px">
-              <ion-skeleton-text [animated]="true" style="width:80px;height:12px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width:100px;height:12px"></ion-skeleton-text>
-            </div>
-          </div>
-        }
-      } @else if (lineups.length === 0) {
-        <div class="mobile-empty-state">
-          <ion-icon name="musical-notes-outline"></ion-icon>
-          <p>No worship lineups yet.</p>
-        </div>
-      } @else {
-        @for (lineup of lineups; track lineup.id) {
-          <a class="mobile-lineup-card" [routerLink]="['/worship-lineups', lineup.id]">
-            <div class="mobile-lineup-header">
-              <h3 class="mobile-lineup-title">
-                @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
-                  {{ lineup.customServiceName }}
-                } @else {
-                  {{ formatServiceType(lineup.serviceType) }}
-                }
-              </h3>
-              <span class="mobile-lineup-status" [attr.data-status]="lineup.status">{{ getStatusLabel(lineup.status) }}</span>
-            </div>
-            <p class="mobile-lineup-dates">{{ formatDates(lineup.dates) }}</p>
-            <div class="mobile-lineup-meta">
-              <span class="mobile-lineup-meta-item">
-                <ion-icon name="people-outline"></ion-icon>
-                {{ lineup.members.length }} member(s)
-              </span>
-              <span class="mobile-lineup-meta-item">
-                {{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}
-              </span>
-            </div>
-          </a>
-        }
-      }
-    </div>
+    <ion-segment [(ngModel)]="activeTab" class="lineup-segment" (ionChange)="onSegmentChange()">
+      <ion-segment-button value="lineups">Lineups</ion-segment-button>
+      <ion-segment-button value="schedules">Schedules</ion-segment-button>
+      <ion-segment-button value="history">Sub History</ion-segment-button>
+    </ion-segment>
 
-    @if (canCreate) {
-      <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="bottom:80px">
-        <ion-fab-button routerLink="/worship-lineups/new">
-          <ion-icon name="add-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
+    <!-- ── LINEUPS TAB ── -->
+    @if (activeTab === 'lineups') {
+      <div class="mobile-list-content">
+        @if (isLoading) {
+          @for (i of [1,2,3,4]; track i) {
+            <div class="mobile-lineup-card">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px">
+                <ion-skeleton-text [animated]="true" style="width:55%;height:18px"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width:70px;height:22px;border-radius:20px"></ion-skeleton-text>
+              </div>
+              <ion-skeleton-text [animated]="true" style="width:70%;height:13px;margin-bottom:10px"></ion-skeleton-text>
+              <div style="display:flex;gap:12px">
+                <ion-skeleton-text [animated]="true" style="width:80px;height:12px"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width:100px;height:12px"></ion-skeleton-text>
+              </div>
+            </div>
+          }
+        } @else if (lineups.length === 0) {
+          <div class="mobile-empty-state">
+            <ion-icon name="musical-notes-outline"></ion-icon>
+            <p>No worship lineups yet.</p>
+          </div>
+        } @else {
+          @for (lineup of lineups; track lineup.id) {
+            <a class="mobile-lineup-card" [routerLink]="['/worship-lineups', lineup.id]">
+              <div class="mobile-lineup-header">
+                <h3 class="mobile-lineup-title">
+                  @if (lineup.serviceType === 'SPECIAL_EVENT' && lineup.customServiceName) {
+                    {{ lineup.customServiceName }}
+                  } @else {
+                    {{ formatServiceType(lineup.serviceType) }}
+                  }
+                </h3>
+                <span class="mobile-lineup-status" [attr.data-status]="lineup.status">{{ getStatusLabel(lineup.status) }}</span>
+              </div>
+              <p class="mobile-lineup-dates">{{ formatDates(lineup.dates) }}</p>
+              <div class="mobile-lineup-meta">
+                <span class="mobile-lineup-meta-item">
+                  <ion-icon name="people-outline"></ion-icon>
+                  {{ lineup.members.length }} member(s)
+                </span>
+                <span class="mobile-lineup-meta-item">
+                  {{ lineup.submittedBy.firstName }} {{ lineup.submittedBy.lastName }}
+                </span>
+              </div>
+            </a>
+          }
+        }
+      </div>
+
+      @if (canCreate) {
+        <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="bottom:80px">
+          <ion-fab-button routerLink="/worship-lineups/new">
+            <ion-icon name="add-outline"></ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+      }
+    }
+
+    <!-- ── SCHEDULES TAB ── -->
+    @if (activeTab === 'schedules') {
+      <div class="mobile-coming-soon">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <h3>Schedules Coming Soon</h3>
+        <p>Team schedules and rotation will be available here.</p>
+      </div>
+    }
+
+    <!-- ── SUBSTITUTION HISTORY TAB ── -->
+    @if (activeTab === 'history') {
+      <div class="mobile-list-content">
+        @if (isLoadingSubstitutions) {
+          @for (i of [1,2,3]; track i) {
+            <div class="mobile-sub-card">
+              <ion-skeleton-text [animated]="true" style="width:55%;height:16px;margin-bottom:8px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:70%;height:13px;margin-bottom:6px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width:40%;height:22px;border-radius:20px"></ion-skeleton-text>
+            </div>
+          }
+        } @else if (substitutions.length === 0) {
+          <div class="mobile-empty-state">
+            <ion-icon name="swap-horizontal-outline"></ion-icon>
+            <p>No substitution requests found.</p>
+          </div>
+        } @else {
+          @for (sub of substitutions; track sub.id) {
+            <div class="mobile-sub-card" [class.mobile-sub-card-expanded]="expandedSubId === sub.id" (click)="toggleSub(sub.id)">
+              <div class="mobile-sub-header">
+                <div class="mobile-sub-member">
+                  {{ sub.lineupMember.user.firstName }} {{ sub.lineupMember.user.lastName }}
+                  <span class="mobile-sub-role">{{ sub.lineupMember.instrumentRole.name }}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="sub-status-badge" [attr.data-sub-status]="sub.status">
+                    {{ getSubStatusLabel(sub.status) }}
+                  </span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.transform]="expandedSubId === sub.id ? 'rotate(90deg)' : 'none'" style="transition:transform 0.2s;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+              </div>
+              @if (sub.substituteUser) {
+                <div class="mobile-sub-substitute">
+                  <span class="mobile-sub-label">Sub:</span>
+                  {{ sub.substituteUser.firstName }} {{ sub.substituteUser.lastName }}
+                </div>
+              }
+              <div class="mobile-sub-meta">
+                <span>By {{ sub.requestedBy.firstName }} {{ sub.requestedBy.lastName }}</span>
+                <span>{{ formatDate(sub.createdAt) }}</span>
+              </div>
+
+              @if (expandedSubId === sub.id) {
+                <div class="mobile-sub-detail" (click)="$event.stopPropagation()">
+                  <div class="sub-timeline">
+                    <div class="sub-timeline-step">
+                      <div class="sub-tl-dot sub-tl-dot-created"></div>
+                      <div class="sub-tl-body">
+                        <div class="sub-tl-title">Substitution Requested</div>
+                        <div class="sub-tl-meta">{{ formatDateTime(sub.createdAt) }}</div>
+                        <div class="sub-tl-reason">{{ sub.reason }}</div>
+                      </div>
+                    </div>
+                    @if (sub.status !== 'PENDING') {
+                      <div class="sub-timeline-step">
+                        <div class="sub-tl-dot" [class.sub-tl-dot-approved]="sub.status === 'HEAD_APPROVED' || sub.status === 'ACCEPTED' || sub.status === 'DECLINED'" [class.sub-tl-dot-rejected]="sub.status === 'HEAD_REJECTED'" [class.sub-tl-dot-neutral]="sub.status === 'CANCELLED'"></div>
+                        <div class="sub-tl-body">
+                          @if (sub.status === 'HEAD_REJECTED') {
+                            <div class="sub-tl-title">Head Rejected</div>
+                          } @else if (sub.status === 'CANCELLED') {
+                            <div class="sub-tl-title">Cancelled</div>
+                          } @else {
+                            <div class="sub-tl-title">Head Approved</div>
+                          }
+                        </div>
+                      </div>
+                    }
+                    @if (sub.status === 'ACCEPTED' || sub.status === 'DECLINED') {
+                      <div class="sub-timeline-step">
+                        <div class="sub-tl-dot" [class.sub-tl-dot-approved]="sub.status === 'ACCEPTED'" [class.sub-tl-dot-rejected]="sub.status === 'DECLINED'"></div>
+                        <div class="sub-tl-body">
+                          <div class="sub-tl-title">{{ sub.status === 'ACCEPTED' ? 'Accepted' : 'Declined' }}</div>
+                          @if (sub.respondedAt) {
+                            <div class="sub-tl-meta">{{ formatDateTime(sub.respondedAt) }}</div>
+                          }
+                          @if (sub.declineReason) {
+                            <div class="sub-tl-reason">{{ sub.declineReason }}</div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  @if (sub.lineupMember.lineup?.id) {
+                    <a [routerLink]="['/worship-lineups', sub.lineupMember.lineup!.id]" class="sub-view-lineup-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                      View Lineup · {{ getLineupLabel(sub) }}
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
     }
   </ion-content>
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -56,8 +57,10 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
   mentionedUserIds: string[] = [];
   mentionSearchText = '';
 
+  justSubmittedPlaylist: string | null = null;
   private lineupId: string | null = null;
   private loadCount = 0;
+  private isInitialLoad = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -67,6 +70,7 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     private http: HttpClient,
     private toast: ToastService,
     private modal: ModalService,
+    private sanitizer: DomSanitizer,
   ) {
     addIcons({ checkmarkOutline, closeOutline, swapHorizontalOutline, alertCircleOutline, createOutline, refreshOutline, trashOutline, linkOutline, timeOutline });
   }
@@ -78,6 +82,12 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
 
     this.currentUserId = this.authService.currentUser?.id ?? null;
     this.lineupId = this.route.snapshot.paramMap.get('id');
+
+    const navState = this.router.getCurrentNavigation()?.extras?.state as { playlistUrl?: string; isNewSubmit?: boolean } | undefined;
+    if (navState?.isNewSubmit && navState?.playlistUrl) {
+      this.justSubmittedPlaylist = navState.playlistUrl;
+    }
+
     this.loadAll();
   }
 
@@ -90,34 +100,43 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
       this.isLoading = true;
       this.loadError = false;
       this.loadCount = 2;
+      this.isInitialLoad = true;
       this.loadLineup(this.lineupId);
       this.loadSubstitutionRequests(this.lineupId);
     }
   }
 
   private checkLoaded() {
-    if (--this.loadCount <= 0) this.isLoading = false;
+    if (--this.loadCount <= 0) {
+      if (this.isInitialLoad) {
+        this.checkAccess();
+        this.isInitialLoad = false;
+      }
+      this.isLoading = false;
+    }
+  }
+
+  private checkAccess() {
+    if (!this.lineup) return;
+    const isMember = this.lineup.members.some(m => m.user.id === this.currentUserId);
+    const isSubmitter = this.lineup.submittedBy?.id === this.currentUserId;
+    const isMentioned = this.lineup.comments?.some(c =>
+      (c as any).mentionedUsers?.some((mu: any) => mu.id === this.currentUserId)
+    );
+    const isSubstitute = this.substitutionRequests.some(s => s.substituteUser?.id === this.currentUserId);
+    this.canRequestSubstitution = isMember;
+    if (!isSubmitter && !isMember && !this.canReview && !isMentioned && !isSubstitute) {
+      this.modal.alert({
+        title: 'Access Notice',
+        message: 'You are no longer part of this lineup.',
+      }).then(() => this.router.navigate(['/worship-lineups']));
+    }
   }
 
   loadLineup(id: string) {
     this.lineupsService.findOne(id).subscribe({
-      next: async (data) => {
-        const isMember = data.members.some(
-          (m) => m.user.id === this.currentUserId
-        );
-        const isSubmitter = data.submittedBy?.id === this.currentUserId;
-
-        if (!isSubmitter && !isMember && !this.canReview) {
-          await this.modal.alert({
-            title: 'Access Notice',
-            message: 'You are no longer part of this lineup.',
-          });
-          this.router.navigate(['/worship-lineups']);
-          return;
-        }
-
+      next: (data) => {
         this.lineup = data;
-        this.canRequestSubstitution = isMember;
         this.buildActivityTimeline();
         this.updateCanComment();
         this.buildMentionUsers();
@@ -129,7 +148,7 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
 
   loadSubstitutionRequests(id: string) {
     this.lineupsService.findSubstitutionRequests(id).subscribe({
-      next: (data) => { this.substitutionRequests = data; this.checkLoaded(); },
+      next: (data) => { this.substitutionRequests = data; this.buildActivityTimeline(); this.updateCanComment(); this.checkLoaded(); },
       error: () => this.checkLoaded(),
     });
   }
@@ -189,6 +208,20 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
       });
     }
 
+    // Add completed substitution requests (ACCEPTED only)
+    for (const s of this.substitutionRequests) {
+      if (s.status === 'ACCEPTED' && s.substituteUser) {
+        items.push({
+          type: 'substitution',
+          id: 'sub-' + s.id,
+          user: s.substituteUser,
+          originalUser: s.requestedBy,
+          instrumentRole: s.lineupMember?.instrumentRole?.name,
+          createdAt: s.respondedAt || s.updatedAt,
+        });
+      }
+    }
+
     // Sort chronologically (latest first)
     items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     this.activityItems = items;
@@ -198,10 +231,15 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     if (!this.lineup) { this.canComment = false; return; }
     const isInvolved = this.lineup.submittedBy?.id === this.currentUserId ||
       this.lineup.members?.some((m) => m.user.id === this.currentUserId);
+    const isSubstitute = this.substitutionRequests.some(
+      (s) => s.status === 'ACCEPTED' && s.substituteUser?.id === this.currentUserId,
+    );
     const isPrivileged = this.authService.hasRole('PASTOR') ||
+      this.authService.hasRole('WORSHIP_LEADER') ||
+      this.authService.hasRole('WORSHIP_TEAM_HEAD') ||
       this.authService.hasRole('ADMIN') ||
       this.authService.hasRole('SUPER_ADMIN');
-    this.canComment = isInvolved || isPrivileged;
+    this.canComment = isInvolved || isSubstitute || isPrivileged;
   }
 
   buildMentionUsers() {
@@ -294,8 +332,15 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     });
   }
 
-  deleteComment(commentId: string) {
+  async deleteComment(commentId: string) {
     if (!this.lineup) return;
+    const confirmed = await this.modal.confirm({
+      title: 'Delete Comment',
+      message: 'Are you sure you want to delete this comment?',
+      confirmText: 'Delete',
+      confirmColor: 'danger',
+    });
+    if (!confirmed) return;
     this.lineupsService.deleteComment(this.lineup.id, commentId).subscribe({
       next: () => {
         if (this.lineupId) this.loadLineup(this.lineupId);
@@ -412,17 +457,43 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     }
   }
 
+  private instrumentRoleToUserRole(instrumentRoleName: string): string {
+    const name = instrumentRoleName.toLowerCase();
+    if (name.includes('singer')) return 'SINGER';
+    if (name.includes('drum')) return 'DRUMMER';
+    if (name.includes('bass')) return 'BASSIST';
+    if (name.includes('guitar')) return 'GUITARIST';
+    if (name.includes('keyboard') || name.includes('piano')) return 'KEYBOARDIST';
+    return 'SINGER,GUITARIST,KEYBOARDIST,DRUMMER,BASSIST';
+  }
+
   async requestSubstitution(memberId: string) {
+    const member = this.lineup?.members.find(m => m.id === memberId);
+    const roleToFetch = member
+      ? this.instrumentRoleToUserRole(member.instrumentRole.name)
+      : 'SINGER,GUITARIST,KEYBOARDIST,DRUMMER,BASSIST';
+
+    const users = await this.http.get<User[]>(
+      `${environment.apiUrl}/users/by-roles?roles=${roleToFetch}`
+    ).toPromise().catch(() => [] as User[]);
+
+    const userOptions = [
+      { value: '', label: '— Select a person —' },
+      ...(users || []).filter(u => u.id !== this.currentUserId).map(u => ({ value: u.id, label: `${u.firstName} ${u.lastName}` })),
+    ];
+
     const result = await this.modal.prompt({
       title: 'Request Substitution',
       inputs: [
-        { key: 'reason', label: 'Reason for substitution', type: 'textarea', placeholder: 'Reason for substitution', required: true },
+        { key: 'substituteUserId', label: 'Substitute Person', type: 'select', options: userOptions, required: true },
+        { key: 'reason', label: 'Reason', type: 'textarea', placeholder: 'Why do you need a substitute?', required: true },
       ],
       confirmText: 'Submit',
     });
-    if (result && result['reason']) {
+    if (result && result['substituteUserId'] && result['reason']) {
       this.lineupsService.createSubstitutionRequest({
         lineupMemberId: memberId,
+        substituteUserId: result['substituteUserId'],
         reason: result['reason'],
       }).subscribe({
         next: () => {
@@ -433,31 +504,153 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
     }
   }
 
-  approveSubstitution(requestId: string) {
-    this.lineupsService.updateSubstitutionStatus(requestId, 'APPROVED').subscribe({
+  // --- Substitution helpers ---
+
+  canEdit(lineup: WorshipLineup): boolean {
+    return lineup.submittedBy?.id === this.currentUserId && lineup.status !== 'REJECTED';
+  }
+
+  isHead(): boolean {
+    return this.authService.hasRole('WORSHIP_TEAM_HEAD') ||
+      this.authService.hasRole('ADMIN') ||
+      this.authService.hasRole('SUPER_ADMIN');
+  }
+
+  isSubstitutee(req: SubstitutionRequest): boolean {
+    return req.substituteUser?.id === this.currentUserId;
+  }
+
+  isRequester(req: SubstitutionRequest): boolean {
+    return req.requestedBy?.id === this.currentUserId;
+  }
+
+  getSubstitutionStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      PENDING: 'Awaiting head approval',
+      HEAD_APPROVED: 'Awaiting substitute response',
+      HEAD_REJECTED: 'Rejected by team head',
+      ACCEPTED: 'Accepted',
+      DECLINED: 'Declined',
+      CANCELLED: 'Cancelled',
+    };
+    return map[status] ?? status;
+  }
+
+  getAcceptedSubForMember(memberId: string): SubstitutionRequest | undefined {
+    return this.substitutionRequests.find(
+      (s) => s.lineupMember?.id === memberId && s.status === 'ACCEPTED',
+    );
+  }
+
+  getPendingSubForMember(memberId: string): SubstitutionRequest | undefined {
+    return this.substitutionRequests.find(
+      (s) => s.lineupMember?.id === memberId && (s.status === 'PENDING' || s.status === 'HEAD_APPROVED'),
+    );
+  }
+
+  // --- Substitution actions ---
+
+  headApproveSubstitution(requestId: string) {
+    this.lineupsService.headDecideSubstitution(requestId, 'HEAD_APPROVED').subscribe({
       next: () => {
         this.toast.success('Substitution approved');
         if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
       },
+      error: () => this.toast.error('Failed to approve substitution'),
     });
   }
 
-  rejectSubstitution(requestId: string) {
-    this.lineupsService.updateSubstitutionStatus(requestId, 'REJECTED').subscribe({
+  async headRejectSubstitution(requestId: string) {
+    const result = await this.modal.prompt({
+      title: 'Reject Substitution',
+      message: 'Please provide a reason for rejecting this substitution request.',
+      inputs: [{ key: 'reason', label: 'Reason', type: 'textarea', required: true, placeholder: 'Why is this request being rejected?' }],
+      confirmText: 'Reject',
+    });
+    if (!result) return;
+    this.lineupsService.headDecideSubstitution(requestId, 'HEAD_REJECTED', result['reason']).subscribe({
       next: () => {
-        this.toast.error('Substitution rejected');
+        this.toast.warning('Substitution rejected');
         if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
       },
+      error: () => this.toast.error('Failed to reject substitution'),
     });
   }
 
   acceptSubstitution(requestId: string) {
-    this.lineupsService.acceptSubstitution(requestId).subscribe({
+    this.lineupsService.substituteRespond(requestId, true).subscribe({
       next: () => {
         this.toast.success('Substitution accepted');
+        if (this.lineup) { this.loadLineup(this.lineup.id); this.loadSubstitutionRequests(this.lineup.id); }
+      },
+      error: () => this.toast.error('Failed to accept substitution'),
+    });
+  }
+
+  async declineSubstitution(requestId: string) {
+    const result = await this.modal.prompt({
+      title: 'Decline Substitution',
+      message: 'Please provide a reason for declining.',
+      inputs: [{ key: 'reason', label: 'Reason', type: 'textarea', required: true }],
+      confirmText: 'Decline',
+    });
+    if (!result) return;
+    this.lineupsService.substituteRespond(requestId, false, result['reason']).subscribe({
+      next: () => {
+        this.toast.warning('Substitution declined');
         if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
       },
+      error: () => this.toast.error('Failed to decline substitution'),
     });
+  }
+
+  async cancelSubstitutionRequest(requestId: string) {
+    const confirmed = await this.modal.confirm({ title: 'Cancel Substitution', message: 'Cancel this substitution request?' });
+    if (!confirmed) return;
+    this.lineupsService.cancelSubstitution(requestId).subscribe({
+      next: () => {
+        this.toast.success('Request cancelled');
+        if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
+      },
+      error: () => this.toast.error('Failed to cancel request'),
+    });
+  }
+
+  async editSubstitution(req: SubstitutionRequest) {
+    const member = this.lineup?.members.find(m => m.id === req.lineupMember?.id);
+    const roleToFetch = member
+      ? this.instrumentRoleToUserRole(member.instrumentRole.name)
+      : 'SINGER,GUITARIST,KEYBOARDIST,DRUMMER,BASSIST';
+
+    const users = await this.http.get<User[]>(
+      `${environment.apiUrl}/users/by-roles?roles=${roleToFetch}`
+    ).toPromise().catch(() => [] as User[]);
+
+    const userOptions = [
+      { value: '', label: '— Select a person —' },
+      ...(users || []).filter(u => u.id !== this.currentUserId).map(u => ({ value: u.id, label: `${u.firstName} ${u.lastName}` })),
+    ];
+
+    const result = await this.modal.prompt({
+      title: 'Edit Substitution Request',
+      inputs: [
+        { key: 'substituteUserId', label: 'Substitute Person', type: 'select', options: userOptions, required: true, value: req.substituteUser?.id || '' },
+        { key: 'reason', label: 'Reason', type: 'textarea', placeholder: 'Why do you need a substitute?', required: true, value: req.reason },
+      ],
+      confirmText: 'Save',
+    });
+    if (result && result['substituteUserId'] && result['reason']) {
+      this.lineupsService.updateSubstitutionRequest(req.id, {
+        substituteUserId: result['substituteUserId'],
+        reason: result['reason'],
+      }).subscribe({
+        next: () => {
+          this.toast.success('Substitution request updated');
+          if (this.lineup) this.loadSubstitutionRequests(this.lineup.id);
+        },
+        error: () => this.toast.error('Failed to update substitution request'),
+      });
+    }
   }
 
   getStatusColor(status: string): string {
@@ -466,7 +659,11 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
       case 'APPROVED': return 'success';
       case 'REJECTED': return 'danger';
       case 'CHANGES_REQUESTED': return 'warning';
-      case 'ACCEPTED': return 'tertiary';
+      case 'HEAD_APPROVED': return 'primary';
+      case 'HEAD_REJECTED': return 'danger';
+      case 'ACCEPTED': return 'success';
+      case 'DECLINED': return 'danger';
+      case 'CANCELLED': return 'medium';
       default: return 'medium';
     }
   }
@@ -482,6 +679,60 @@ export class WorshipLineupDetailPage implements OnInit, ViewWillEnter {
   isMyMember(memberId: string): boolean {
     if (!this.lineup) return false;
     const member = this.lineup.members.find((m) => m.id === memberId);
-    return member?.user.id === this.currentUserId;
+    if (member?.user.id === this.currentUserId) return true;
+    // Accepted substitute can also act on behalf of this member
+    const acceptedSub = this.getAcceptedSubForMember(memberId);
+    return acceptedSub?.substituteUser?.id === this.currentUserId;
+  }
+
+  // --- Mention highlighting ---
+
+  renderCommentContent(content: string, mentionedUsers: any[]): SafeHtml {
+    if (!content) return this.sanitizer.bypassSecurityTrustHtml('');
+    let result = this.escapeHtml(content);
+    if (mentionedUsers?.length) {
+      for (const user of mentionedUsers) {
+        const name = `@${user.firstName} ${user.lastName}`;
+        const escapedName = this.escapeHtml(name);
+        result = result.replace(
+          new RegExp(this.escapeRegex(escapedName), 'g'),
+          `<span class="mention-highlight">${escapedName}</span>`,
+        );
+      }
+    }
+    result = result.replace(/\n/g, '<br>');
+    return this.sanitizer.bypassSecurityTrustHtml(result);
+  }
+
+  get highlightedCommentHtml(): string {
+    if (!this.commentText) return ' ';
+    let result = this.escapeHtml(this.commentText);
+    for (const user of this.allUsers) {
+      const name = `@${user.firstName} ${user.lastName}`;
+      if (!this.commentText.includes(name)) continue;
+      const escapedName = this.escapeHtml(name);
+      result = result.replace(
+        new RegExp(this.escapeRegex(escapedName), 'g'),
+        `<span class="mention-highlight-typing">${escapedName}</span>`,
+      );
+    }
+    return result + ' '; // trailing space prevents overlay height collapse
+  }
+
+  onCommentScroll(event: Event, overlay: HTMLElement) {
+    overlay.scrollTop = (event.target as HTMLTextAreaElement).scrollTop;
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private escapeRegex(text: string): string {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 }

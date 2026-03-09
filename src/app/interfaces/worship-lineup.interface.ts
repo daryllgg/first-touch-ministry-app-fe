@@ -73,17 +73,26 @@ export interface WorshipLineup {
   songs: LineupSong[];
   reviews: LineupReview[];
   comments: LineupComment[];
+  playlistUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface SubstitutionRequest {
   id: string;
-  lineupMember: LineupMember;
+  lineupMember: LineupMember & {
+    lineup?: {
+      id: string;
+      serviceType: string;
+      customServiceName?: string;
+      dates: string[];
+    }
+  };
   requestedBy: User;
   substituteUser: User | null;
   reason: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ACCEPTED';
+  status: 'PENDING' | 'HEAD_APPROVED' | 'HEAD_REJECTED' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
+  declineReason?: string;
   respondedBy: User | null;
   respondedAt: string | null;
   createdAt: string;

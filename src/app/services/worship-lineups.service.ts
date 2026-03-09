@@ -80,12 +80,24 @@ export class WorshipLineupsService {
     return this.http.get<SubstitutionRequest[]>(`${this.apiUrl}/${lineupId}/substitutions`);
   }
 
-  updateSubstitutionStatus(id: string, status: 'APPROVED' | 'REJECTED'): Observable<SubstitutionRequest> {
-    return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}/status`, { status });
+  headDecideSubstitution(id: string, status: 'HEAD_APPROVED' | 'HEAD_REJECTED', reason?: string): Observable<SubstitutionRequest> {
+    return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}/head-decision`, { status, reason });
   }
 
-  acceptSubstitution(id: string): Observable<SubstitutionRequest> {
-    return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}/accept`, {});
+  substituteRespond(id: string, accepted: boolean, declineReason?: string): Observable<SubstitutionRequest> {
+    return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}/respond`, { accepted, declineReason });
+  }
+
+  cancelSubstitution(id: string): Observable<SubstitutionRequest> {
+    return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}/cancel`, {});
+  }
+
+  updateSubstitutionRequest(id: string, data: { substituteUserId?: string; reason?: string }): Observable<SubstitutionRequest> {
+    return this.http.patch<SubstitutionRequest>(`${this.apiUrl}/substitutions/${id}`, data);
+  }
+
+  findAllSubstitutions(): Observable<SubstitutionRequest[]> {
+    return this.http.get<SubstitutionRequest[]>(`${this.apiUrl}/substitutions/all`);
   }
 
   delete(id: string): Observable<void> {
